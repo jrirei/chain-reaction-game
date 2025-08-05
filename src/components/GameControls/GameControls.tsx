@@ -1,5 +1,6 @@
 import React from 'react';
 import { useGameState } from '../../hooks/useGameState';
+import { useAudioManager } from '../../hooks/useAudioManager';
 import styles from './GameControls.module.css';
 
 const GameControls: React.FC = () => {
@@ -12,16 +13,21 @@ const GameControls: React.FC = () => {
     resumeGame,
   } = useGameState();
 
+  const { playUIClick } = useAudioManager();
+
   const handleNewGame = () => {
+    playUIClick();
     initializeGame(2, ['Player 1', 'Player 2']);
     startGame();
   };
 
   const handleReset = () => {
+    playUIClick();
     resetGame();
   };
 
   const handlePauseResume = () => {
+    playUIClick();
     if (gameInfo.isPaused) {
       resumeGame();
     } else {

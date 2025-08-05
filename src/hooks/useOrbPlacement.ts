@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useGameState } from './useGameState';
+import { useAudioManager } from './useAudioManager';
 import {
   executeOrbPlacement,
   previewOrbPlacement,
@@ -28,6 +29,8 @@ export interface MovePreview {
 
 export const useOrbPlacement = () => {
   const { gameState, currentPlayer, dispatch } = useGameState();
+  const { playOrbPlace, playExplosion, playChainReaction, playInvalidMove } =
+    useAudioManager();
   const [isPlacingOrb, setIsPlacingOrb] = useState(false);
   const [feedback, setFeedback] = useState<OrbPlacementFeedback | null>(null);
   const [movePreview, setMovePreview] = useState<MovePreview | null>(null);
@@ -103,6 +106,7 @@ export const useOrbPlacement = () => {
         const validation = validateMoveWithFeedback(moveContext);
 
         if (!validation.canMove) {
+          playInvalidMove();
           showFeedback({
             message: validation.message,
             type: validation.type,
@@ -120,12 +124,16 @@ export const useOrbPlacement = () => {
         );
 
         if (!result.success) {
+          playInvalidMove();
           showFeedback({
             message: result.error || 'Failed to place orb',
             type: 'error',
           });
           return false;
         }
+
+        // Play orb placement sound
+        playOrbPlace();
 
         // Apply the final game state directly (since executeOrbPlacement calculates everything)
         if (result.updatedGameState) {
@@ -141,6 +149,13 @@ export const useOrbPlacement = () => {
             result.chainReactionSteps.length > 0 &&
             result.updatedGameState.isAnimating
           ) {
+            // Play appropriate explosion sound
+            if (result.chainReactionSteps.length === 1) {
+              playExplosion();
+            } else {
+              playChainReaction();
+            }
+
             console.log(
               'Chain reaction detected, starting animation sequence...'
             );
@@ -212,7 +227,17 @@ export const useOrbPlacement = () => {
         setIsPlacingOrb(false);
       }
     },
-    [gameState, currentPlayer, dispatch, isPlacingOrb, showFeedback]
+    [
+      gameState,
+      currentPlayer,
+      dispatch,
+      isPlacingOrb,
+      showFeedback,
+      playOrbPlace,
+      playExplosion,
+      playChainReaction,
+      playInvalidMove,
+    ]
   );
 
   // Preview a move without executing it

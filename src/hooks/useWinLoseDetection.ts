@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useGameState } from './useGameState';
+import { useAudioManager } from './useAudioManager';
 import type { Player } from '../types';
 import {
   checkGameEnd,
@@ -23,6 +24,7 @@ export interface WinLoseAlert {
 
 export const useWinLoseDetection = () => {
   const { gameState, currentPlayer, players } = useGameState();
+  const { playGameWin, playGameOver } = useAudioManager();
   const [alerts, setAlerts] = useState<WinLoseAlert[]>([]);
   const [gameEndResult, setGameEndResult] = useState<GameEndResult | null>(
     null
@@ -53,6 +55,17 @@ export const useWinLoseDetection = () => {
     if (result.isGameOver && !gameEndResult) {
       setGameEndResult(result);
       setShowWinModal(true);
+
+      // Play appropriate sound effect
+      if (
+        result.winner &&
+        currentPlayer &&
+        result.winner === currentPlayer.id
+      ) {
+        playGameWin();
+      } else {
+        playGameOver();
+      }
 
       // Add game over alert
       const gameOverAlert: WinLoseAlert = {
@@ -150,6 +163,9 @@ export const useWinLoseDetection = () => {
     players,
     alerts,
     winPrediction,
+    currentPlayer,
+    playGameWin,
+    playGameOver,
   ]);
 
   // Run checks when game state changes

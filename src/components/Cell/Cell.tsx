@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Cell as CellType } from '../../types';
 import { useCriticalMassDetection } from '../../hooks/useCriticalMassDetection';
+import { useAudioManager } from '../../hooks/useAudioManager';
 import styles from './Cell.module.css';
 
 interface CellProps {
@@ -32,13 +33,19 @@ const Cell: React.FC<CellProps> = ({
     handleCellHover,
     handleCellHoverEnd,
   } = useCriticalMassDetection();
+
+  const { playUIHover, playUIClick } = useAudioManager();
   const handleClick = () => {
     if (isClickable) {
+      playUIClick();
       onClick(cell.row, cell.col);
     }
   };
 
   const handleMouseEnter = () => {
+    if (isClickable) {
+      playUIHover();
+    }
     if (onMouseEnter) {
       onMouseEnter(cell.row, cell.col);
     }
@@ -59,6 +66,7 @@ const Cell: React.FC<CellProps> = ({
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (isClickable && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault();
+      playUIClick();
       onClick(cell.row, cell.col);
     }
   };
