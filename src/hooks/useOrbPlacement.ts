@@ -29,7 +29,7 @@ export interface MovePreview {
 
 export const useOrbPlacement = () => {
   const { gameState, currentPlayer, dispatch } = useGameState();
-  const { playOrbPlace, playExplosion, playChainReaction, playInvalidMove } =
+  const { playOrbPlace, playChainReaction, playInvalidMove } =
     useAudioManager();
   const [isPlacingOrb, setIsPlacingOrb] = useState(false);
   const [feedback, setFeedback] = useState<OrbPlacementFeedback | null>(null);
@@ -149,12 +149,9 @@ export const useOrbPlacement = () => {
             result.chainReactionSteps.length > 0 &&
             result.updatedGameState.isAnimating
           ) {
-            // Play appropriate explosion sound
-            if (result.chainReactionSteps.length === 1) {
-              playExplosion();
-            } else {
-              playChainReaction();
-            }
+            // Always play chain reaction sound for any explosion
+            // The new sound is designed to work for both single and multiple explosions
+            playChainReaction();
 
             console.log(
               'Chain reaction detected, starting animation sequence...'
@@ -234,7 +231,6 @@ export const useOrbPlacement = () => {
       isPlacingOrb,
       showFeedback,
       playOrbPlace,
-      playExplosion,
       playChainReaction,
       playInvalidMove,
     ]

@@ -147,20 +147,20 @@ export const initializeSounds = async () => {
   }
 };
 
-// Generate simple sound effects using Web Audio API
+// Generate realistic sound effects using Web Audio API
 function generateSoundEffects(): Record<string, string> {
   const sounds: Record<string, string> = {};
 
   try {
-    // Generate simple beep sounds as data URLs
-    sounds[SOUND_EFFECTS.ORB_PLACE] = generateBeep(800, 0.1, 'sine');
-    sounds[SOUND_EFFECTS.EXPLOSION] = generateBeep(200, 0.3, 'sawtooth');
-    sounds[SOUND_EFFECTS.CHAIN_REACTION] = generateBeep(600, 0.2, 'square');
-    sounds[SOUND_EFFECTS.GAME_WIN] = generateBeep(1000, 0.5, 'sine');
-    sounds[SOUND_EFFECTS.GAME_OVER] = generateBeep(150, 0.8, 'triangle');
-    sounds[SOUND_EFFECTS.UI_CLICK] = generateBeep(1200, 0.05, 'sine');
-    sounds[SOUND_EFFECTS.UI_HOVER] = generateBeep(900, 0.03, 'sine');
-    sounds[SOUND_EFFECTS.INVALID_MOVE] = generateBeep(300, 0.15, 'square');
+    // Generate realistic game sounds
+    sounds[SOUND_EFFECTS.ORB_PLACE] = generateOrbPlaceSound();
+    sounds[SOUND_EFFECTS.EXPLOSION] = generateExplosionSound();
+    sounds[SOUND_EFFECTS.CHAIN_REACTION] = generateChainReactionSound();
+    sounds[SOUND_EFFECTS.GAME_WIN] = generateVictorySound();
+    sounds[SOUND_EFFECTS.GAME_OVER] = generateDefeatSound();
+    sounds[SOUND_EFFECTS.UI_CLICK] = generateClickSound();
+    sounds[SOUND_EFFECTS.UI_HOVER] = generateHoverSound();
+    sounds[SOUND_EFFECTS.INVALID_MOVE] = generateErrorSound();
   } catch (error) {
     console.warn('Failed to generate sound effects:', error);
   }
@@ -168,16 +168,13 @@ function generateSoundEffects(): Record<string, string> {
   return sounds;
 }
 
-function generateBeep(
-  frequency: number,
-  duration: number,
-  waveType: OscillatorType = 'sine'
+// Utility function to create WAV audio buffer
+function createWAVBuffer(
+  samples: Float32Array,
+  sampleRate: number = 44100
 ): string {
   try {
-    // Create a simple beep sound as a data URL
-    const sampleRate = 44100;
-    const samples = Math.floor(sampleRate * duration);
-    const buffer = new ArrayBuffer(44 + samples * 2);
+    const buffer = new ArrayBuffer(44 + samples.length * 2);
     const view = new DataView(buffer);
 
     // WAV header
@@ -188,7 +185,7 @@ function generateBeep(
     };
 
     writeString(0, 'RIFF');
-    view.setUint32(4, 36 + samples * 2, true);
+    view.setUint32(4, 36 + samples.length * 2, true);
     writeString(8, 'WAVE');
     writeString(12, 'fmt ');
     view.setUint32(16, 16, true);
@@ -199,44 +196,286 @@ function generateBeep(
     view.setUint16(32, 2, true);
     view.setUint16(34, 16, true);
     writeString(36, 'data');
-    view.setUint32(40, samples * 2, true);
+    view.setUint32(40, samples.length * 2, true);
 
-    // Generate samples
-    for (let i = 0; i < samples; i++) {
-      const t = i / sampleRate;
-      let sample = 0;
-
-      switch (waveType) {
-        case 'sine':
-          sample = Math.sin(2 * Math.PI * frequency * t);
-          break;
-        case 'square':
-          sample = Math.sign(Math.sin(2 * Math.PI * frequency * t));
-          break;
-        case 'sawtooth':
-          sample = 2 * (t * frequency - Math.floor(0.5 + t * frequency));
-          break;
-        case 'triangle':
-          sample =
-            2 *
-              Math.abs(2 * (t * frequency - Math.floor(0.5 + t * frequency))) -
-            1;
-          break;
-      }
-
-      // Apply envelope to avoid clicking
-      const envelope = Math.min(1, Math.min(t * 10, (duration - t) * 10));
-      sample *= envelope * 0.3; // Reduce volume
-
+    // Convert float samples to 16-bit PCM
+    for (let i = 0; i < samples.length; i++) {
+      const sample = Math.max(-1, Math.min(1, samples[i]));
       view.setInt16(44 + i * 2, sample * 32767, true);
     }
 
     const blob = new Blob([buffer], { type: 'audio/wav' });
     return URL.createObjectURL(blob);
   } catch (error) {
-    console.warn('Failed to generate beep:', error);
+    console.warn('Failed to create WAV buffer:', error);
     return '';
   }
+}
+
+// Generate realistic explosion sound with multiple frequency components and noise
+function generateExplosionSound(): string {
+  const sampleRate = 44100;
+  const duration = 0.8; // Longer for more impact
+  const samples = Math.floor(sampleRate * duration);
+  const buffer = new Float32Array(samples);
+
+  for (let i = 0; i < samples; i++) {
+    const t = i / sampleRate;
+    const progress = t / duration;
+
+    // Create explosion-like sound with multiple components
+    let sample = 0;
+
+    // Low frequency rumble (exponentially decaying)
+    sample += 0.4 * Math.sin(2 * Math.PI * 60 * t) * Math.exp(-progress * 3);
+    sample += 0.3 * Math.sin(2 * Math.PI * 120 * t) * Math.exp(-progress * 4);
+
+    // Mid frequency burst
+    sample += 0.3 * Math.sin(2 * Math.PI * 300 * t) * Math.exp(-progress * 8);
+
+    // High frequency sizzle
+    sample += 0.2 * Math.sin(2 * Math.PI * 800 * t) * Math.exp(-progress * 12);
+
+    // Add some noise for realism
+    sample += 0.15 * (Math.random() * 2 - 1) * Math.exp(-progress * 6);
+
+    // Apply envelope
+    const envelope = Math.exp(-progress * 2.5) * (1 - progress * 0.3);
+    sample *= envelope;
+
+    buffer[i] = sample * 0.6; // Overall volume
+  }
+
+  return createWAVBuffer(buffer, sampleRate);
+}
+
+// Generate dramatic chain reaction sound with cascading explosions
+function generateChainReactionSound(): string {
+  const sampleRate = 44100;
+  const duration = 1.2; // Longer for chain effect
+  const samples = Math.floor(sampleRate * duration);
+  const buffer = new Float32Array(samples);
+
+  // Multiple explosion bursts for chain effect
+  const burstTimes = [0, 0.2, 0.4, 0.6, 0.8];
+
+  for (let i = 0; i < samples; i++) {
+    const t = i / sampleRate;
+    let sample = 0;
+
+    // Generate multiple overlapping explosions
+    burstTimes.forEach((burstTime, index) => {
+      if (t >= burstTime) {
+        const localT = t - burstTime;
+        const progress = localT / (duration - burstTime);
+        const intensity = 1 - index * 0.15; // Each burst slightly quieter
+
+        if (progress <= 1) {
+          // Low rumble
+          sample +=
+            intensity *
+            0.3 *
+            Math.sin(2 * Math.PI * (80 + index * 20) * localT) *
+            Math.exp(-progress * 4);
+
+          // Mid burst
+          sample +=
+            intensity *
+            0.25 *
+            Math.sin(2 * Math.PI * (400 + index * 100) * localT) *
+            Math.exp(-progress * 8);
+
+          // High sizzle
+          sample +=
+            intensity *
+            0.15 *
+            Math.sin(2 * Math.PI * (1000 + index * 200) * localT) *
+            Math.exp(-progress * 12);
+
+          // Crackling noise
+          sample +=
+            intensity *
+            0.1 *
+            (Math.random() * 2 - 1) *
+            Math.exp(-progress * 10);
+        }
+      }
+    });
+
+    // Overall envelope
+    const overallProgress = t / duration;
+    const envelope = Math.exp(-overallProgress * 1.5);
+    sample *= envelope;
+
+    buffer[i] = sample * 0.7; // Chain reactions are louder
+  }
+
+  return createWAVBuffer(buffer, sampleRate);
+}
+
+// Generate satisfying orb placement sound
+function generateOrbPlaceSound(): string {
+  const sampleRate = 44100;
+  const duration = 0.15;
+  const samples = Math.floor(sampleRate * duration);
+  const buffer = new Float32Array(samples);
+
+  for (let i = 0; i < samples; i++) {
+    const t = i / sampleRate;
+    const progress = t / duration;
+
+    // Soft, pleasant tone with slight pitch bend
+    const frequency = 600 + Math.sin(progress * Math.PI) * 100;
+    let sample = 0.4 * Math.sin(2 * Math.PI * frequency * t);
+
+    // Add harmonic
+    sample += 0.2 * Math.sin(2 * Math.PI * frequency * 2 * t);
+
+    // Smooth envelope
+    const envelope = Math.sin(progress * Math.PI) * (1 - progress * 0.5);
+    sample *= envelope;
+
+    buffer[i] = sample;
+  }
+
+  return createWAVBuffer(buffer, sampleRate);
+}
+
+// Generate triumphant victory sound
+function generateVictorySound(): string {
+  const sampleRate = 44100;
+  const duration = 1.0;
+  const samples = Math.floor(sampleRate * duration);
+  const buffer = new Float32Array(samples);
+
+  // Victory fanfare notes (C major chord arpeggio)
+  const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+  const noteLength = duration / notes.length;
+
+  for (let i = 0; i < samples; i++) {
+    const t = i / sampleRate;
+    const noteIndex = Math.floor(t / noteLength);
+    const localT = (t % noteLength) / noteLength;
+
+    if (noteIndex < notes.length) {
+      const frequency = notes[noteIndex];
+      let sample = 0.3 * Math.sin(2 * Math.PI * frequency * t);
+
+      // Add harmonics for richness
+      sample += 0.15 * Math.sin(2 * Math.PI * frequency * 2 * t);
+      sample += 0.1 * Math.sin(2 * Math.PI * frequency * 3 * t);
+
+      // Note envelope
+      const noteEnvelope = Math.sin(localT * Math.PI);
+      sample *= noteEnvelope;
+
+      buffer[i] = sample;
+    }
+  }
+
+  return createWAVBuffer(buffer, sampleRate);
+}
+
+// Generate somber defeat sound
+function generateDefeatSound(): string {
+  const sampleRate = 44100;
+  const duration = 0.8;
+  const samples = Math.floor(sampleRate * duration);
+  const buffer = new Float32Array(samples);
+
+  for (let i = 0; i < samples; i++) {
+    const t = i / sampleRate;
+    const progress = t / duration;
+
+    // Descending minor chord
+    const baseFreq = 220 * (1 - progress * 0.3); // Descending A3
+    let sample = 0.2 * Math.sin(2 * Math.PI * baseFreq * t);
+    sample += 0.15 * Math.sin(2 * Math.PI * baseFreq * 1.2 * t); // Minor third
+    sample += 0.1 * Math.sin(2 * Math.PI * baseFreq * 1.5 * t); // Perfect fifth
+
+    // Envelope
+    const envelope = (1 - progress) * Math.sin(progress * Math.PI);
+    sample *= envelope;
+
+    buffer[i] = sample;
+  }
+
+  return createWAVBuffer(buffer, sampleRate);
+}
+
+// Generate clean UI click sound
+function generateClickSound(): string {
+  const sampleRate = 44100;
+  const duration = 0.08;
+  const samples = Math.floor(sampleRate * duration);
+  const buffer = new Float32Array(samples);
+
+  for (let i = 0; i < samples; i++) {
+    const t = i / sampleRate;
+    const progress = t / duration;
+
+    let sample = 0.3 * Math.sin(2 * Math.PI * 1000 * t);
+    sample += 0.15 * Math.sin(2 * Math.PI * 2000 * t);
+
+    const envelope = Math.exp(-progress * 8);
+    sample *= envelope;
+
+    buffer[i] = sample;
+  }
+
+  return createWAVBuffer(buffer, sampleRate);
+}
+
+// Generate subtle hover sound
+function generateHoverSound(): string {
+  const sampleRate = 44100;
+  const duration = 0.05;
+  const samples = Math.floor(sampleRate * duration);
+  const buffer = new Float32Array(samples);
+
+  for (let i = 0; i < samples; i++) {
+    const t = i / sampleRate;
+    const progress = t / duration;
+
+    let sample = 0.15 * Math.sin(2 * Math.PI * 800 * t);
+
+    const envelope = Math.sin(progress * Math.PI);
+    sample *= envelope;
+
+    buffer[i] = sample;
+  }
+
+  return createWAVBuffer(buffer, sampleRate);
+}
+
+// Generate error/invalid move sound
+function generateErrorSound(): string {
+  const sampleRate = 44100;
+  const duration = 0.3;
+  const samples = Math.floor(sampleRate * duration);
+  const buffer = new Float32Array(samples);
+
+  for (let i = 0; i < samples; i++) {
+    const t = i / sampleRate;
+    const progress = t / duration;
+
+    // Harsh, dissonant sound
+    let sample = 0.2 * Math.sin(2 * Math.PI * 200 * t);
+    sample += 0.15 * Math.sin(2 * Math.PI * 300 * t);
+    sample += 0.1 * Math.sin(2 * Math.PI * 150 * t);
+
+    // Make it "buzzy"
+    if (Math.floor(t * 20) % 2 === 0) {
+      sample *= 0.7;
+    }
+
+    const envelope = (1 - progress) * Math.sin(progress * Math.PI * 2);
+    sample *= envelope;
+
+    buffer[i] = sample;
+  }
+
+  return createWAVBuffer(buffer, sampleRate);
 }
 
 // Convenience functions for common game sounds
