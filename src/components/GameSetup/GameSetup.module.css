@@ -1,0 +1,311 @@
+.setupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.setupModal {
+  background: var(--primary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.setupHeader {
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.setupTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.setupSubtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.setupContent {
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.setupSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.sectionLabel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Player Count Selector */
+.playerCountSelector {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: center;
+}
+
+.countButton {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--secondary-bg);
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 50px;
+}
+
+.countButton:hover {
+  border-color: var(--accent-color);
+  background: var(--accent-color);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.countButton.active {
+  border-color: var(--accent-color);
+  background: var(--accent-color);
+  color: white;
+  box-shadow: 0 4px 12px rgba(100, 108, 255, 0.3);
+}
+
+/* Player Names */
+.playerNamesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.playerNameRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm);
+  background: var(--secondary-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.playerColorPreview {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.playerNameInput {
+  flex: 1;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--primary-bg);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease;
+}
+
+.playerNameInput:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.2);
+}
+
+/* Game Preview */
+.gamePreview {
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: var(--spacing-md);
+}
+
+.previewInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.previewItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.previewLabel {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.previewValue {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Actions */
+.setupActions {
+  padding: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+}
+
+.actionButton {
+  padding: var(--spacing-md) var(--spacing-xl);
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+}
+
+.cancelButton {
+  background: var(--secondary-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.cancelButton:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+.startButton {
+  background: var(--accent-color);
+  color: white;
+  box-shadow: 0 4px 12px rgba(100, 108, 255, 0.3);
+}
+
+.startButton:hover {
+  background: #5865f2;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(100, 108, 255, 0.4);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .setupModal {
+    width: 95%;
+    margin: 20px;
+  }
+
+  .setupHeader,
+  .setupContent,
+  .setupActions {
+    padding: var(--spacing-md);
+  }
+
+  .playerCountSelector {
+    flex-wrap: wrap;
+  }
+
+  .countButton {
+    padding: var(--spacing-sm) var(--spacing-md);
+    min-width: 45px;
+  }
+
+  .setupActions {
+    flex-direction: column-reverse;
+  }
+
+  .actionButton {
+    width: 100%;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .setupModal {
+    animation: none;
+  }
+
+  .countButton,
+  .actionButton {
+    transition: none;
+  }
+
+  .countButton:hover,
+  .startButton:hover {
+    transform: none;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: light) {
+  .setupOverlay {
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .setupModal {
+    background: #ffffff;
+    border-color: #dee2e6;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .setupHeader {
+    border-bottom-color: #dee2e6;
+  }
+
+  .playerNameRow,
+  .gamePreview {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+  }
+
+  .playerNameInput {
+    background: #ffffff;
+    border-color: #ced4da;
+  }
+
+  .countButton {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+  }
+
+  .cancelButton {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+  }
+}

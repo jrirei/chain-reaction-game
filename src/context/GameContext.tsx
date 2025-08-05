@@ -89,25 +89,30 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     [isGameActive, currentPlayer, gameState.board]
   );
 
-  // Helper function to initialize a new game
+  // Helper function to initialize a new game with multi-player support
   const initializeGame = useCallback(
     (playerCount: number, playerNames?: string[]) => {
+      // Validate player count
+      const validPlayerCount = Math.max(2, Math.min(4, playerCount));
+
       const playerIds: PlayerId[] = [];
       const names = playerNames || [];
 
-      for (let i = 0; i < playerCount; i++) {
-        playerIds.push(`player-${i + 1}`);
+      // Generate unique player IDs
+      for (let i = 0; i < validPlayerCount; i++) {
+        playerIds.push(`player${i + 1}`); // Simplified ID format
       }
 
       // Ensure we have names for all players
-      while (names.length < playerCount) {
+      while (names.length < validPlayerCount) {
         names.push(`Player ${names.length + 1}`);
       }
 
       const settings = {
         ...gameState.settings,
-        playerCount,
-        playerNames: names,
+        playerCount: validPlayerCount,
+        playerNames: names.slice(0, validPlayerCount), // Ensure exact count
+        maxPlayers: 4,
       };
 
       dispatch({

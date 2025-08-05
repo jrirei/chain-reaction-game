@@ -2,7 +2,7 @@ import type { GameState, GameAction, PlayerGameStats } from '../types';
 import { GameStatus } from '../types';
 import { checkGameEnd } from './winLoseDetection';
 import { createEmptyBoard } from './gameLogic';
-import { DEFAULT_GRID_SIZE } from './constants';
+import { DEFAULT_GRID_SIZE, DEFAULT_PLAYER_COUNT } from './constants';
 
 export const createInitialGameState = (): GameState => ({
   board: createEmptyBoard(DEFAULT_GRID_SIZE.rows, DEFAULT_GRID_SIZE.cols),
@@ -17,10 +17,11 @@ export const createInitialGameState = (): GameState => ({
   settings: {
     gridRows: DEFAULT_GRID_SIZE.rows,
     gridCols: DEFAULT_GRID_SIZE.cols,
-    playerCount: 2,
+    playerCount: DEFAULT_PLAYER_COUNT,
     playerNames: ['Player 1', 'Player 2'],
     enableAnimations: true,
     enableSounds: true,
+    maxPlayers: 4,
   },
   gameStats: {
     totalExplosions: 0,

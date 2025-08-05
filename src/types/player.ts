@@ -24,8 +24,11 @@ export interface PlayerStats {
 export interface GameSettings {
   gridRows: number;
   gridCols: number;
-  playerCount: number;
+  playerCount: number; // 2-4 players supported
   playerNames: string[];
   enableAnimations: boolean;
   enableSounds: boolean;
+  // Multi-player specific settings
+  maxPlayers?: number; // Future extensibility
+  allowSpectators?: boolean; // Future feature
 }
