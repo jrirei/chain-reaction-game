@@ -1,0 +1,147 @@
+.gameControls {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-md) 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.controlsSection {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+.controlBtn {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--cell-border-radius);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  min-width: 100px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.controlBtn.primary {
+  background: #646cff;
+  color: white;
+  border: 2px solid #646cff;
+}
+
+.control-btn.primary:hover:not(:disabled) {
+  background: #535bf2;
+  border-color: #535bf2;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(100, 108, 255, 0.4);
+}
+
+.controlBtn.secondary {
+  background: var(--secondary-bg);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+}
+
+.control-btn.secondary:hover:not(:disabled) {
+  background: var(--hover-color);
+  border-color: #646cff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(100, 108, 255, 0.2);
+}
+
+.control-btn:focus {
+  outline: 2px solid #646cff;
+  outline-offset: 2px;
+}
+
+.control-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.controlBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.gameOverMessage {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, #ffd700, #ff6b6b);
+  color: white;
+  text-align: center;
+  border-radius: var(--cell-border-radius);
+  font-weight: 700;
+  font-size: 1.2rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+  animation: celebration 2s ease-in-out infinite alternate;
+}
+
+@keyframes celebration {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.05);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .controlsSection {
+    gap: var(--spacing-sm);
+  }
+
+  .controlBtn {
+    min-width: 80px;
+    padding: var(--spacing-sm);
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .controlsSection {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    width: 100%;
+  }
+
+  .controlBtn {
+    width: 100%;
+    max-width: 200px;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .controlBtn {
+    transition: none;
+  }
+
+  .control-btn:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .control-btn:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Dark/Light theme adjustments */
+@media (prefers-color-scheme: light) {
+  .controlBtn.secondary {
+    background: #ffffff;
+    color: #333;
+    border-color: #dee2e6;
+  }
+
+  .control-btn.secondary:hover:not(:disabled) {
+    background: #f8f9fa;
+  }
+}

@@ -1,0 +1,89 @@
+.gameInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--cell-border-radius);
+  gap: var(--spacing-lg);
+}
+
+.infoSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.infoLabel {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.currentPlayer {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #4ecdc4; /* Default to teal, will be dynamic later */
+}
+
+.moveCount {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.gameStatus {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.gameTime {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: 'Courier New', monospace;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .gameInfo {
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm);
+  }
+
+  .infoLabel {
+    font-size: 0.75rem;
+  }
+
+  .current-player,
+  .moveCount {
+    font-size: 1rem;
+  }
+
+  .gameStatus {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .gameInfo {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    text-align: center;
+  }
+
+  .infoSection {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .infoLabel {
+    font-size: 0.875rem;
+  }
+}

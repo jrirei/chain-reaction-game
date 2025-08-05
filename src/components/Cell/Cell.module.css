@@ -1,0 +1,319 @@
+.cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  background: var(--primary-bg);
+  border: 2px solid var(--border-color);
+  border-radius: var(--cell-border-radius);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 2px;
+}
+
+.cell:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.cell.clickable:hover {
+  background: var(--hover-color);
+  border-color: #646cff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(100, 108, 255, 0.3);
+}
+
+.cell.clickable:focus {
+  outline: 2px solid #646cff;
+  outline-offset: 2px;
+}
+
+.cell.clickable:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(100, 108, 255, 0.2);
+}
+
+.cell.currentPlayer {
+  border-color: #4ecdc4;
+  box-shadow: 0 0 0 1px #4ecdc4;
+}
+
+.cell.critical {
+  border-color: #ff6b6b;
+  animation: pulse 1s infinite;
+}
+
+.cell.exploding {
+  animation: explode 0.5s ease-out;
+  background: radial-gradient(circle, #ffff00, #ff6b6b);
+}
+
+.cellContent {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+/* Orb styles */
+.orb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #4ecdc4;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  animation: orbPulse 2s infinite;
+  position: relative;
+}
+
+.orb::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  box-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+}
+
+/* Critical mass indicator */
+.criticalMassIndicator {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 8px;
+  color: var(--text-secondary);
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 2px;
+  padding: 1px 2px;
+  line-height: 1;
+}
+
+.criticalIndicator {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  font-size: 12px;
+  color: #ff6b6b;
+  font-weight: bold;
+  text-shadow: 0 0 2px rgba(255, 107, 107, 0.8);
+  animation: blink 1s infinite;
+}
+
+/* Cell type specific styles */
+.corner {
+  border-color: #ff9500;
+}
+
+.edge {
+  border-color: #00a6ff;
+}
+
+.interior {
+  border-color: var(--border-color);
+}
+
+/* Animations */
+@keyframes orbPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(255, 107, 107, 0);
+  }
+}
+
+@keyframes explode {
+  0% {
+    transform: scale(1);
+    background: var(--primary-bg);
+  }
+  50% {
+    transform: scale(1.2);
+    background: radial-gradient(circle, #ffff00, #ff6b6b);
+  }
+  100% {
+    transform: scale(1);
+    background: var(--primary-bg);
+  }
+}
+
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Responsive orb sizing */
+@media (max-width: 768px) {
+  .orb {
+    width: 10px;
+    height: 10px;
+  }
+
+  .orb::before {
+    width: 3px;
+    height: 3px;
+    top: 1px;
+    left: 2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .orb {
+    width: 8px;
+    height: 8px;
+  }
+
+  .orb::before {
+    width: 2px;
+    height: 2px;
+    top: 1px;
+    left: 1px;
+  }
+
+  .criticalMassIndicator {
+    font-size: 6px;
+  }
+
+  .criticalIndicator {
+    font-size: 10px;
+  }
+}
+
+/* Critical Mass Visualization */
+.danger-safe {
+  /* No additional styling for safe cells */
+}
+
+.danger-warning {
+  box-shadow: 0 0 8px rgba(255, 187, 0, 0.4);
+  border-color: rgba(255, 187, 0, 0.6);
+}
+
+.danger-danger {
+  box-shadow: 0 0 12px rgba(255, 136, 0, 0.5);
+  border-color: rgba(255, 136, 0, 0.8);
+  animation: warningPulse 2s ease-in-out infinite;
+}
+
+.danger-critical {
+  box-shadow: 0 0 16px rgba(255, 68, 68, 0.6);
+  border-color: rgba(255, 68, 68, 1);
+  animation: criticalPulse 1s ease-in-out infinite;
+}
+
+.explosionPreview {
+  box-shadow:
+    0 0 20px rgba(255, 255, 0, 0.8),
+    inset 0 0 15px rgba(255, 255, 0, 0.3);
+  border-color: rgba(255, 255, 0, 1);
+  animation: explosionPreviewPulse 0.5s ease-in-out infinite;
+  transform: scale(1.05);
+}
+
+/* Critical Mass Animations */
+@keyframes warningPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 12px rgba(255, 136, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 136, 0, 0.8);
+  }
+}
+
+@keyframes criticalPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 16px rgba(255, 68, 68, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(255, 68, 68, 1);
+  }
+}
+
+@keyframes explosionPreviewPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 20px rgba(255, 255, 0, 0.8),
+      inset 0 0 15px rgba(255, 255, 0, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 30px rgba(255, 255, 0, 1),
+      inset 0 0 25px rgba(255, 255, 0, 0.5);
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .cell,
+  .orb,
+  .criticalIndicator {
+    animation: none;
+    transition: none;
+  }
+
+  .cell.clickable:hover {
+    transform: none;
+  }
+
+  .cell.clickable:active {
+    transform: none;
+  }
+
+  .danger-danger,
+  .danger-critical,
+  .explosionPreview {
+    animation: none;
+  }
+}
+
+/* Dark/Light theme adjustments */
+@media (prefers-color-scheme: light) {
+  .cell {
+    background: #ffffff;
+    border-color: #dee2e6;
+  }
+
+  .cell.clickable:hover {
+    background: #f8f9fa;
+  }
+
+  .criticalMassIndicator {
+    background: rgba(255, 255, 255, 0.8);
+    color: #333;
+  }
+}

@@ -1,0 +1,221 @@
+.gameFeedback {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-overlay);
+  min-width: 300px;
+  max-width: 500px;
+  padding: var(--spacing-md);
+  border-radius: var(--cell-border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: var(--transition-normal);
+  overflow: hidden;
+  font-weight: 500;
+}
+
+.gameFeedback.top {
+  top: 20px;
+}
+
+.gameFeedback.bottom {
+  bottom: 20px;
+}
+
+.gameFeedback.center {
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.gameFeedback.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.gameFeedback.hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px);
+  pointer-events: none;
+}
+
+/* Feedback types */
+.gameFeedback.success {
+  background: linear-gradient(135deg, #4caf50, #45a049);
+  color: white;
+  border: 2px solid #4caf50;
+}
+
+.gameFeedback.error {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  color: white;
+  border: 2px solid #f44336;
+}
+
+.gameFeedback.warning {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: white;
+  border: 2px solid #ff9800;
+}
+
+.gameFeedback.info {
+  background: linear-gradient(135deg, #2196f3, #1976d2);
+  color: white;
+  border: 2px solid #2196f3;
+}
+
+.feedbackContent {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  position: relative;
+  z-index: 2;
+}
+
+.feedbackIcon {
+  font-size: 1.2rem;
+  font-weight: bold;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+}
+
+.feedbackMessage {
+  flex: 1;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.feedbackProgress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  width: 100%;
+  transform-origin: left;
+  animation: progressBar 3s linear forwards;
+}
+
+@keyframes progressBar {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* Position adjustments for different screen sizes */
+@media (max-width: 768px) {
+  .gameFeedback {
+    min-width: 280px;
+    max-width: 90vw;
+    padding: var(--spacing-sm);
+    left: 50%;
+    margin: 0 auto;
+  }
+
+  .gameFeedback.top {
+    top: 10px;
+  }
+
+  .gameFeedback.bottom {
+    bottom: 10px;
+  }
+
+  .feedbackMessage {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .gameFeedback {
+    min-width: 260px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .feedbackContent {
+    gap: var(--spacing-xs);
+  }
+
+  .feedbackIcon {
+    width: 20px;
+    height: 20px;
+    font-size: 1rem;
+  }
+
+  .feedbackMessage {
+    font-size: 0.85rem;
+  }
+}
+
+/* Animation variants */
+.gameFeedback.center.visible {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.gameFeedback.center.hidden {
+  transform: translate(-50%, -50%) scale(0.9);
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .gameFeedback {
+    border-width: 3px;
+  }
+
+  .feedbackIcon {
+    background: rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .gameFeedback {
+    transition: opacity 0.2s ease;
+  }
+
+  .gameFeedback.visible {
+    transform: translateX(-50%);
+  }
+
+  .gameFeedback.hidden {
+    transform: translateX(-50%);
+  }
+
+  .gameFeedback.center.visible,
+  .gameFeedback.center.hidden {
+    transform: translate(-50%, -50%);
+  }
+
+  .feedbackProgress {
+    animation: none;
+  }
+}
+
+/* Light theme adjustments */
+@media (prefers-color-scheme: light) {
+  .gameFeedback {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .gameFeedback.success {
+    background: linear-gradient(135deg, #4caf50, #66bb6a);
+  }
+
+  .gameFeedback.error {
+    background: linear-gradient(135deg, #f44336, #ef5350);
+  }
+
+  .gameFeedback.warning {
+    background: linear-gradient(135deg, #ff9800, #ffb74d);
+  }
+
+  .gameFeedback.info {
+    background: linear-gradient(135deg, #2196f3, #42a5f5);
+  }
+}

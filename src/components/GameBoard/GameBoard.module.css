@@ -1,0 +1,171 @@
+.gameBoardContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.gameBoard {
+  display: grid;
+  gap: var(--grid-gap);
+  padding: var(--spacing-md);
+  background: var(--secondary-bg);
+  border: 2px solid var(--border-color);
+  border-radius: var(--cell-border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.gameCell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  background: var(--primary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--cell-border-radius);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.gameCell:hover {
+  background: var(--hover-color);
+  border-color: #646cff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(100, 108, 255, 0.3);
+}
+
+.gameCell:focus {
+  outline: 2px solid #646cff;
+  outline-offset: 2px;
+}
+
+.gameCell:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(100, 108, 255, 0.2);
+}
+
+.cellContent {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.loadingState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+.debugInfo {
+  position: absolute;
+  top: -60px;
+  left: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: var(--spacing-sm);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  z-index: var(--z-overlay);
+}
+
+.debugInfo p {
+  margin: 2px 0;
+}
+
+.animationOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-overlay);
+  border-radius: var(--cell-border-radius);
+}
+
+.animationMessage {
+  background: var(--secondary-bg);
+  color: var(--text-primary);
+  padding: var(--spacing-md);
+  border-radius: var(--cell-border-radius);
+  border: 2px solid #646cff;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  animation: pulse 1s infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .gameBoard {
+    --cell-size: 50px;
+    padding: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .gameBoard {
+    --cell-size: 40px;
+    padding: var(--spacing-xs);
+    gap: 2px;
+  }
+
+  .gameBoardContainer {
+    padding: 0 var(--spacing-xs);
+  }
+}
+
+/* High DPI displays */
+@media (min-resolution: 2dppx) {
+  .gameCell {
+    border-width: 0.5px;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .gameCell {
+    transition: none;
+  }
+
+  .gameCell:hover {
+    transform: none;
+  }
+
+  .gameCell:active {
+    transform: none;
+  }
+}
+
+/* Dark/Light theme adjustments */
+@media (prefers-color-scheme: light) {
+  .gameBoard {
+    background: #ffffff;
+    border-color: #e0e0e0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .gameCell {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+  }
+
+  .gameCell:hover {
+    background: #e9ecef;
+    box-shadow: 0 2px 8px rgba(100, 108, 255, 0.15);
+  }
+}

@@ -1,0 +1,186 @@
+.gameStats {
+  background: var(--secondary-bg);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  margin: var(--spacing-md) 0;
+  border: 1px solid var(--border-color);
+}
+
+.title {
+  margin: 0 0 var(--spacing-md) 0;
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.gameOverview {
+  display: flex;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--primary-bg);
+  border-radius: var(--border-radius);
+}
+
+.overviewItem {
+  flex: 1;
+  text-align: center;
+}
+
+.overviewValue {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--accent-color);
+  margin-bottom: var(--spacing-xs);
+}
+
+.overviewLabel {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.playerStats {
+  margin-top: var(--spacing-lg);
+}
+
+.playerStatsTitle {
+  margin: 0 0 var(--spacing-md) 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.playerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+  background: var(--primary-bg);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.playerInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.playerColor {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.playerName {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.playerMetrics {
+  display: flex;
+  gap: var(--spacing-lg);
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+}
+
+.metricValue {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.metricLabel {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Compact stats for sidebar or header */
+.compactStats {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm);
+  background: var(--secondary-bg);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.statLabel {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.statValue {
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--accent-color);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .gameOverview {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .playerMetrics {
+    gap: var(--spacing-md);
+  }
+
+  .compactStats {
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .playerRow {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: stretch;
+  }
+
+  .playerMetrics {
+    justify-content: space-around;
+  }
+}
+
+/* Dark/Light theme adjustments */
+@media (prefers-color-scheme: light) {
+  .gameStats {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+  }
+
+  .gameOverview,
+  .playerRow {
+    background: #ffffff;
+    border-color: #dee2e6;
+  }
+
+  .compactStats {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+  }
+}

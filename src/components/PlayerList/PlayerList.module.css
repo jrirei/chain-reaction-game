@@ -1,0 +1,149 @@
+.playerListContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--cell-border-radius);
+}
+
+.playerListHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.playerListTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.gameProgress {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  background: rgba(100, 108, 255, 0.1);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.playerList {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.horizontal .playerList {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.vertical .playerList {
+  flex-direction: column;
+}
+
+.compact .playerList {
+  gap: var(--spacing-xs);
+}
+
+.emptyState {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: var(--spacing-lg);
+}
+
+.winnerAnnouncement {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffd700;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 0.2),
+    rgba(255, 107, 107, 0.2)
+  );
+  padding: var(--spacing-md);
+  border-radius: var(--cell-border-radius);
+  border: 2px solid #ffd700;
+  animation: winnerGlow 2s ease-in-out infinite alternate;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes winnerGlow {
+  0% {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .playerListContainer {
+    padding: var(--spacing-sm);
+  }
+
+  .horizontal .playerList {
+    justify-content: flex-start;
+  }
+
+  .playerListHeader {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    align-items: flex-start;
+  }
+
+  .gameProgress {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .playerListContainer {
+    padding: var(--spacing-xs);
+  }
+
+  .vertical .playerList,
+  .horizontal .playerList {
+    flex-direction: column;
+  }
+
+  .playerListTitle {
+    font-size: 1rem;
+  }
+
+  .winnerAnnouncement {
+    font-size: 1.1rem;
+    padding: var(--spacing-sm);
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .winnerAnnouncement {
+    animation: none;
+  }
+}
+
+/* Dark/Light theme adjustments */
+@media (prefers-color-scheme: light) {
+  .playerListContainer {
+    background: #ffffff;
+    border-color: #dee2e6;
+  }
+
+  .playerListHeader {
+    border-bottom-color: #dee2e6;
+  }
+
+  .gameProgress {
+    background: rgba(100, 108, 255, 0.05);
+  }
+}
