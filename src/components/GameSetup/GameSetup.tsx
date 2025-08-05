@@ -59,9 +59,7 @@ const GameSetup: React.FC<GameSetupProps> = ({
       <div className={styles.setupModal}>
         <div className={styles.setupHeader}>
           <h2 className={styles.setupTitle}>New Game Setup</h2>
-          <p className={styles.setupSubtitle}>
-            Configure your Chain Reaction game
-          </p>
+          <p className={styles.setupSubtitle}>Select number of players</p>
         </div>
 
         <div className={styles.setupContent}>
@@ -71,20 +69,17 @@ const GameSetup: React.FC<GameSetupProps> = ({
               Number of Players ({MIN_PLAYERS}-{MAX_PLAYERS})
             </label>
             <div className={styles.playerCountSelector}>
-              {Array.from({ length: MAX_PLAYERS - MIN_PLAYERS + 1 }, (_, i) => {
-                const count = MIN_PLAYERS + i;
-                return (
-                  <button
-                    key={count}
-                    className={`${styles.countButton} ${
-                      playerCount === count ? styles.active : ''
-                    }`}
-                    onClick={() => handlePlayerCountChange(count)}
-                  >
-                    {count}
-                  </button>
-                );
-              })}
+              {[2, 3, 4].map((count) => (
+                <button
+                  key={count}
+                  className={`${styles.countButton} ${
+                    playerCount === count ? styles.active : ''
+                  }`}
+                  onClick={() => handlePlayerCountChange(count)}
+                >
+                  {count} Player{count > 1 ? 's' : ''}
+                </button>
+              ))}
             </div>
           </div>
 
