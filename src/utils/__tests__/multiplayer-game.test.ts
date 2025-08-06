@@ -110,11 +110,12 @@ describe('Multi-Player Game Mechanics', () => {
       const result = await executeOrbPlacement(gameState, 0, 0, 'player1');
 
       expect(result.success).toBe(true);
-      if (result.updatedGameState) {
-        // Apply the complete explosions action
-        const finalState = gameReducer(result.updatedGameState, {
-          type: 'COMPLETE_EXPLOSIONS',
-        });
+      if (result.updatedGameState && result.actions) {
+        // Simulate executing all the actions returned by executeOrbPlacement
+        let finalState = gameState;
+        for (const action of result.actions) {
+          finalState = gameReducer(finalState, action);
+        }
 
         // Should advance to next player after explosion completes
         expect(finalState.currentPlayerIndex).toBe(1);

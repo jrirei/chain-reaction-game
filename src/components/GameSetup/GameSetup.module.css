@@ -86,7 +86,7 @@
   border: 2px solid var(--border-color);
   border-radius: 8px;
   background: var(--secondary-bg);
-  color: var(--text-primary);
+  color: var(--text-secondary);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -107,13 +107,19 @@
   background: var(--accent-color);
   color: white;
   box-shadow: 0 4px 12px rgba(100, 108, 255, 0.3);
+  font-weight: 700;
 }
 
 /* Player Names */
 .playerNamesContainer {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: var(--spacing-sm);
+}
+
+.playerNamesContainer.multiColumn {
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm) var(--spacing-md);
 }
 
 .playerNameRow {
@@ -153,16 +159,16 @@
 
 /* Game Preview */
 .gamePreview {
-  background: var(--secondary-bg);
-  border: 1px solid var(--border-color);
+  background: #2d2d2d !important;
+  border: 2px solid #646cff !important;
   border-radius: 8px;
-  padding: var(--spacing-md);
+  padding: 16px !important;
 }
 
 .previewInfo {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: 8px;
 }
 
 .previewItem {
@@ -172,14 +178,15 @@
 }
 
 .previewLabel {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
+  font-size: 14px !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
 }
 
 .previewValue {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #646cff !important;
 }
 
 /* Actions */
@@ -246,6 +253,11 @@
     padding: var(--spacing-sm) var(--spacing-md);
     min-width: 70px;
     font-size: 0.9rem;
+  }
+
+  /* Stack player names in single column on mobile */
+  .playerNamesContainer.multiColumn {
+    grid-template-columns: 1fr;
   }
 
   .setupActions {

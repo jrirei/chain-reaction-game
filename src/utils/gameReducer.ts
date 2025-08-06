@@ -167,11 +167,43 @@ export const gameReducer = (
         };
       }
 
-      // If game is not over, advance to next turn
-      const nextPlayerIndex =
-        (newState.currentPlayerIndex + 1) % newState.players.length;
+      // Get active players (those who still have orbs on the board)
+      const activePlayers = gameEndResult.finalScores
+        .filter((score) => !score.isEliminated)
+        .map((score) => score.playerId);
+
+      // If players have been eliminated, update the players array
+      let updatedPlayers = newState.players;
+      let nextPlayerIndex;
+
+      if (activePlayers.length < newState.players.length) {
+        // Players have been eliminated
+        updatedPlayers = activePlayers;
+
+        // Find the next active player in the original turn order
+        const originalPlayers = newState.players;
+        let searchIndex = newState.currentPlayerIndex;
+
+        // Search for the next active player starting from current position
+        for (let attempts = 0; attempts < originalPlayers.length; attempts++) {
+          searchIndex = (searchIndex + 1) % originalPlayers.length;
+          const candidatePlayerId = originalPlayers[searchIndex];
+
+          if (activePlayers.includes(candidatePlayerId)) {
+            // Found next active player, get their index in the new active players array
+            nextPlayerIndex = activePlayers.indexOf(candidatePlayerId);
+            break;
+          }
+        }
+      } else {
+        // No eliminations, normal turn progression
+        nextPlayerIndex =
+          (newState.currentPlayerIndex + 1) % newState.players.length;
+      }
+
       return {
         ...newState,
+        players: updatedPlayers,
         currentPlayerIndex: nextPlayerIndex,
       };
     }

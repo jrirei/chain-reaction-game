@@ -86,7 +86,11 @@ const GameSetup: React.FC<GameSetupProps> = ({
           {/* Player Names Configuration */}
           <div className={styles.setupSection}>
             <label className={styles.sectionLabel}>Player Names</label>
-            <div className={styles.playerNamesContainer}>
+            <div
+              className={`${styles.playerNamesContainer} ${
+                playerCount >= 3 ? styles.multiColumn : ''
+              }`}
+            >
               {playerNames.map((name, index) => (
                 <div key={index} className={styles.playerNameRow}>
                   <div
@@ -114,10 +118,6 @@ const GameSetup: React.FC<GameSetupProps> = ({
             <label className={styles.sectionLabel}>Game Preview</label>
             <div className={styles.gamePreview}>
               <div className={styles.previewInfo}>
-                <div className={styles.previewItem}>
-                  <span className={styles.previewLabel}>Players:</span>
-                  <span className={styles.previewValue}>{playerCount}</span>
-                </div>
                 <div className={styles.previewItem}>
                   <span className={styles.previewLabel}>Grid:</span>
                   <span className={styles.previewValue}>6×9 cells</span>
