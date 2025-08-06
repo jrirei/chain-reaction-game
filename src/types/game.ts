@@ -29,6 +29,7 @@ export interface GameState {
   gameEndTime: number | null;
   settings: GameSettings;
   gameStats?: GameStats;
+  chainReactionState?: ChainReactionState;
 }
 
 export interface GameStats {
@@ -51,6 +52,7 @@ export const GameStatus = {
   PLAYING: 'playing',
   PAUSED: 'paused',
   ANIMATING: 'animating',
+  CHAIN_REACTING: 'chain_reacting',
   FINISHED: 'finished',
 } as const;
 
@@ -63,6 +65,9 @@ export const GameActionType = {
   PLACE_ORB: 'PLACE_ORB',
   TRIGGER_EXPLOSION: 'TRIGGER_EXPLOSION',
   COMPLETE_EXPLOSIONS: 'COMPLETE_EXPLOSIONS',
+  START_CHAIN_SEQUENCE: 'START_CHAIN_SEQUENCE',
+  PLAY_EXPLOSION_STEP: 'PLAY_EXPLOSION_STEP',
+  COMPLETE_CHAIN_SEQUENCE: 'COMPLETE_CHAIN_SEQUENCE',
   NEXT_TURN: 'NEXT_TURN',
   ELIMINATE_PLAYER: 'ELIMINATE_PLAYER',
   SET_WINNER: 'SET_WINNER',
@@ -169,6 +174,9 @@ export type GameAction =
   | SetAnimatingAction
   | SetGameStateAction
   | RecordChainReactionAction
+  | StartChainSequenceAction
+  | PlayExplosionStepAction
+  | CompleteChainSequenceAction
   | SimpleGameAction;
 
 // Game history and replay types
@@ -200,4 +208,64 @@ export interface ChainReaction {
   explosions: ExplosionData[];
   affectedCells: string[];
   duration: number;
+}
+
+// Step-wise chain reaction types
+export interface OrbMovementAnimation {
+  fromCell: { row: number; col: number };
+  toCell: { row: number; col: number };
+  startTime: number;
+  duration: number; // 300ms for orb travel
+  orbColor: string;
+  id: string;
+}
+
+export interface ExplosionStep {
+  explodingCells: Array<{ row: number; col: number }>;
+  resultingBoard: GameBoard;
+  stepIndex: number;
+  orbMovements: OrbMovementAnimation[];
+}
+
+export interface ChainReactionState {
+  isPlaying: boolean;
+  currentStep: number;
+  totalSteps: number;
+  consecutiveExplosions: number;
+  explosionSteps: ExplosionStep[];
+  finalBoard?: GameBoard;
+  safetyLimitReached?: boolean;
+  safety: {
+    maxSteps: number;
+    currentCount: number;
+    limitReached: boolean;
+  };
+}
+
+export interface StartChainSequenceAction {
+  type: typeof GameActionType.START_CHAIN_SEQUENCE;
+  payload: {
+    explosionSteps: ExplosionStep[];
+    totalSteps: number;
+    finalBoard: GameBoard;
+    safetyLimitReached: boolean;
+  };
+}
+
+export interface PlayExplosionStepAction {
+  type: typeof GameActionType.PLAY_EXPLOSION_STEP;
+  payload: {
+    stepIndex: number;
+    intensity: number;
+    boardState: GameBoard;
+  };
+}
+
+export interface CompleteChainSequenceAction {
+  type: typeof GameActionType.COMPLETE_CHAIN_SEQUENCE;
+  payload: {
+    finalBoard: GameBoard;
+    totalSteps: number;
+    safetyLimitReached: boolean;
+  };
 }

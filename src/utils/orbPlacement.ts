@@ -3,6 +3,7 @@ import { validateMove, type MoveContext } from './moveValidation';
 import {
   placeOrb,
   processChainReactions,
+  processChainReactionsSequential,
   getExplodingCells,
 } from './gameLogic';
 import { checkGameEnd } from './winLoseDetection';
@@ -75,48 +76,107 @@ export const executeOrbPlacement = async (
       // Check if the placed orb immediately causes an explosion
       const placedCell = boardAfterPlacement.cells[row][col];
       if (placedCell.orbCount >= placedCell.criticalMass) {
-        // Cell reached critical mass - process all chain reactions
-        const chainResult = processChainReactions(boardAfterPlacement);
-        finalBoard = chainResult.finalBoard;
-        chainReactionSteps = chainResult.explosionSteps;
+        // Cell reached critical mass - process chain reactions sequentially
+        console.log(
+          `🔥 Cell at (${row}, ${col}) reached critical mass, processing sequentially...`
+        );
+        const sequentialResult =
+          processChainReactionsSequential(boardAfterPlacement);
+        finalBoard = sequentialResult.finalBoard;
+
+        console.log(
+          `⚡ Sequential result: ${sequentialResult.explosionSteps.length} explosion steps`,
+          {
+            stepsCount: sequentialResult.explosionSteps.length,
+            safetyReached: sequentialResult.safetyLimitReached,
+            enableAnimations,
+          }
+        );
+
+        // Add sequential chain reaction actions if there were explosions
+        if (sequentialResult.explosionSteps.length > 0) {
+          // For backward compatibility, populate chainReactionSteps
+          chainReactionSteps = sequentialResult.explosionSteps.map(
+            (step) => step.resultingBoard
+          );
+
+          if (enableAnimations) {
+            console.log(
+              '🎬 Animations enabled - dispatching START_CHAIN_SEQUENCE'
+            );
+            // Start the chain sequence
+            actions.push({
+              type: 'START_CHAIN_SEQUENCE',
+              payload: {
+                explosionSteps: sequentialResult.explosionSteps,
+                totalSteps: sequentialResult.explosionSteps.length,
+                finalBoard: sequentialResult.finalBoard,
+                safetyLimitReached: sequentialResult.safetyLimitReached,
+              },
+            });
+
+            // Record chain reaction statistics
+            actions.push({
+              type: 'RECORD_CHAIN_REACTION',
+              payload: {
+                playerId,
+                chainLength: sequentialResult.explosionSteps.length,
+                explosionsCount: sequentialResult.explosionSteps.length,
+              },
+            });
+
+            // Note: COMPLETE_CHAIN_SEQUENCE will be dispatched by ChainReactionManager
+            // when all animation steps are finished
+          } else {
+            // If animations disabled, use old system for now
+            const chainResult = processChainReactions(boardAfterPlacement);
+            finalBoard = chainResult.finalBoard;
+            chainReactionSteps = chainResult.explosionSteps;
+
+            actions.push({
+              type: 'RECORD_CHAIN_REACTION',
+              payload: {
+                playerId,
+                chainLength: chainResult.explosionSteps.length,
+                explosionsCount: chainResult.explosionSteps.length,
+              },
+            });
+          }
+        }
       } else {
         // Check if any other cells are at critical mass (shouldn't happen in normal gameplay)
         const explodingCells = getExplodingCells(boardAfterPlacement);
         if (explodingCells.length > 0) {
-          const chainResult = processChainReactions(boardAfterPlacement);
-          finalBoard = chainResult.finalBoard;
-          chainReactionSteps = chainResult.explosionSteps;
-        }
-      }
+          const sequentialResult =
+            processChainReactionsSequential(boardAfterPlacement);
+          finalBoard = sequentialResult.finalBoard;
 
-      // Add explosion actions if there were chain reactions
-      if (chainReactionSteps.length > 0) {
-        if (enableAnimations) {
-          actions.push({
-            type: 'SET_ANIMATING',
-            payload: { isAnimating: true },
-          });
-        }
+          if (sequentialResult.explosionSteps.length > 0) {
+            // For backward compatibility, populate chainReactionSteps
+            chainReactionSteps = sequentialResult.explosionSteps.map(
+              (step) => step.resultingBoard
+            );
 
-        actions.push({
-          type: 'TRIGGER_EXPLOSION',
-          payload: { explosions: [] }, // Will be calculated by reducer
-        });
+            if (enableAnimations) {
+              actions.push({
+                type: 'START_CHAIN_SEQUENCE',
+                payload: {
+                  explosionSteps: sequentialResult.explosionSteps,
+                  totalSteps: sequentialResult.explosionSteps.length,
+                  finalBoard: sequentialResult.finalBoard,
+                  safetyLimitReached: sequentialResult.safetyLimitReached,
+                },
+              });
 
-        // Record chain reaction statistics
-        actions.push({
-          type: 'RECORD_CHAIN_REACTION',
-          payload: {
-            playerId,
-            chainLength: chainReactionSteps.length,
-            explosionsCount: chainReactionSteps.length, // Each step represents explosions
-          },
-        });
-
-        if (enableAnimations) {
-          actions.push({
-            type: 'COMPLETE_EXPLOSIONS',
-          });
+              // Note: COMPLETE_CHAIN_SEQUENCE will be dispatched by ChainReactionManager
+              // when all steps are finished
+            } else {
+              // Fallback to old system when animations disabled
+              const chainResult = processChainReactions(boardAfterPlacement);
+              finalBoard = chainResult.finalBoard;
+              chainReactionSteps = chainResult.explosionSteps;
+            }
+          }
         }
       }
     }
@@ -126,11 +186,18 @@ export const executeOrbPlacement = async (
       ...gameState,
       board: finalBoard,
       moveCount: gameState.moveCount + 1,
-      isAnimating: enableAnimations && chainReactionSteps.length > 0,
+      isAnimating:
+        enableAnimations &&
+        (chainReactionSteps.length > 0 ||
+          actions.some((a) => a.type === 'START_CHAIN_SEQUENCE')),
     };
 
     // If there are chain reactions, defer win checking until animations complete
-    if (chainReactionSteps.length > 0 && enableAnimations) {
+    const hasChainReactions =
+      chainReactionSteps.length > 0 ||
+      actions.some((a) => a.type === 'START_CHAIN_SEQUENCE');
+
+    if (hasChainReactions && enableAnimations) {
       // Don't check for game over yet - let animations complete first
       // Win detection will happen when animations finish
       actions.push({

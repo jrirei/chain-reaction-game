@@ -1,0 +1,129 @@
+.orbAnimation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 100;
+
+  /* Center the orb on its position */
+  transform-origin: center;
+
+  /* Smooth animation curve for natural movement */
+  transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.orb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+
+  /* Use CSS custom property for dynamic color */
+  background: var(--orb-color, #646cff);
+
+  /* Center the orb relative to its container */
+  transform: translate(-50%, -50%);
+
+  /* Visual effects */
+  box-shadow:
+    0 0 8px var(--orb-color, #646cff),
+    0 0 16px rgba(100, 108, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+
+  /* Pulse animation during movement */
+  animation: orbPulse 0.3s ease-in-out infinite alternate;
+}
+
+/* Pulse effect for the moving orb */
+@keyframes orbPulse {
+  from {
+    transform: translate(-50%, -50%) scale(1);
+    filter: brightness(1);
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1.2);
+    filter: brightness(1.4);
+  }
+}
+
+/* Fade in animation when orb appears */
+@keyframes orbFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Apply fade in to the orb */
+.orb {
+  animation:
+    orbFadeIn 0.1s ease-out,
+    orbPulse 0.3s ease-in-out infinite alternate 0.1s;
+}
+
+/* Different orb sizes for different intensity levels */
+.orbAnimation[data-intensity='high'] .orb {
+  width: 20px;
+  height: 20px;
+}
+
+.orbAnimation[data-intensity='extreme'] .orb {
+  width: 24px;
+  height: 24px;
+  box-shadow:
+    0 0 12px var(--orb-color, #646cff),
+    0 0 24px rgba(100, 108, 255, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Trail effect for fast-moving orbs */
+.orbAnimation[data-speed='fast'] .orb::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background: var(--orb-color, #646cff);
+  border-radius: 50%;
+  opacity: 0.6;
+  transform: translate(-150%, -50%);
+  animation: trail 0.2s ease-out infinite;
+}
+
+@keyframes trail {
+  from {
+    opacity: 0.6;
+    transform: translate(-150%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-300%, -50%) scale(0.3);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .orbAnimation {
+    transition-duration: 0.1s !important;
+  }
+
+  .orb {
+    animation: none;
+  }
+
+  .orb::after {
+    display: none;
+  }
+}
+
+/* High performance mode - simpler animations */
+@media (prefers-reduced-motion: reduce) {
+  .orb {
+    box-shadow: 0 0 4px var(--orb-color, #646cff);
+    animation: none;
+  }
+}

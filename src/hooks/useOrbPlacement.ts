@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useGameState } from './useGameState';
-import { useAudioManager } from './useAudioManager';
+import { useProgressiveAudioManager } from './useProgressiveAudioManager';
 import {
   executeOrbPlacement,
   previewOrbPlacement,
@@ -30,7 +30,7 @@ export interface MovePreview {
 export const useOrbPlacement = () => {
   const { gameState, currentPlayer, dispatch } = useGameState();
   const { playOrbPlace, playChainReaction, playInvalidMove } =
-    useAudioManager();
+    useProgressiveAudioManager();
   const [isPlacingOrb, setIsPlacingOrb] = useState(false);
   const [feedback, setFeedback] = useState<OrbPlacementFeedback | null>(null);
   const [movePreview, setMovePreview] = useState<MovePreview | null>(null);
@@ -135,63 +135,82 @@ export const useOrbPlacement = () => {
         // Play orb placement sound
         playOrbPlace();
 
-        // Apply the final game state directly (since executeOrbPlacement calculates everything)
-        if (result.updatedGameState) {
-          // Create a custom action to update the entire game state
+        // Check if the new step-wise system is being used
+        const isUsingNewSystem =
+          result.actions?.some(
+            (action) => action.type === 'START_CHAIN_SEQUENCE'
+          ) || false;
+
+        if (isUsingNewSystem && result.actions) {
+          // New system: dispatch individual actions to preserve chain reaction state
+          console.log(
+            '🎬 New system: dispatching individual actions',
+            result.actions.map((a) => a.type)
+          );
+          for (const action of result.actions) {
+            dispatch(action);
+          }
+        } else if (result.updatedGameState) {
+          // Old system: Apply the final game state directly
           dispatch({
             type: 'SET_GAME_STATE',
             payload: result.updatedGameState,
           });
+        }
 
-          // Handle animations properly for chain reactions
-          if (
-            result.chainReactionSteps &&
-            result.chainReactionSteps.length > 0 &&
-            result.updatedGameState.isAnimating
-          ) {
-            // Always play chain reaction sound for any explosion
-            // The new sound is designed to work for both single and multiple explosions
-            playChainReaction();
+        // Handle animations properly for chain reactions
+        if (
+          result.chainReactionSteps &&
+          result.chainReactionSteps.length > 0 &&
+          result.updatedGameState &&
+          result.updatedGameState.isAnimating &&
+          !isUsingNewSystem
+        ) {
+          // Only use old animation system if new system is not active
+          // Always play chain reaction sound for any explosion
+          // The new sound is designed to work for both single and multiple explosions
+          playChainReaction();
 
+          console.log('Chain reaction detected, using OLD animation system...');
+
+          // Clear any existing animation timeout
+          if (animationTimeoutRef.current) {
+            clearTimeout(animationTimeoutRef.current);
+          }
+
+          // Calculate animation duration based on chain reaction complexity
+          const baseAnimationTime = 500; // Base time for explosion animation (matches CSS)
+          const chainReactionDelay = 200; // Additional delay per chain reaction step
+          const totalAnimationTime =
+            baseAnimationTime +
+            result.chainReactionSteps.length * chainReactionDelay;
+
+          console.log(
+            `Animation will complete in ${totalAnimationTime}ms (${result.chainReactionSteps.length} chain steps)`
+          );
+
+          // Set timeout to complete animations after proper duration
+          animationTimeoutRef.current = setTimeout(() => {
             console.log(
-              'Chain reaction detected, starting animation sequence...'
+              'Animation sequence complete, dispatching COMPLETE_EXPLOSIONS'
             );
-
-            // Clear any existing animation timeout
-            if (animationTimeoutRef.current) {
-              clearTimeout(animationTimeoutRef.current);
-            }
-
-            // Calculate animation duration based on chain reaction complexity
-            const baseAnimationTime = 500; // Base time for explosion animation (matches CSS)
-            const chainReactionDelay = 200; // Additional delay per chain reaction step
-            const totalAnimationTime =
-              baseAnimationTime +
-              result.chainReactionSteps.length * chainReactionDelay;
-
-            console.log(
-              `Animation will complete in ${totalAnimationTime}ms (${result.chainReactionSteps.length} chain steps)`
-            );
-
-            // Set timeout to complete animations after proper duration
-            animationTimeoutRef.current = setTimeout(() => {
-              console.log(
-                'Animation sequence complete, dispatching COMPLETE_EXPLOSIONS'
-              );
-              dispatch({ type: 'COMPLETE_EXPLOSIONS' });
-              animationTimeoutRef.current = null;
-            }, totalAnimationTime);
-          } else {
-            // For non-animated moves, process turn progression immediately
-            if (result.actions) {
-              for (const action of result.actions) {
-                if (
-                  action.type === 'NEXT_TURN' &&
-                  result.updatedGameState.gameStatus !== 'finished'
-                ) {
-                  dispatch(action);
-                }
-              }
+            dispatch({ type: 'COMPLETE_EXPLOSIONS' });
+            animationTimeoutRef.current = null;
+          }, totalAnimationTime);
+        } else if (isUsingNewSystem) {
+          // New step-wise system is active - ChainReactionManager will handle the timing
+          console.log(
+            '🎬 Using NEW step-wise animation system - ChainReactionManager will handle timing'
+          );
+        } else if (result.actions) {
+          // For non-animated moves, process turn progression immediately
+          for (const action of result.actions) {
+            if (
+              action.type === 'NEXT_TURN' &&
+              result.updatedGameState &&
+              result.updatedGameState.gameStatus !== 'finished'
+            ) {
+              dispatch(action);
             }
           }
         }

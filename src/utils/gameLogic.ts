@@ -1,5 +1,13 @@
-import type { Cell, GameBoard, GameState, PlayerId } from '../types';
+import type {
+  Cell,
+  GameBoard,
+  GameState,
+  PlayerId,
+  ExplosionStep,
+  OrbMovementAnimation,
+} from '../types';
 import { getCriticalMass, generateCellId } from './helpers';
+import { PLAYER_COLORS } from './constants';
 
 /**
  * Creates an empty game board with the specified dimensions
@@ -185,6 +193,113 @@ export const processChainReactions = (
     finalBoard: currentBoard,
     explosionSteps,
   };
+};
+
+/**
+ * Processes chain reactions sequentially with animation data
+ * Returns step-by-step explosion data with orb movement animations
+ */
+export const processChainReactionsSequential = (
+  board: GameBoard,
+  maxSteps: number = 20
+): {
+  explosionSteps: ExplosionStep[];
+  finalBoard: GameBoard;
+  safetyLimitReached: boolean;
+} => {
+  const steps: ExplosionStep[] = [];
+  let currentBoard = deepCloneBoard(board);
+  let stepCount = 0;
+
+  while (stepCount < maxSteps) {
+    const explodingCells = getExplodingCells(currentBoard);
+
+    if (explodingCells.length === 0) {
+      break; // No more explosions
+    }
+
+    // Calculate orb movements for this step
+    const orbMovements = calculateOrbMovements(explodingCells, currentBoard);
+
+    // Process the explosion step
+    let newBoard = deepCloneBoard(currentBoard);
+    for (const cell of explodingCells) {
+      newBoard = processExplosion(newBoard, cell.row, cell.col);
+    }
+
+    // Create explosion step data
+    steps.push({
+      explodingCells: explodingCells.map((cell) => ({
+        row: cell.row,
+        col: cell.col,
+      })),
+      resultingBoard: deepCloneBoard(newBoard),
+      stepIndex: stepCount,
+      orbMovements,
+    });
+
+    currentBoard = newBoard;
+    stepCount++;
+  }
+
+  return {
+    explosionSteps: steps,
+    finalBoard: currentBoard,
+    safetyLimitReached: stepCount >= maxSteps,
+  };
+};
+
+/**
+ * Calculates orb movement animations for exploding cells
+ */
+const calculateOrbMovements = (
+  explodingCells: Cell[],
+  board: GameBoard
+): OrbMovementAnimation[] => {
+  const movements: OrbMovementAnimation[] = [];
+  const startTime = Date.now();
+
+  explodingCells.forEach((cell) => {
+    const { row, col } = cell;
+
+    // Get adjacent cells (up, down, left, right)
+    const adjacentPositions = [
+      { row: row - 1, col }, // up
+      { row: row + 1, col }, // down
+      { row, col: col - 1 }, // left
+      { row, col: col + 1 }, // right
+    ].filter(
+      (pos) =>
+        pos.row >= 0 &&
+        pos.row < board.rows &&
+        pos.col >= 0 &&
+        pos.col < board.cols
+    );
+
+    // Create movement animation for each adjacent cell
+    adjacentPositions.forEach((pos, index) => {
+      movements.push({
+        fromCell: { row, col },
+        toCell: pos,
+        startTime: startTime + index * 10, // Slight stagger for visual effect
+        duration: 300, // 300ms of the 400ms step
+        orbColor: getPlayerColor(cell.playerId),
+        id: `${cell.id}-to-${pos.row}-${pos.col}-${startTime}`,
+      });
+    });
+  });
+
+  return movements;
+};
+
+/**
+ * Gets the color for a player ID
+ */
+const getPlayerColor = (playerId: PlayerId | null): string => {
+  if (!playerId) return '#ffffff';
+
+  const playerIndex = parseInt(playerId.replace('player', '')) - 1;
+  return PLAYER_COLORS[playerIndex] || '#ffffff';
 };
 
 /**

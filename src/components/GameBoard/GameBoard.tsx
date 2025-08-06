@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useGameState } from '../../hooks/useGameState';
 // import { useGameLogic } from '../../hooks/useGameLogic';
 import { useOrbPlacement } from '../../hooks/useOrbPlacement';
 import Cell from '../Cell';
 import GameFeedback from '../GameFeedback';
+import ChainReactionManager from '../ChainReactionManager';
 import styles from './GameBoard.module.css';
 
 interface GameBoardProps {
@@ -19,8 +20,45 @@ const GameBoard: React.FC<GameBoardProps> = ({
   showFeedback = true,
   showCriticalMassVisualization = true,
 }) => {
-  const { gameInfo, boardInfo, currentPlayer, canMakeMove, players } =
-    useGameState();
+  const {
+    gameInfo,
+    boardInfo,
+    currentPlayer,
+    canMakeMove,
+    players,
+    gameState,
+  } = useGameState();
+
+  const boardRef = useRef<HTMLDivElement>(null);
+  const [cellSize, setCellSize] = useState(64); // Default cell size
+
+  // Calculate cell size based on board dimensions
+  useEffect(() => {
+    if (boardRef.current && boardInfo.rows > 0 && boardInfo.cols > 0) {
+      const boardElement = boardRef.current;
+      const boardWidth = boardElement.clientWidth;
+      const boardHeight = boardElement.clientHeight;
+
+      // Calculate cell size to fit the board
+      const cellWidth = Math.floor(boardWidth / boardInfo.cols);
+      const cellHeight = Math.floor(boardHeight / boardInfo.rows);
+      const calculatedCellSize = Math.min(cellWidth, cellHeight, 80); // Max 80px
+
+      setCellSize(calculatedCellSize);
+    }
+  }, [boardInfo.rows, boardInfo.cols]);
+
+  // Handle chain reaction step completion
+  const handleChainStepComplete = (stepIndex: number) => {
+    // Optional: Add any additional logic when a step completes
+    console.log(`Chain reaction step ${stepIndex + 1} completed`);
+  };
+
+  // Handle chain reaction sequence completion
+  const handleChainSequenceComplete = () => {
+    // This will be handled by the game reducer
+    console.log('Chain reaction sequence completed');
+  };
 
   // const { makeMove, isValidMoveAt } = useGameLogic();
   const {
@@ -37,7 +75,12 @@ const GameBoard: React.FC<GameBoardProps> = ({
       return;
     }
 
-    if (gameInfo.isAnimating || isPlacingOrb) {
+    // Prevent clicks during animations or chain reactions
+    if (
+      gameInfo.isAnimating ||
+      isPlacingOrb ||
+      gameState.gameStatus === 'chain_reacting'
+    ) {
       return;
     }
 
@@ -67,7 +110,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
       canMakeMove(cell.row, cell.col) &&
       isValidTarget(cell.row, cell.col) &&
       !gameInfo.isAnimating &&
-      !isPlacingOrb;
+      !isPlacingOrb &&
+      gameState.gameStatus !== 'chain_reacting';
 
     const isCurrentPlayerCell =
       currentPlayer && cell.playerId === currentPlayer.id;
@@ -113,6 +157,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       )}
 
       <div
+        ref={boardRef}
         className={styles.gameBoard}
         style={{
           gridTemplateRows: `repeat(${boardInfo.rows}, 1fr)`,
@@ -124,10 +169,20 @@ const GameBoard: React.FC<GameBoardProps> = ({
         {renderGrid()}
       </div>
 
-      {gameInfo.isAnimating && (
+      {/* Chain Reaction Animation Manager */}
+      <ChainReactionManager
+        gridSize={{ rows: boardInfo.rows, cols: boardInfo.cols }}
+        cellSize={cellSize}
+        onStepComplete={handleChainStepComplete}
+        onSequenceComplete={handleChainSequenceComplete}
+      />
+
+      {(gameInfo.isAnimating || gameState.gameStatus === 'chain_reacting') && (
         <div className={styles.animationOverlay}>
           <div className={styles.animationMessage}>
-            Processing chain reaction...
+            {gameState.gameStatus === 'chain_reacting'
+              ? 'Chain reaction in progress...'
+              : 'Processing chain reaction...'}
           </div>
         </div>
       )}

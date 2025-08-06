@@ -347,6 +347,110 @@ export const gameReducer = (
       };
     }
 
+    case 'START_CHAIN_SEQUENCE': {
+      const { explosionSteps, totalSteps, finalBoard, safetyLimitReached } =
+        action.payload;
+
+      return {
+        ...state,
+        gameStatus: 'chain_reacting',
+        chainReactionState: {
+          isPlaying: true,
+          currentStep: 0,
+          totalSteps,
+          consecutiveExplosions: 0,
+          explosionSteps,
+          finalBoard, // Store final board for completion
+          safetyLimitReached,
+          safety: {
+            maxSteps: 20,
+            currentCount: totalSteps,
+            limitReached: safetyLimitReached,
+          },
+        },
+      };
+    }
+
+    case 'PLAY_EXPLOSION_STEP': {
+      const { stepIndex, intensity, boardState } = action.payload;
+
+      if (!state.chainReactionState) {
+        return state; // Safety check
+      }
+
+      return {
+        ...state,
+        board: boardState,
+        chainReactionState: {
+          ...state.chainReactionState,
+          currentStep: stepIndex,
+          consecutiveExplosions: intensity,
+        },
+      };
+    }
+
+    case 'COMPLETE_CHAIN_SEQUENCE': {
+      const { finalBoard } = action.payload;
+
+      // Check for game over conditions now that chain reaction is complete
+      const gameEndResult = checkGameEnd({
+        ...state,
+        board: finalBoard,
+      });
+
+      if (gameEndResult.isGameOver) {
+        return {
+          ...state,
+          board: finalBoard,
+          gameStatus: 'finished',
+          winner: gameEndResult.winner || null,
+          gameEndTime: Date.now(),
+          chainReactionState: undefined,
+        };
+      }
+
+      // Get active players and update turn progression (same logic as COMPLETE_EXPLOSIONS)
+      const activePlayers = gameEndResult.finalScores
+        .filter((score) => !score.isEliminated)
+        .map((score) => score.playerId);
+
+      let updatedPlayers = state.players;
+      let nextPlayerIndex = 0;
+
+      if (activePlayers.length < state.players.length) {
+        // Players have been eliminated
+        updatedPlayers = activePlayers;
+
+        // Find the next active player in the original turn order
+        const originalPlayers = state.players;
+        let searchIndex = state.currentPlayerIndex;
+
+        // Search for the next active player starting from current position
+        for (let attempts = 0; attempts < originalPlayers.length; attempts++) {
+          searchIndex = (searchIndex + 1) % originalPlayers.length;
+          const candidatePlayerId = originalPlayers[searchIndex];
+
+          if (activePlayers.includes(candidatePlayerId)) {
+            // Found next active player, get their index in the new active players array
+            nextPlayerIndex = activePlayers.indexOf(candidatePlayerId);
+            break;
+          }
+        }
+      } else {
+        // No eliminations, normal turn progression
+        nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+      }
+
+      return {
+        ...state,
+        board: finalBoard,
+        gameStatus: 'playing',
+        chainReactionState: undefined,
+        players: updatedPlayers,
+        currentPlayerIndex: nextPlayerIndex,
+      };
+    }
+
     default:
       return state;
   }
