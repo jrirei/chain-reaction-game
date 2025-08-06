@@ -7,10 +7,10 @@ export const DEFAULT_PLAYER_COUNT = 2;
 
 // Multi-player support: Colors optimized for visibility and contrast
 export const PLAYER_COLORS = [
-  '#FF6B6B', // Red - Player 1
-  '#4ECDC4', // Teal - Player 2
-  '#FFB347', // Orange - Player 3
-  '#98D8C8', // Mint Green - Player 4
+  '#FF0000', // Red - Player 1
+  '#0000FF', // Blue - Player 2
+  '#008000', // Green - Player 3
+  '#FFA500', // Orange - Player 4
   '#B19CD9', // Light Purple - Player 5 (future)
   '#F7DC6F', // Yellow - Player 6 (future)
   '#85C1E9', // Light Blue - Player 7 (future)

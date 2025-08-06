@@ -37,7 +37,7 @@ const ChainReactionManager: React.FC<ChainReactionManagerProps> = ({
   const playExplosionStep = useCallback(
     (step: ExplosionStep, intensity: number) => {
       console.log(
-        `🎬 Playing explosion step ${step.stepIndex + 1}, intensity: ${intensity}`
+        `🎬 Playing explosion step ${step.stepIndex + 1}, intensity: ${intensity}, duration: 400ms`
       );
 
       // Set active animations for this step
@@ -59,10 +59,48 @@ const ChainReactionManager: React.FC<ChainReactionManagerProps> = ({
         },
       });
 
-      // Complete the step after animation duration (400ms)
+      // Complete the step after animation duration (400ms - original speed)
       setTimeout(() => {
         setActiveAnimations([]);
         onStepComplete?.(step.stepIndex);
+
+        // After this step completes, check if we need to play the next step
+        if (
+          chainReactionState &&
+          step.stepIndex + 1 < chainReactionState.totalSteps
+        ) {
+          const nextStepIndex = step.stepIndex + 1;
+          const nextStep = chainReactionState.explosionSteps[nextStepIndex];
+          if (nextStep) {
+            console.log(
+              `🔄 Scheduling next step ${nextStepIndex} after current step completed`
+            );
+            // Schedule the next step to play immediately after this one completes
+            setTimeout(() => {
+              playExplosionStep(nextStep, nextStepIndex + 1);
+            }, 100); // Small delay to ensure state updates
+          }
+        } else if (
+          chainReactionState &&
+          step.stepIndex + 1 >= chainReactionState.totalSteps
+        ) {
+          // All steps completed, finish the sequence
+          console.log('✅ All steps completed, finishing sequence');
+          setTimeout(() => {
+            if (chainReactionState.finalBoard) {
+              dispatch({
+                type: 'COMPLETE_CHAIN_SEQUENCE',
+                payload: {
+                  finalBoard: chainReactionState.finalBoard,
+                  totalSteps: chainReactionState.totalSteps,
+                  safetyLimitReached:
+                    chainReactionState.safetyLimitReached || false,
+                },
+              });
+            }
+            onSequenceComplete?.();
+          }, 100);
+        }
       }, 400);
     },
     [
@@ -70,10 +108,12 @@ const ChainReactionManager: React.FC<ChainReactionManagerProps> = ({
       onStepComplete,
       playProgressiveChainReaction,
       getIntensityFromExplosions,
+      chainReactionState,
+      onSequenceComplete,
     ]
   );
 
-  // Handle chain reaction sequence
+  // Handle chain reaction sequence start
   useEffect(() => {
     if (!chainReactionState || !chainReactionState.isPlaying) {
       console.log('🚫 Chain reaction manager: not playing');
@@ -85,45 +125,15 @@ const ChainReactionManager: React.FC<ChainReactionManagerProps> = ({
       `🎯 Chain reaction manager: step ${currentStep}/${totalSteps}, steps available: ${explosionSteps.length}`
     );
 
-    // If we're starting or continuing the sequence
-    if (currentStep < totalSteps && explosionSteps[currentStep]) {
-      const step = explosionSteps[currentStep];
-      const intensity = currentStep + 1; // 1-based intensity
+    // Only start the first step here - subsequent steps will be chained by playExplosionStep
+    if (currentStep === 0 && explosionSteps.length > 0) {
+      const firstStep = explosionSteps[0];
+      console.log('🚀 Starting chain reaction sequence with first step');
 
-      console.log(
-        `⏱️ Scheduling step ${currentStep} with intensity ${intensity} in 100ms`
-      );
-
-      // Play this step after a brief delay
-      const stepTimer = setTimeout(() => {
-        playExplosionStep(step, intensity);
-      }, 100);
-
-      return () => clearTimeout(stepTimer);
+      // Start the first step immediately
+      playExplosionStep(firstStep, 1);
     }
-
-    // If sequence is complete
-    if (currentStep >= totalSteps) {
-      console.log('✅ Chain reaction sequence complete');
-      const completeTimer = setTimeout(() => {
-        // Dispatch completion action with the final board state
-        if (chainReactionState.finalBoard) {
-          dispatch({
-            type: 'COMPLETE_CHAIN_SEQUENCE',
-            payload: {
-              finalBoard: chainReactionState.finalBoard,
-              totalSteps: chainReactionState.totalSteps,
-              safetyLimitReached:
-                chainReactionState.safetyLimitReached || false,
-            },
-          });
-        }
-        onSequenceComplete?.();
-      }, 100);
-
-      return () => clearTimeout(completeTimer);
-    }
-  }, [chainReactionState, playExplosionStep, onSequenceComplete]);
+  }, [chainReactionState?.isPlaying]); // Only depend on whether the sequence is starting
 
   // Handle animation completion
   const handleAnimationComplete = useCallback(() => {

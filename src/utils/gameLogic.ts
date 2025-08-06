@@ -282,7 +282,7 @@ const calculateOrbMovements = (
         fromCell: { row, col },
         toCell: pos,
         startTime: startTime + index * 10, // Slight stagger for visual effect
-        duration: 300, // 300ms of the 400ms step
+        duration: 300, // 300ms of the 400ms step (original speed)
         orbColor: getPlayerColor(cell.playerId),
         id: `${cell.id}-to-${pos.row}-${pos.col}-${startTime}`,
       });
