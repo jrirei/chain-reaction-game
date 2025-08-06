@@ -174,7 +174,7 @@ export const gameReducer = (
 
       // If players have been eliminated, update the players array
       let updatedPlayers = newState.players;
-      let nextPlayerIndex;
+      let nextPlayerIndex = 0; // Default fallback
 
       if (activePlayers.length < newState.players.length) {
         // Players have been eliminated
