@@ -14,7 +14,26 @@ const PlayerList: React.FC<PlayerListProps> = ({
   compact = false,
   horizontal = true,
 }) => {
-  const { players, currentPlayer, gameInfo } = useGameState();
+  const { players, currentPlayer, gameInfo, gameState } = useGameState();
+
+  // Create chain reaction info for the current player
+  const getChainReactionInfo = (playerId: string) => {
+    if (!currentPlayer || currentPlayer.id !== playerId) {
+      return undefined;
+    }
+
+    const chainReactionState = gameState.chainReactionState;
+    if (!chainReactionState?.isPlaying) {
+      return undefined;
+    }
+
+    return {
+      isActive: true,
+      consecutiveExplosions: chainReactionState.consecutiveExplosions,
+      currentStep: chainReactionState.currentStep,
+      totalSteps: chainReactionState.totalSteps,
+    };
+  };
 
   if (players.length === 0) {
     return (
@@ -81,6 +100,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
               rank={rank}
               showStats={showStats}
               compact={compact}
+              chainReactionInfo={getChainReactionInfo(player.id)}
             />
           );
         })}

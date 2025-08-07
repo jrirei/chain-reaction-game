@@ -232,3 +232,66 @@
     border-top-color: #dee2e6;
   }
 }
+
+/* Chain Reaction Info */
+.chainReactionInfo {
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background: rgba(100, 108, 255, 0.1);
+  border: 2px solid #646cff;
+  border-radius: 8px;
+  text-align: center;
+  animation: chainReactionPulse 1s ease-in-out infinite alternate;
+}
+
+.chainReactionTitle {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #646cff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.chainReactionCounter {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #646cff;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.chainReactionLightning {
+  font-size: 1.2rem;
+  line-height: 1;
+  margin-bottom: 4px;
+  animation: lightningPulse 0.6s ease-in-out infinite alternate;
+}
+
+.chainReactionProgress {
+  font-size: 0.7rem;
+  color: #646cff;
+  opacity: 0.8;
+}
+
+@keyframes chainReactionPulse {
+  from {
+    background: rgba(100, 108, 255, 0.1);
+    border-color: #646cff;
+  }
+  to {
+    background: rgba(100, 108, 255, 0.2);
+    border-color: #5a67e8;
+  }
+}
+
+@keyframes lightningPulse {
+  from {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  to {
+    transform: scale(1.1);
+    filter: brightness(1.3);
+  }
+}

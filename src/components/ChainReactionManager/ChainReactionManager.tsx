@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useGameState } from '../../hooks/useGameState';
 import { useProgressiveAudioManager } from '../../hooks/useProgressiveAudioManager';
-import ChainCounter from '../ChainCounter';
 import OrbMovementAnimation from '../OrbMovementAnimation';
 import type {
   ExplosionStep,
@@ -30,7 +29,6 @@ const ChainReactionManager: React.FC<ChainReactionManagerProps> = ({
   );
 
   const chainReactionState = gameState.chainReactionState;
-  const isChainReacting = chainReactionState?.isPlaying || false;
   const consecutiveExplosions = chainReactionState?.consecutiveExplosions || 0;
 
   // Play a single explosion step
@@ -142,12 +140,6 @@ const ChainReactionManager: React.FC<ChainReactionManagerProps> = ({
 
   return (
     <div className={styles.chainReactionManager}>
-      {/* Chain Counter Display */}
-      <ChainCounter
-        consecutiveExplosions={consecutiveExplosions}
-        isVisible={isChainReacting}
-      />
-
       {/* Orb Movement Animations */}
       <div className={styles.animationLayer}>
         {activeAnimations.map((movement) => (

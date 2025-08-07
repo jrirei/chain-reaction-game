@@ -8,6 +8,12 @@ interface PlayerInfoProps {
   rank?: number;
   showStats?: boolean;
   compact?: boolean;
+  chainReactionInfo?: {
+    isActive: boolean;
+    consecutiveExplosions: number;
+    currentStep: number;
+    totalSteps: number;
+  };
 }
 
 const PlayerInfo: React.FC<PlayerInfoProps> = ({
@@ -16,6 +22,7 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
   rank,
   showStats = false,
   compact = false,
+  chainReactionInfo,
 }) => {
   const playerClasses = [
     styles.playerInfo,
@@ -53,6 +60,33 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
     );
   };
 
+  const renderChainReaction = () => {
+    if (!chainReactionInfo?.isActive || !isCurrentPlayer) return null;
+
+    // Calculate intensity level (1-10 based on consecutive explosions)
+    const intensityLevel = Math.min(
+      chainReactionInfo.consecutiveExplosions,
+      10
+    );
+
+    // Create lightning bolts based on intensity
+    const lightningBolts = '⚡'.repeat(intensityLevel);
+
+    return (
+      <div className={styles.chainReactionInfo}>
+        <div className={styles.chainReactionTitle}>Chain Reaction!</div>
+        <div className={styles.chainReactionCounter}>
+          {chainReactionInfo.consecutiveExplosions}
+        </div>
+        <div className={styles.chainReactionLightning}>{lightningBolts}</div>
+        <div className={styles.chainReactionProgress}>
+          Step {chainReactionInfo.currentStep + 1} of{' '}
+          {chainReactionInfo.totalSteps}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={playerClasses}>
       <div className={styles.playerHeader}>
@@ -81,6 +115,7 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
         )}
       </div>
 
+      {renderChainReaction()}
       {renderPlayerStats()}
     </div>
   );

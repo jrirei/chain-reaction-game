@@ -1,7 +1,7 @@
 .chainCounter {
   position: fixed;
   top: 50%;
-  left: 300px; /* Position over the left sidebar (280-320px width) */
+  left: 20%; /* Position at 20% from left edge, typically over sidebar */
   transform: translate(-50%, -50%);
   z-index: 1000;
 
@@ -126,6 +126,27 @@
 }
 
 /* Responsive design */
+@media (max-width: 1600px) {
+  .chainCounter {
+    /* For window widths like 2/3 of normal */
+    left: 22%;
+  }
+}
+
+@media (max-width: 1400px) {
+  .chainCounter {
+    /* On smaller viewports, move closer to center */
+    left: 25%;
+  }
+}
+
+@media (max-width: 1200px) {
+  .chainCounter {
+    /* On medium screens, move more toward center */
+    left: 30%;
+  }
+}
+
 @media (max-width: 1024px) {
   .chainCounter {
     /* On smaller screens, center it when sidebar stacks below */
