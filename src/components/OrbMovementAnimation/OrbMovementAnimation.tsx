@@ -6,19 +6,32 @@ interface OrbMovementAnimationProps {
   movement: OrbMovementAnimation;
   gridSize: { rows: number; cols: number };
   cellSize: number; // Size of each cell in pixels
+  intensity?: number; // Chain reaction intensity for visual effects
   onComplete?: () => void;
 }
 
 const OrbMovementAnimationComponent: React.FC<OrbMovementAnimationProps> = ({
   movement,
   cellSize,
+  intensity = 1,
   onComplete,
 }) => {
   const [isAnimating, setIsAnimating] = useState(true);
-  const [currentPosition, setCurrentPosition] = useState({
-    x: 0,
-    y: 0,
-  });
+  const [animationStarted, setAnimationStarted] = useState(false);
+
+  // Calculate animation properties based on intensity and movement distance
+  const distance = Math.sqrt(
+    Math.pow(movement.toCell.col - movement.fromCell.col, 2) +
+      Math.pow(movement.toCell.row - movement.fromCell.row, 2)
+  );
+
+  // Determine intensity level for CSS classes
+  const intensityLevel =
+    intensity >= 8 ? 'extreme' : intensity >= 4 ? 'high' : 'normal';
+
+  // Determine if this is a fast-moving orb (long distance or high intensity)
+  const isHighSpeed = distance > 2 || intensity >= 6;
+  const speedClass = isHighSpeed ? 'fast' : 'normal';
 
   // Calculate positions
   const fromPosition = {
@@ -32,13 +45,17 @@ const OrbMovementAnimationComponent: React.FC<OrbMovementAnimationProps> = ({
   };
 
   useEffect(() => {
-    // Start from the origin cell
-    setCurrentPosition(fromPosition);
+    console.log(
+      `🎭 Orb moving from (${movement.fromCell.row}, ${movement.fromCell.col}) to (${movement.toCell.row}, ${movement.toCell.col})`
+    );
+    console.log(
+      `📍 Positions: from(${fromPosition.x}, ${fromPosition.y}) to(${toPosition.x}, ${toPosition.y}), duration: ${movement.duration}ms`
+    );
 
-    // Animate to destination after a small delay
-    const animationTimer = setTimeout(() => {
-      setCurrentPosition(toPosition);
-    }, 50); // Small delay to ensure smooth start
+    // Start animation after a tiny delay to ensure DOM is ready
+    const startTimer = setTimeout(() => {
+      setAnimationStarted(true);
+    }, 10);
 
     // Complete the animation after duration
     const completeTimer = setTimeout(() => {
@@ -47,39 +64,50 @@ const OrbMovementAnimationComponent: React.FC<OrbMovementAnimationProps> = ({
     }, movement.duration);
 
     return () => {
-      clearTimeout(animationTimer);
+      clearTimeout(startTimer);
       clearTimeout(completeTimer);
     };
   }, [
-    movement,
+    movement.duration,
+    onComplete,
+    movement.fromCell,
+    movement.toCell,
     fromPosition.x,
     fromPosition.y,
     toPosition.x,
     toPosition.y,
-    onComplete,
   ]);
 
   if (!isAnimating) {
     return null;
   }
 
+  // Use direct transform without CSS variables for better compatibility
+  const currentTransform = animationStarted
+    ? `translate(${toPosition.x}px, ${toPosition.y}px)`
+    : `translate(${fromPosition.x}px, ${fromPosition.y}px)`;
+
   return (
     <div
       className={styles.orbAnimation}
+      data-intensity={intensityLevel}
+      data-speed={speedClass}
       style={
         {
-          '--start-x': `${fromPosition.x}px`,
-          '--start-y': `${fromPosition.y}px`,
-          '--end-x': `${toPosition.x}px`,
-          '--end-y': `${toPosition.y}px`,
-          '--duration': `${movement.duration}ms`,
+          transform: currentTransform,
+          transition: animationStarted
+            ? `transform ${movement.duration - 20}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`
+            : 'none',
           '--orb-color': movement.orbColor,
-          transform: `translate(${currentPosition.x}px, ${currentPosition.y}px)`,
-          transition: `transform ${movement.duration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`,
         } as React.CSSProperties
       }
     >
-      <div className={styles.orb} />
+      <div
+        className={styles.orb}
+        style={{
+          backgroundColor: movement.orbColor,
+        }}
+      />
     </div>
   );
 };

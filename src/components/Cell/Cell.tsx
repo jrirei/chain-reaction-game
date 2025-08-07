@@ -14,6 +14,7 @@ interface CellProps {
   isCurrentPlayerCell: boolean;
   showCriticalMass?: boolean;
   showCriticalMassVisualization?: boolean;
+  isEmptyingForAnimation?: boolean;
 }
 
 const Cell: React.FC<CellProps> = ({
@@ -26,6 +27,7 @@ const Cell: React.FC<CellProps> = ({
   isCurrentPlayerCell,
   showCriticalMass = false,
   showCriticalMassVisualization = true,
+  isEmptyingForAnimation = false,
 }) => {
   const {
     getCellDangerLevel,
@@ -78,6 +80,11 @@ const Cell: React.FC<CellProps> = ({
   };
 
   const renderOrbs = () => {
+    // Don't show orbs if the cell is emptying for animation
+    if (isEmptyingForAnimation) {
+      return [];
+    }
+
     const orbs = [];
     for (let i = 0; i < cell.orbCount; i++) {
       orbs.push(

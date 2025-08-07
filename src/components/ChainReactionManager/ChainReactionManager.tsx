@@ -133,7 +133,7 @@ const ChainReactionManager: React.FC<ChainReactionManagerProps> = ({
       // Start the first step immediately
       playExplosionStep(firstStep, 1);
     }
-  }, [chainReactionState?.isPlaying]); // Only depend on whether the sequence is starting
+  }, [chainReactionState, playExplosionStep]); // Include complete dependency
 
   // Handle animation completion
   const handleAnimationComplete = useCallback(() => {
@@ -156,6 +156,7 @@ const ChainReactionManager: React.FC<ChainReactionManagerProps> = ({
             movement={movement}
             gridSize={gridSize}
             cellSize={cellSize}
+            intensity={consecutiveExplosions}
             onComplete={handleAnimationComplete}
           />
         ))}

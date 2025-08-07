@@ -5,43 +5,51 @@
   pointer-events: none;
   z-index: 100;
 
-  /* Center the orb on its position */
-  transform-origin: center;
-
-  /* Smooth animation curve for natural movement */
-  transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* Will be positioned via transform in JavaScript */
 }
 
 .orb {
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-
-  /* Use CSS custom property for dynamic color */
-  background: var(--orb-color, #646cff);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
 
   /* Center the orb relative to its container */
+  position: absolute;
+  top: 0;
+  left: 0;
   transform: translate(-50%, -50%);
 
-  /* Visual effects */
-  box-shadow:
-    0 0 8px var(--orb-color, #646cff),
-    0 0 16px rgba(100, 108, 255, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-
-  /* Pulse animation during movement */
-  animation: orbPulse 0.3s ease-in-out infinite alternate;
+  /* Subtle pulse animation during movement */
+  animation: orbPulse 0.4s ease-in-out infinite alternate;
 }
 
-/* Pulse effect for the moving orb */
+/* White highlight like static orbs */
+.orb::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  box-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+}
+
+/* Subtle pulse effect matching static orbs */
 @keyframes orbPulse {
-  from {
+  0%,
+  100% {
     transform: translate(-50%, -50%) scale(1);
-    filter: brightness(1);
+    opacity: 1;
   }
-  to {
-    transform: translate(-50%, -50%) scale(1.2);
-    filter: brightness(1.4);
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0.8;
   }
 }
 
@@ -64,19 +72,15 @@
     orbPulse 0.3s ease-in-out infinite alternate 0.1s;
 }
 
-/* Different orb sizes for different intensity levels */
+/* Slightly larger orbs for high intensity levels */
 .orbAnimation[data-intensity='high'] .orb {
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
 }
 
 .orbAnimation[data-intensity='extreme'] .orb {
-  width: 24px;
-  height: 24px;
-  box-shadow:
-    0 0 12px var(--orb-color, #646cff),
-    0 0 24px rgba(100, 108, 255, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  width: 16px;
+  height: 16px;
 }
 
 /* Trail effect for fast-moving orbs */

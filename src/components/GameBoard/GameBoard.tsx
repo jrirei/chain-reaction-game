@@ -29,6 +29,26 @@ const GameBoard: React.FC<GameBoardProps> = ({
     gameState,
   } = useGameState();
 
+  // Get currently exploding cells during chain reactions
+  const getCurrentExplodingCells = (): Array<{ row: number; col: number }> => {
+    const chainReactionState = gameState.chainReactionState;
+    if (!chainReactionState?.isPlaying || !chainReactionState.explosionSteps) {
+      return [];
+    }
+
+    const currentStepIndex = chainReactionState.currentStep;
+    const currentStep = chainReactionState.explosionSteps[currentStepIndex];
+
+    return currentStep?.explodingCells || [];
+  };
+
+  const explodingCells = getCurrentExplodingCells();
+
+  // Helper function to check if a cell is currently exploding
+  const isCellExploding = (row: number, col: number): boolean => {
+    return explodingCells.some((cell) => cell.row === row && cell.col === col);
+  };
+
   const boardRef = useRef<HTMLDivElement>(null);
   const [cellSize, setCellSize] = useState(64); // Default cell size
 
@@ -129,6 +149,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
         isCurrentPlayerCell={!!isCurrentPlayerCell}
         showCriticalMass={showCriticalMass}
         showCriticalMassVisualization={showCriticalMassVisualization}
+        isEmptyingForAnimation={isCellExploding(cell.row, cell.col)}
       />
     );
   };
@@ -167,25 +188,15 @@ const GameBoard: React.FC<GameBoardProps> = ({
         aria-label={`Game board with ${boardInfo.rows} rows and ${boardInfo.cols} columns`}
       >
         {renderGrid()}
+
+        {/* Chain Reaction Animation Manager - positioned absolutely within the board */}
+        <ChainReactionManager
+          gridSize={{ rows: boardInfo.rows, cols: boardInfo.cols }}
+          cellSize={cellSize}
+          onStepComplete={handleChainStepComplete}
+          onSequenceComplete={handleChainSequenceComplete}
+        />
       </div>
-
-      {/* Chain Reaction Animation Manager */}
-      <ChainReactionManager
-        gridSize={{ rows: boardInfo.rows, cols: boardInfo.cols }}
-        cellSize={cellSize}
-        onStepComplete={handleChainStepComplete}
-        onSequenceComplete={handleChainSequenceComplete}
-      />
-
-      {(gameInfo.isAnimating || gameState.gameStatus === 'chain_reacting') && (
-        <div className={styles.animationOverlay}>
-          <div className={styles.animationMessage}>
-            {gameState.gameStatus === 'chain_reacting'
-              ? 'Chain reaction in progress...'
-              : 'Processing chain reaction...'}
-          </div>
-        </div>
-      )}
 
       {showFeedback && (
         <GameFeedback feedback={feedback} position="top" autoHide={true} />
