@@ -363,7 +363,7 @@ export const gameReducer = (
           finalBoard, // Store final board for completion
           safetyLimitReached,
           safety: {
-            maxSteps: 20,
+            maxSteps: 10000,
             currentCount: totalSteps,
             limitReached: safetyLimitReached,
           },

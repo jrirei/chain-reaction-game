@@ -178,7 +178,7 @@ const ChainReactionManager: React.FC<ChainReactionManagerProps> = ({
             /10
           </div>
           <div>Active Animations: {activeAnimations.length}</div>
-          <div>Safety: {chainReactionState.safety.currentCount}/20</div>
+          <div>Steps: {chainReactionState.safety.currentCount}</div>
           {chainReactionState.safety.limitReached && (
             <div className={styles.safetyWarning}>Safety limit reached!</div>
           )}

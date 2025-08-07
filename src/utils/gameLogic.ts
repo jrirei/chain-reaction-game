@@ -201,7 +201,7 @@ export const processChainReactions = (
  */
 export const processChainReactionsSequential = (
   board: GameBoard,
-  maxSteps: number = 20
+  maxSteps: number = 10000
 ): {
   explosionSteps: ExplosionStep[];
   finalBoard: GameBoard;
