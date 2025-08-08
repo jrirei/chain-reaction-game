@@ -30,28 +30,61 @@ const GameInfo: React.FC = () => {
   };
 
   return (
-    <div className={styles.gameInfo}>
+    <div
+      className={styles.gameInfo}
+      role="complementary"
+      aria-label="Game information"
+    >
       <div className={styles.infoSection}>
-        <span className={styles.infoLabel}>Current Player:</span>
+        <span className={styles.infoLabel} id="current-player-label">
+          Current Player:
+        </span>
         <span
           className={styles.currentPlayer}
           style={{ color: currentPlayer?.color || '#4ECDC4' }}
+          role="status"
+          aria-live="polite"
+          aria-labelledby="current-player-label"
         >
           {currentPlayer?.name || 'None'}
         </span>
       </div>
       <div className={styles.infoSection}>
-        <span className={styles.infoLabel}>Move:</span>
-        <span className={styles.moveCount}>{gameInfo.moveCount}</span>
+        <span className={styles.infoLabel} id="move-count-label">
+          Move:
+        </span>
+        <span
+          className={styles.moveCount}
+          role="status"
+          aria-live="polite"
+          aria-labelledby="move-count-label"
+        >
+          {gameInfo.moveCount}
+        </span>
       </div>
       <div className={styles.infoSection}>
-        <span className={styles.infoLabel}>Status:</span>
-        <span className={styles.gameStatus}>{getStatusDisplay()}</span>
+        <span className={styles.infoLabel} id="game-status-label">
+          Status:
+        </span>
+        <span
+          className={styles.gameStatus}
+          role="status"
+          aria-live="polite"
+          aria-labelledby="game-status-label"
+        >
+          {getStatusDisplay()}
+        </span>
       </div>
       {gameInfo.gameTime > 0 && (
         <div className={styles.infoSection}>
-          <span className={styles.infoLabel}>Time:</span>
-          <span className={styles.gameTime}>
+          <span className={styles.infoLabel} id="game-time-label">
+            Time:
+          </span>
+          <span
+            className={styles.gameTime}
+            role="timer"
+            aria-labelledby="game-time-label"
+          >
             {formatGameTime(gameInfo.gameTime)}
           </span>
         </div>

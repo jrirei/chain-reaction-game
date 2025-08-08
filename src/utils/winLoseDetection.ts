@@ -1,5 +1,6 @@
 import type { GameState, PlayerId, GameBoard } from '../types';
-import { getActivePlayers, countPlayerOrbs } from './gameLogic';
+import { getActivePlayers } from './gameValidation';
+import { countPlayerOrbs } from './boardOperations';
 
 export interface GameEndResult {
   isGameOver: boolean;
@@ -30,7 +31,7 @@ export interface WinCondition {
  * Comprehensive game end detection with detailed results
  */
 export const checkGameEnd = (gameState: GameState): GameEndResult => {
-  const activePlayers = getActivePlayers(gameState.board, gameState.players);
+  const activePlayers = getActivePlayers(gameState.board);
   const eliminatedPlayers = gameState.players.filter(
     (p) => !activePlayers.includes(p)
   );
@@ -164,7 +165,7 @@ export const predictLikelyWinner = (
   confidence: number; // 0-1
   reasons: string[];
 } => {
-  const activePlayers = getActivePlayers(gameState.board, gameState.players);
+  const activePlayers = getActivePlayers(gameState.board);
 
   if (activePlayers.length <= 1) {
     return {
@@ -264,7 +265,7 @@ export const isPlayerInDanger = (
 } => {
   const orbCount = countPlayerOrbs(gameState.board, playerId);
   const cellsControlled = getCellsControlledByPlayer(gameState.board, playerId);
-  const activePlayers = getActivePlayers(gameState.board, gameState.players);
+  const activePlayers = getActivePlayers(gameState.board);
 
   const reasons: string[] = [];
   let severity: 'low' | 'medium' | 'high' = 'low';
@@ -320,10 +321,7 @@ export const WIN_CONDITIONS: WinCondition[] = [
     type: 'lastPlayerStanding',
     description: 'Last player with orbs on the board wins',
     checkCondition: (gameState: GameState) => {
-      const activePlayers = getActivePlayers(
-        gameState.board,
-        gameState.players
-      );
+      const activePlayers = getActivePlayers(gameState.board);
       return (
         activePlayers.length <= 1 &&
         gameState.moveCount > gameState.players.length

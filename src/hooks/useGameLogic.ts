@@ -114,7 +114,7 @@ export const useGameLogic = () => {
 
   // Get game statistics
   const getGameStats = useCallback(() => {
-    const activePlayers = getActivePlayers(gameState.board, gameState.players);
+    const activePlayers = getActivePlayers(gameState.board);
     const eliminatedPlayers = gameState.players.filter(
       (playerId) => !activePlayers.includes(playerId)
     );

@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { createEmptyBoard, placeOrb } from '../boardOperations';
 import {
-  createEmptyBoard,
-  placeOrb,
   getExplodingCells,
   processExplosion,
   processChainReactions,
-} from '../gameLogic';
+} from '../explosionLogic';
 import { getCriticalMass } from '../helpers';
 import { executeOrbPlacement } from '../orbPlacement';
 import { GameStatus } from '../../types';

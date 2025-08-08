@@ -51,12 +51,20 @@ const GameControls: React.FC = () => {
 
   return (
     <>
-      <div className={styles.gameControls}>
+      <div
+        className={styles.gameControls}
+        role="toolbar"
+        aria-label="Game controls"
+      >
         <div className={styles.controlsSection}>
           <button
             className={`${styles.controlBtn} ${styles.primary}`}
             onClick={handleNewGameClick}
             disabled={gameInfo.isAnimating}
+            aria-label="Start a new game"
+            aria-describedby={
+              gameInfo.isAnimating ? 'animation-status' : undefined
+            }
           >
             New Game
           </button>
@@ -65,6 +73,10 @@ const GameControls: React.FC = () => {
             className={`${styles.controlBtn} ${styles.secondary}`}
             onClick={handleReset}
             disabled={!isGameActive || gameInfo.isAnimating}
+            aria-label="Reset current game"
+            aria-describedby={
+              !isGameActive || gameInfo.isAnimating ? 'game-status' : undefined
+            }
           >
             Reset
           </button>
@@ -73,16 +85,36 @@ const GameControls: React.FC = () => {
             className={`${styles.controlBtn} ${styles.secondary}`}
             onClick={handlePauseResume}
             disabled={!isGameActive || gameInfo.isAnimating}
+            aria-label={canResume ? 'Resume the game' : 'Pause the game'}
+            aria-describedby={
+              !isGameActive || gameInfo.isAnimating ? 'game-status' : undefined
+            }
           >
             {canResume ? 'Resume' : 'Pause'}
           </button>
         </div>
 
         {gameInfo.isGameFinished && gameInfo.winner && (
-          <div className={styles.gameOverMessage}>
+          <div
+            className={styles.gameOverMessage}
+            role="status"
+            aria-live="polite"
+            aria-label={`Game over. ${gameInfo.winner.name} wins!`}
+          >
             🎉 {gameInfo.winner.name} wins! 🎉
           </div>
         )}
+
+        {/* Screen reader status messages */}
+        <div className="sr-only">
+          <div id="game-status" aria-live="polite">
+            {!isGameActive && 'No active game'}
+            {gameInfo.isAnimating && 'Animation in progress'}
+          </div>
+          <div id="animation-status" aria-live="polite">
+            {gameInfo.isAnimating && 'Please wait for animation to complete'}
+          </div>
+        </div>
       </div>
 
       <GameSetup

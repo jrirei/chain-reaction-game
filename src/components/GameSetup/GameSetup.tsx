@@ -55,20 +55,34 @@ const GameSetup: React.FC<GameSetupProps> = ({
   if (!isVisible) return null;
 
   return (
-    <div className={styles.setupOverlay}>
+    <div
+      className={styles.setupOverlay}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="setup-title"
+      aria-describedby="setup-subtitle"
+    >
       <div className={styles.setupModal}>
         <div className={styles.setupHeader}>
-          <h2 className={styles.setupTitle}>New Game Setup</h2>
-          <p className={styles.setupSubtitle}>Select number of players</p>
+          <h2 id="setup-title" className={styles.setupTitle}>
+            New Game Setup
+          </h2>
+          <p id="setup-subtitle" className={styles.setupSubtitle}>
+            Select number of players
+          </p>
         </div>
 
         <div className={styles.setupContent}>
           {/* Player Count Selection */}
-          <div className={styles.setupSection}>
-            <label className={styles.sectionLabel}>
+          <fieldset className={styles.setupSection}>
+            <legend className={styles.sectionLabel}>
               Number of Players ({MIN_PLAYERS}-{MAX_PLAYERS})
-            </label>
-            <div className={styles.playerCountSelector}>
+            </legend>
+            <div
+              className={styles.playerCountSelector}
+              role="group"
+              aria-label="Player count options"
+            >
               {[2, 3, 4].map((count) => (
                 <button
                   key={count}
@@ -76,16 +90,18 @@ const GameSetup: React.FC<GameSetupProps> = ({
                     playerCount === count ? styles.active : ''
                   }`}
                   onClick={() => handlePlayerCountChange(count)}
+                  aria-pressed={playerCount === count}
+                  aria-label={`Select ${count} player${count > 1 ? 's' : ''}`}
                 >
                   {count} Player{count > 1 ? 's' : ''}
                 </button>
               ))}
             </div>
-          </div>
+          </fieldset>
 
           {/* Player Names Configuration */}
-          <div className={styles.setupSection}>
-            <label className={styles.sectionLabel}>Player Names</label>
+          <fieldset className={styles.setupSection}>
+            <legend className={styles.sectionLabel}>Player Names</legend>
             <div
               className={`${styles.playerNamesContainer} ${
                 playerCount >= 3 ? styles.multiColumn : ''
@@ -96,9 +112,14 @@ const GameSetup: React.FC<GameSetupProps> = ({
                   <div
                     className={styles.playerColorPreview}
                     style={{ backgroundColor: PLAYER_COLORS[index] }}
-                    aria-label={`Player ${index + 1} color`}
+                    aria-label={`Player ${index + 1} color preview`}
+                    role="img"
                   />
+                  <label htmlFor={`player-name-${index}`} className="sr-only">
+                    Player {index + 1} name
+                  </label>
                   <input
+                    id={`player-name-${index}`}
                     type="text"
                     className={styles.playerNameInput}
                     value={name}
@@ -107,15 +128,25 @@ const GameSetup: React.FC<GameSetupProps> = ({
                     }
                     placeholder={`Player ${index + 1}`}
                     maxLength={20}
+                    aria-describedby={`player-color-${index}`}
                   />
+                  <span id={`player-color-${index}`} className="sr-only">
+                    This player's color will be {PLAYER_COLORS[index]}
+                  </span>
                 </div>
               ))}
             </div>
-          </div>
+          </fieldset>
 
           {/* Game Preview */}
-          <div className={styles.setupSection}>
-            <label className={styles.sectionLabel}>Game Preview</label>
+          <div
+            className={styles.setupSection}
+            role="region"
+            aria-labelledby="preview-label"
+          >
+            <h3 id="preview-label" className={styles.sectionLabel}>
+              Game Preview
+            </h3>
             <div className={styles.gamePreview}>
               <div className={styles.previewInfo}>
                 <div className={styles.previewItem}>
@@ -133,11 +164,16 @@ const GameSetup: React.FC<GameSetupProps> = ({
           </div>
         </div>
 
-        <div className={styles.setupActions}>
+        <div
+          className={styles.setupActions}
+          role="group"
+          aria-label="Game setup actions"
+        >
           {onCancel && (
             <button
               className={`${styles.actionButton} ${styles.cancelButton}`}
               onClick={handleCancel}
+              aria-label="Cancel game setup"
             >
               Cancel
             </button>
@@ -145,6 +181,7 @@ const GameSetup: React.FC<GameSetupProps> = ({
           <button
             className={`${styles.actionButton} ${styles.startButton}`}
             onClick={handleStartGame}
+            aria-label={`Start new game with ${playerCount} players`}
           >
             Start Game
           </button>

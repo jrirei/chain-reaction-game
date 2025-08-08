@@ -71,19 +71,35 @@ const PlayerList: React.FC<PlayerListProps> = ({
     .join(' ');
 
   return (
-    <div className={containerClasses}>
+    <div
+      className={containerClasses}
+      role="region"
+      aria-label="Player information"
+    >
       <div className={styles.playerListHeader}>
-        <h3 className={styles.playerListTitle}>
+        <h3 className={styles.playerListTitle} id="player-list-title">
           Players ({players.filter((p) => !p.isEliminated).length}/
           {players.length})
         </h3>
 
         {gameInfo.isGameStarted && (
-          <div className={styles.gameProgress}>Move {gameInfo.moveCount}</div>
+          <div className={styles.gameProgress} aria-live="polite">
+            Move {gameInfo.moveCount}
+          </div>
         )}
       </div>
 
-      <div className={styles.playerList}>
+      <div
+        className={styles.playerList}
+        role="list"
+        aria-labelledby="player-list-title"
+        aria-describedby="player-list-description"
+      >
+        <div id="player-list-description" className="sr-only">
+          List of players sorted by current player first, then by orb count.
+          Current player is highlighted.
+        </div>
+
         {sortedPlayers.map((player) => {
           const isCurrentPlayer = currentPlayer?.id === player.id;
           const rank = gameInfo.isGameStarted
@@ -107,7 +123,12 @@ const PlayerList: React.FC<PlayerListProps> = ({
       </div>
 
       {gameInfo.isGameFinished && gameInfo.winner && (
-        <div className={styles.winnerAnnouncement}>
+        <div
+          className={styles.winnerAnnouncement}
+          role="status"
+          aria-live="polite"
+          aria-label={`Game over. ${gameInfo.winner.name} is the winner!`}
+        >
           🏆 {gameInfo.winner.name} is the winner! 🏆
         </div>
       )}

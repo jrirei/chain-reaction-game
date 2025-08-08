@@ -1,5 +1,6 @@
 import { GameProvider } from './context';
 import { useGameState } from './hooks/useGameState';
+import { ErrorBoundary, GameErrorBoundary } from './components/ErrorBoundary';
 import GameHeader from './components/GameHeader/GameHeader';
 import GameInfo from './components/GameInfo/GameInfo';
 import GameBoard from './components/GameBoard/GameBoard';
@@ -10,37 +11,82 @@ import GameEndModal from './components/GameEndModal';
 import './App.css';
 
 function AppContent() {
-  const { resetGame } = useGameState();
+  const { resetGame, gameState } = useGameState();
   return (
     <div className="app">
-      <GameHeader />
-      <GameInfo />
+      {/* Skip link for keyboard navigation */}
+      <a href="#main-game-area" className="skip-link">
+        Skip to main game
+      </a>
+
+      <ErrorBoundary>
+        <GameHeader />
+      </ErrorBoundary>
+
+      <ErrorBoundary>
+        <GameInfo />
+      </ErrorBoundary>
+
       <div className="game-content">
-        <div className="game-sidebar">
-          <PlayerList showStats={true} compact={false} horizontal={false} />
-        </div>
-        <main className="game-area">
-          <GameBoard />
+        <aside
+          className="game-sidebar"
+          role="complementary"
+          aria-label="Player information"
+        >
+          <ErrorBoundary>
+            <PlayerList showStats={true} compact={false} horizontal={false} />
+          </ErrorBoundary>
+        </aside>
+        <main
+          id="main-game-area"
+          className="game-area"
+          role="main"
+          aria-label="Chain Reaction Game Board"
+        >
+          <GameErrorBoundary
+            gameId={`${gameState.gameStartTime}-${gameState.moveCount}`}
+            onGameReset={resetGame}
+          >
+            <GameBoard />
+          </GameErrorBoundary>
         </main>
       </div>
-      <GameControls />
-      <CriticalMassDisplay
-        showAlerts={true}
-        showBoardTension={true}
-        showRecommendations={true}
-        position="top-right"
-        compact={false}
-      />
-      <GameEndModal onRestart={resetGame} showStats={true} />
+
+      <nav role="navigation" aria-label="Game controls">
+        <ErrorBoundary>
+          <GameControls />
+        </ErrorBoundary>
+      </nav>
+
+      <ErrorBoundary>
+        <CriticalMassDisplay
+          showAlerts={true}
+          showBoardTension={true}
+          showRecommendations={true}
+          position="top-right"
+          compact={false}
+        />
+      </ErrorBoundary>
+
+      <ErrorBoundary>
+        <GameEndModal onRestart={resetGame} showStats={true} />
+      </ErrorBoundary>
     </div>
   );
 }
 
 function App() {
   return (
-    <GameProvider>
-      <AppContent />
-    </GameProvider>
+    <ErrorBoundary
+      onError={(error, errorInfo) => {
+        console.error('Application Error:', error);
+        console.error('Component Stack:', errorInfo.componentStack);
+      }}
+    >
+      <GameProvider>
+        <AppContent />
+      </GameProvider>
+    </ErrorBoundary>
   );
 }
 

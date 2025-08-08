@@ -88,35 +88,68 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
   };
 
   return (
-    <div className={playerClasses}>
+    <div
+      className={playerClasses}
+      role="listitem"
+      aria-labelledby={`player-name-${player.id}`}
+      aria-describedby={`player-status-${player.id} player-stats-${player.id}`}
+    >
       <div className={styles.playerHeader}>
         <div
           className={styles.playerColorIndicator}
           style={{ backgroundColor: player.color }}
           aria-label={`Player color: ${player.color}`}
+          role="img"
         />
 
         <div className={styles.playerDetails}>
-          <div className={styles.playerName}>
-            {rank && <span className={styles.playerRank}>#{rank}</span>}
+          <div id={`player-name-${player.id}`} className={styles.playerName}>
+            {rank && (
+              <span className={styles.playerRank} aria-label={`Rank ${rank}`}>
+                #{rank}
+              </span>
+            )}
             {player.name}
           </div>
 
           {!compact && (
-            <div className={styles.playerStatus}>{renderPlayerStatus()}</div>
+            <div
+              id={`player-status-${player.id}`}
+              className={styles.playerStatus}
+              role="status"
+              aria-live={isCurrentPlayer ? 'polite' : 'off'}
+            >
+              {renderPlayerStatus()}
+            </div>
           )}
         </div>
 
         {!compact && (
-          <div className={styles.playerOrbCount}>
+          <div
+            className={styles.playerOrbCount}
+            role="status"
+            aria-live={isCurrentPlayer ? 'polite' : 'off'}
+            aria-label={`${player.orbCount} orbs`}
+          >
             <span className={styles.orbCountNumber}>{player.orbCount}</span>
-            <span className={styles.orbCountLabel}>orbs</span>
+            <span className={styles.orbCountLabel} aria-hidden="true">
+              orbs
+            </span>
           </div>
         )}
       </div>
 
-      {renderChainReaction()}
-      {renderPlayerStats()}
+      {chainReactionInfo?.isActive && isCurrentPlayer && (
+        <div
+          role="status"
+          aria-live="assertive"
+          aria-label={`Chain reaction in progress: ${chainReactionInfo.consecutiveExplosions} consecutive explosions, step ${chainReactionInfo.currentStep + 1} of ${chainReactionInfo.totalSteps}`}
+        >
+          {renderChainReaction()}
+        </div>
+      )}
+
+      <div id={`player-stats-${player.id}`}>{renderPlayerStats()}</div>
     </div>
   );
 };

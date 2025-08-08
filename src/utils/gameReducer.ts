@@ -3,6 +3,7 @@ import { GameStatus } from '../types';
 import { checkGameEnd } from './winLoseDetection';
 import { createEmptyBoard } from './gameLogic';
 import { DEFAULT_GRID_SIZE, DEFAULT_PLAYER_COUNT } from './constants';
+import { updateGameState } from './immutableUtils';
 
 export const createInitialGameState = (): GameState => ({
   board: createEmptyBoard(DEFAULT_GRID_SIZE.rows, DEFAULT_GRID_SIZE.cols),
@@ -51,8 +52,7 @@ export const gameReducer = (
         };
       });
 
-      return {
-        ...state,
+      return updateGameState(state, {
         board: createEmptyBoard(settings.gridRows, settings.gridCols),
         players,
         currentPlayerIndex: 0,
@@ -69,15 +69,14 @@ export const gameReducer = (
           longestChainReaction: 0,
           playerStats,
         },
-      };
+      });
     }
 
     case 'START_GAME': {
-      return {
-        ...state,
+      return updateGameState(state, {
         gameStatus: GameStatus.PLAYING,
         gameStartTime: Date.now(),
-      };
+      });
     }
 
     case 'PLACE_ORB': {

@@ -31,3 +31,34 @@ export const CRITICAL_MASS = {
   [CELL_TYPES.EDGE]: 3,
   [CELL_TYPES.INTERIOR]: 4,
 } as const;
+
+// Animation configuration
+export const ANIMATION_CONFIG = {
+  ORB_MOVEMENT_DURATION: 300, // ms - time for orb to move between cells
+  EXPLOSION_STEP_DURATION: 400, // ms - total time per explosion step
+  STEP_BUFFER_TIME: 100, // ms - buffer between explosion steps
+  ORB_STAGGER_DELAY: 10, // ms - delay between orbs from same exploding cell
+  PULSE_ANIMATION_DURATION: 400, // ms - orb pulse animation duration
+} as const;
+
+// Game logic constants
+export const GAME_CONFIG = {
+  MAX_CHAIN_REACTION_STEPS: 10000, // Maximum steps before safety limit
+  MINIMUM_MOVES_BEFORE_GAME_END: 2, // Minimum moves before game can end
+  AI_MOVE_DELAY: 500, // ms - delay before AI makes a move
+} as const;
+
+// Audio configuration
+export const AUDIO_CONFIG = {
+  CHAIN_REACTION_INTENSITY_LEVELS: 10, // Maximum intensity levels for audio
+  VOLUME_MULTIPLIER_MAX: 1.0, // Maximum volume multiplier
+  AUDIO_FADE_DURATION: 200, // ms - audio fade duration
+} as const;
+
+// UI Constants
+export const UI_CONFIG = {
+  CELL_SIZE_DEFAULT: 64, // px - default cell size
+  CELL_SIZE_MAX: 80, // px - maximum cell size
+  SIDEBAR_WIDTH_MIN: 280, // px - minimum sidebar width
+  SIDEBAR_WIDTH_MAX: 320, // px - maximum sidebar width
+} as const;
