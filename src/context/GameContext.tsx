@@ -42,6 +42,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     isEliminated: false,
     orbCount: 0, // Will be calculated from board state
     totalMoves: 0, // Will be tracked separately
+    type: 'human', // Default to human for now - will be enhanced with AI config later
   }));
 
   // Get current player

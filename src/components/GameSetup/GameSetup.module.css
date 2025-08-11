@@ -110,26 +110,88 @@
   font-weight: 700;
 }
 
-/* Player Names */
-.playerNamesContainer {
+/* Player Configuration */
+.playerConfigContainer {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--spacing-sm);
-}
-
-.playerNamesContainer.multiColumn {
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-sm) var(--spacing-md);
-}
-
-.playerNameRow {
-  display: flex;
-  align-items: center;
   gap: var(--spacing-md);
-  padding: var(--spacing-sm);
+}
+
+.playerConfigContainer.multiColumn {
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.playerConfigRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
   background: var(--secondary-bg);
   border-radius: 8px;
   border: 1px solid var(--border-color);
+}
+
+.playerNameField {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.playerTypeField,
+.aiStrategyField,
+.thinkingTimeField {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 0.9rem;
+}
+
+.fieldLabel {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.playerTypeSelect,
+.aiStrategySelect,
+.thinkingTimeSelect {
+  flex: 1;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--primary-bg);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.playerTypeSelect:focus,
+.aiStrategySelect:focus,
+.thinkingTimeSelect:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 1px rgba(100, 108, 255, 0.2);
+}
+
+.aiConfigSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  background: rgba(100, 108, 255, 0.05);
+  border-radius: 6px;
+  border: 1px solid rgba(100, 108, 255, 0.2);
+}
+
+.aiDescription {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  line-height: 1.3;
+  margin-top: var(--spacing-xs);
 }
 
 .playerColorPreview {

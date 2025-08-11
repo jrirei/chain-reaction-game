@@ -102,7 +102,7 @@ export class MonteCarloBot implements AiStrategy {
    */
   private expandNode(
     node: MCTSNode,
-    state: GameState,
+    _state: GameState,
     rng: () => number
   ): MCTSNode {
     if (node.untriedMoves.length > 0) {

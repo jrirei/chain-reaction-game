@@ -10,6 +10,7 @@ import { DefaultBot } from './defaultBot';
 import { TriggerBot } from './triggerBot';
 import { RandomBot } from './randomBot';
 import { MonteCarloBot } from './monteCarloBot';
+import { STRATEGY_DISPLAY } from './constants';
 
 export interface StrategyFactory {
   create: (config?: Partial<AiConfig>) => AiStrategy;
@@ -20,25 +21,29 @@ export interface StrategyFactory {
 export const AI_STRATEGIES: Record<AiStrategyName, StrategyFactory> = {
   default: {
     create: () => new DefaultBot(),
-    description: 'Balanced strategic play with heuristic evaluation',
+    description:
+      'Balanced strategic play with solid fundamentals and moderate risk-taking',
     difficulty: 'medium',
   },
 
   trigger: {
     create: () => new TriggerBot(),
-    description: 'Aggressive explosion-focused play, maximizes chain reactions',
+    description:
+      'Aggressive explosive strategy that prioritizes chain reactions and dramatic plays',
     difficulty: 'hard',
   },
 
   random: {
     create: () => new RandomBot(),
-    description: 'Random move selection for testing and casual play',
+    description:
+      'Completely random move selection - unpredictable and fun for casual play',
     difficulty: 'easy',
   },
 
   monteCarlo: {
     create: () => new MonteCarloBot(),
-    description: 'Advanced tree search with time-limited thinking',
+    description:
+      'Advanced tree search AI with configurable thinking time for maximum strategic depth',
     difficulty: 'hard',
   },
 };
@@ -88,4 +93,48 @@ export function isStrategyAvailable(name: AiStrategyName): boolean {
   } catch {
     return false;
   }
+}
+
+/**
+ * Get display information for a strategy
+ */
+export function getStrategyDisplay(name: AiStrategyName) {
+  if (!(name in STRATEGY_DISPLAY)) {
+    throw new Error(`No display info for strategy: ${name}`);
+  }
+  return STRATEGY_DISPLAY[name];
+}
+
+/**
+ * Get all strategies grouped by difficulty level
+ */
+export function getStrategiesByDifficulty() {
+  const byDifficulty: Record<string, AiStrategyName[]> = {
+    easy: [],
+    medium: [],
+    hard: [],
+  };
+
+  for (const [name, info] of Object.entries(AI_STRATEGIES)) {
+    byDifficulty[info.difficulty].push(name as AiStrategyName);
+  }
+
+  return byDifficulty;
+}
+
+/**
+ * Get recommended strategy for a difficulty level
+ */
+export function getRecommendedStrategy(
+  difficulty: 'easy' | 'medium' | 'hard'
+): AiStrategyName {
+  const strategies = getStrategiesByDifficulty();
+  const available = strategies[difficulty];
+
+  if (available.length === 0) {
+    throw new Error(`No strategies available for difficulty: ${difficulty}`);
+  }
+
+  // Return the first available strategy for that difficulty
+  return available[0];
 }

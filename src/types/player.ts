@@ -1,3 +1,5 @@
+export type PlayerType = 'human' | 'ai';
+
 export interface Player {
   id: string;
   name: string;
@@ -6,6 +8,11 @@ export interface Player {
   isEliminated: boolean;
   orbCount: number;
   totalMoves: number;
+  type: PlayerType;
+  aiConfig?: {
+    strategy: import('../ai/types').AiStrategyName;
+    maxThinkingMs?: number;
+  };
 }
 
 export type PlayerId = string;
@@ -21,11 +28,21 @@ export interface PlayerStats {
   longestChainReaction: number;
 }
 
+export interface PlayerConfig {
+  name: string;
+  type: PlayerType;
+  aiConfig?: {
+    strategy: import('../ai/types').AiStrategyName;
+    maxThinkingMs?: number;
+  };
+}
+
 export interface GameSettings {
   gridRows: number;
   gridCols: number;
   playerCount: number; // 2-4 players supported
   playerNames: string[];
+  playerConfigs?: PlayerConfig[]; // New: support for AI configuration
   enableAnimations: boolean;
   enableSounds: boolean;
   // Multi-player specific settings

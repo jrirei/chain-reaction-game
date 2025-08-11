@@ -38,6 +38,12 @@ export interface AiConfig {
   strategy: AiStrategyName;
   /** Maximum thinking time in milliseconds (for Monte Carlo) */
   maxThinkingMs?: number;
+  /** Enable debug mode for detailed logging */
+  enableDebugMode?: boolean;
+  /** Seed for deterministic testing */
+  seed?: number;
+  /** Strategy-specific configuration options */
+  strategyOptions?: Record<string, unknown>;
 }
 
 export interface BotTurnResult {

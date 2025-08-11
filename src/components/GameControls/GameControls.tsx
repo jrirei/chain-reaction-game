@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useGameState } from '../../hooks/useGameState';
 import { useAudioManager } from '../../hooks/useAudioManager';
 import GameSetup from '../GameSetup';
+import type { PlayerConfig } from '../../types/player';
 import styles from './GameControls.module.css';
 
 const GameControls: React.FC = () => {
@@ -22,7 +23,12 @@ const GameControls: React.FC = () => {
     setShowSetup(true);
   };
 
-  const handleStartGame = (playerCount: number, playerNames: string[]) => {
+  const handleStartGame = (
+    playerCount: number,
+    playerConfigs: PlayerConfig[]
+  ) => {
+    // Convert PlayerConfig to just names for now - will update initializeGame later
+    const playerNames = playerConfigs.map((config) => config.name);
     initializeGame(playerCount, playerNames);
     startGame();
     setShowSetup(false);

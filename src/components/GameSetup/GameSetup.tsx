@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { useAudioManager } from '../../hooks/useAudioManager';
 import { MIN_PLAYERS, MAX_PLAYERS, PLAYER_COLORS } from '../../utils/constants';
+import type { PlayerConfig } from '../../types/player';
+import type { AiStrategyName } from '../../ai/types';
+import { getAvailableStrategies, getStrategyInfo } from '../../ai/registry';
+import { THINKING_TIME_OPTIONS } from '../../ai/constants';
 import styles from './GameSetup.module.css';
 
 interface GameSetupProps {
-  onStartGame: (playerCount: number, playerNames: string[]) => void;
+  onStartGame: (playerCount: number, playerConfigs: PlayerConfig[]) => void;
   onCancel?: () => void;
   isVisible: boolean;
 }
@@ -15,36 +19,62 @@ const GameSetup: React.FC<GameSetupProps> = ({
   isVisible,
 }) => {
   const [playerCount, setPlayerCount] = useState<number>(2);
-  const [playerNames, setPlayerNames] = useState<string[]>([
-    'Player 1',
-    'Player 2',
+  const [playerConfigs, setPlayerConfigs] = useState<PlayerConfig[]>([
+    { name: 'Player 1', type: 'human' },
+    { name: 'Player 2', type: 'human' },
   ]);
   const { playUIClick } = useAudioManager();
 
-  // Update player names array when count changes
+  const availableStrategies = getAvailableStrategies();
+
+  // Update player configs array when count changes
   const handlePlayerCountChange = (count: number) => {
     setPlayerCount(count);
-    const newNames = [...playerNames];
+    const newConfigs = [...playerConfigs];
 
-    // Add names for new players
-    while (newNames.length < count) {
-      newNames.push(`Player ${newNames.length + 1}`);
+    // Add configs for new players
+    while (newConfigs.length < count) {
+      newConfigs.push({
+        name: `Player ${newConfigs.length + 1}`,
+        type: 'human',
+      });
     }
 
-    // Trim excess names
-    newNames.length = count;
-    setPlayerNames(newNames);
+    // Trim excess configs
+    newConfigs.length = count;
+    setPlayerConfigs(newConfigs);
   };
 
-  const handlePlayerNameChange = (index: number, name: string) => {
-    const newNames = [...playerNames];
-    newNames[index] = name || `Player ${index + 1}`;
-    setPlayerNames(newNames);
+  const handlePlayerConfigChange = (
+    index: number,
+    updates: Partial<PlayerConfig>
+  ) => {
+    const newConfigs = [...playerConfigs];
+    newConfigs[index] = {
+      ...newConfigs[index],
+      ...updates,
+      name: updates.name || `Player ${index + 1}`,
+    };
+
+    // If switching to AI, provide default strategy
+    if (updates.type === 'ai' && !newConfigs[index].aiConfig) {
+      newConfigs[index].aiConfig = {
+        strategy: 'default',
+        maxThinkingMs: 5000, // 5 seconds default for Monte Carlo
+      };
+    }
+
+    // If switching to human, remove AI config
+    if (updates.type === 'human') {
+      delete newConfigs[index].aiConfig;
+    }
+
+    setPlayerConfigs(newConfigs);
   };
 
   const handleStartGame = () => {
     playUIClick();
-    onStartGame(playerCount, playerNames);
+    onStartGame(playerCount, playerConfigs);
   };
 
   const handleCancel = () => {
@@ -99,40 +129,145 @@ const GameSetup: React.FC<GameSetupProps> = ({
             </div>
           </fieldset>
 
-          {/* Player Names Configuration */}
+          {/* Player Configuration */}
           <fieldset className={styles.setupSection}>
-            <legend className={styles.sectionLabel}>Player Names</legend>
+            <legend className={styles.sectionLabel}>
+              Player Configuration
+            </legend>
             <div
-              className={`${styles.playerNamesContainer} ${
+              className={`${styles.playerConfigContainer} ${
                 playerCount >= 3 ? styles.multiColumn : ''
               }`}
             >
-              {playerNames.map((name, index) => (
-                <div key={index} className={styles.playerNameRow}>
+              {playerConfigs.map((config, index) => (
+                <div key={index} className={styles.playerConfigRow}>
                   <div
                     className={styles.playerColorPreview}
                     style={{ backgroundColor: PLAYER_COLORS[index] }}
                     aria-label={`Player ${index + 1} color preview`}
                     role="img"
                   />
-                  <label htmlFor={`player-name-${index}`} className="sr-only">
-                    Player {index + 1} name
-                  </label>
-                  <input
-                    id={`player-name-${index}`}
-                    type="text"
-                    className={styles.playerNameInput}
-                    value={name}
-                    onChange={(e) =>
-                      handlePlayerNameChange(index, e.target.value)
-                    }
-                    placeholder={`Player ${index + 1}`}
-                    maxLength={20}
-                    aria-describedby={`player-color-${index}`}
-                  />
-                  <span id={`player-color-${index}`} className="sr-only">
-                    This player's color will be {PLAYER_COLORS[index]}
-                  </span>
+
+                  {/* Player Name Input */}
+                  <div className={styles.playerNameField}>
+                    <label htmlFor={`player-name-${index}`} className="sr-only">
+                      Player {index + 1} name
+                    </label>
+                    <input
+                      id={`player-name-${index}`}
+                      type="text"
+                      className={styles.playerNameInput}
+                      value={config.name}
+                      onChange={(e) =>
+                        handlePlayerConfigChange(index, {
+                          name: e.target.value,
+                        })
+                      }
+                      placeholder={`Player ${index + 1}`}
+                      maxLength={20}
+                    />
+                  </div>
+
+                  {/* Player Type Selection */}
+                  <div className={styles.playerTypeField}>
+                    <label
+                      htmlFor={`player-type-${index}`}
+                      className={styles.fieldLabel}
+                    >
+                      Type:
+                    </label>
+                    <select
+                      id={`player-type-${index}`}
+                      className={styles.playerTypeSelect}
+                      value={config.type}
+                      onChange={(e) =>
+                        handlePlayerConfigChange(index, {
+                          type: e.target.value as 'human' | 'ai',
+                        })
+                      }
+                    >
+                      <option value="human">Human</option>
+                      <option value="ai">AI Bot</option>
+                    </select>
+                  </div>
+
+                  {/* AI Configuration (shown only for AI players) */}
+                  {config.type === 'ai' && (
+                    <div className={styles.aiConfigSection}>
+                      <div className={styles.aiStrategyField}>
+                        <label
+                          htmlFor={`ai-strategy-${index}`}
+                          className={styles.fieldLabel}
+                        >
+                          AI Strategy:
+                        </label>
+                        <select
+                          id={`ai-strategy-${index}`}
+                          className={styles.aiStrategySelect}
+                          value={config.aiConfig?.strategy || 'default'}
+                          onChange={(e) =>
+                            handlePlayerConfigChange(index, {
+                              aiConfig: {
+                                ...config.aiConfig,
+                                strategy: e.target.value as AiStrategyName,
+                              },
+                            })
+                          }
+                        >
+                          {availableStrategies.map((strategy) => {
+                            const info = getStrategyInfo(strategy);
+                            return (
+                              <option key={strategy} value={strategy}>
+                                {strategy.charAt(0).toUpperCase() +
+                                  strategy.slice(1)}{' '}
+                                ({info.difficulty})
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </div>
+
+                      {/* Show thinking time for Monte Carlo */}
+                      {config.aiConfig?.strategy === 'monteCarlo' && (
+                        <div className={styles.thinkingTimeField}>
+                          <label
+                            htmlFor={`thinking-time-${index}`}
+                            className={styles.fieldLabel}
+                          >
+                            Thinking Time:
+                          </label>
+                          <select
+                            id={`thinking-time-${index}`}
+                            className={styles.thinkingTimeSelect}
+                            value={config.aiConfig?.maxThinkingMs || 5000}
+                            onChange={(e) =>
+                              handlePlayerConfigChange(index, {
+                                aiConfig: {
+                                  strategy:
+                                    config.aiConfig?.strategy || 'default',
+                                  maxThinkingMs: parseInt(e.target.value),
+                                },
+                              })
+                            }
+                          >
+                            {THINKING_TIME_OPTIONS.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label} - {option.description}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+
+                      <div className={styles.aiDescription}>
+                        {
+                          getStrategyInfo(
+                            config.aiConfig?.strategy || 'default'
+                          ).description
+                        }
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

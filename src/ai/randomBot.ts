@@ -16,7 +16,7 @@ export class RandomBot implements AiStrategy {
   readonly name = 'random' as const;
 
   async decideMove(
-    state: GameState,
+    _state: GameState,
     legalMoves: Move[],
     ctx: AiContext
   ): Promise<Move> {

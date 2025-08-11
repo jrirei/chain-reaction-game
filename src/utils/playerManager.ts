@@ -30,6 +30,7 @@ export const createPlayer = (
     isEliminated: false,
     orbCount: 0,
     totalMoves: 0,
+    type: config.isAI ? 'ai' : 'human',
   };
 };
 

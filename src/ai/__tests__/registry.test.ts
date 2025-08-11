@@ -60,11 +60,11 @@ describe('AI Strategy Registry', () => {
     expect(defaultInfo.difficulty).toBe('medium');
 
     const triggerInfo = getStrategyInfo('trigger');
-    expect(triggerInfo.description).toContain('explosion-focused');
+    expect(triggerInfo.description).toContain('explosive strategy');
     expect(triggerInfo.difficulty).toBe('hard');
 
     const randomInfo = getStrategyInfo('random');
-    expect(randomInfo.description).toContain('Random move selection');
+    expect(randomInfo.description).toContain('random move selection');
     expect(randomInfo.difficulty).toBe('easy');
 
     const monteCarloInfo = getStrategyInfo('monteCarlo');
