@@ -5,7 +5,7 @@
 import type { GameState } from '../types/game';
 import type { Move } from '../core/types';
 
-export type AiStrategyName = 'default' | 'tigger' | 'random' | 'monteCarlo';
+export type AiStrategyName = 'default' | 'trigger' | 'random' | 'monteCarlo';
 
 export interface AiContext {
   /** Random number generator (0-1) - for deterministic testing */
