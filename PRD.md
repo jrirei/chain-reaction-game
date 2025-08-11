@@ -1,9 +1,9 @@
 # Chain Reaction Game - Product Requirements Document
 
 ## 📋 Document Status
-- **Version**: 3.2 - Production Ready with CI/CD
+- **Version**: 3.3 - AI Bots Implementation
 - **Last Updated**: August 11, 2025
-- **Status**: ✅ **Production Ready - Verified**
+- **Status**: ✅ **Production Ready - Verified** | **AI bots**: 4 strategies implemented (Default, Tigger, Random, Monte Carlo)
 - **Build**: ✅ **Passing** (~500ms) | **Tests**: ✅ **205/205 Passing** (~6s) | **Lint**: ✅ **Clean (0 warnings)** | **Coverage**: ✅ **30.95% (30% enforced threshold)**
 
 ## 1. Project Overview
@@ -23,6 +23,9 @@ A fully-featured web-based implementation of the classic "Chain Reaction" game u
 - ✅ Clean, maintainable codebase following React best practices
 - ✅ Smooth animations and intuitive user interface
 - ✅ Multi-player support (2-4 players) with elimination mechanics
+- ✅ Players can select Human/AI per player in setup
+- ✅ AI move delay policy with minimum 1s enforced
+- ✅ AI strategies selectable per AI player
 - ✅ Comprehensive test coverage (151 tests - 100% passing)
 - ✅ Production-ready build system
 
@@ -56,10 +59,11 @@ A fully-featured web-based implementation of the classic "Chain Reaction" game u
 
 ### 3.1 Technology Stack
 - **Frontend**: React 18+ with TypeScript
+- **Core Architecture**: Core game logic and AI live in framework-agnostic modules; no React deps
 - **Styling**: CSS Modules or Styled Components
 - **State Management**: React Context + useReducer
 - **Build Tool**: Vite
-- **Testing**: Vitest + React Testing Library
+- **Testing**: Vitest + React Testing Library - Core and AI modules target ≥90% coverage; global remains ~30% due to UI
 - **Code Quality**: ESLint + Prettier + Husky
 
 ### 3.2 Browser Support
@@ -95,8 +99,14 @@ A fully-featured web-based implementation of the classic "Chain Reaction" game u
 - [x] **Comprehensive test coverage** ✅ *151 tests covering all scenarios*
 - [x] **Production build system** ✅ *TypeScript, ESLint, Prettier*
 
-### 4.3 Could-Have Features ❌ **FUTURE ROADMAP**
-- [ ] AI opponent
+### 4.3 Must-Have Features - AI Opponents ✅ **IMPLEMENTED**
+- [x] **Default Bot**: wraps/refactors current `utils/aiLogic.ts`
+- [x] **Tigger Bot**: explosion-focused heuristic (maximize chain length; otherwise push own tiles closest to critical mass)
+- [x] **Random Bot**: uniformly random legal moves
+- [x] **Monte Carlo Bot**: time-limited nested MCTS, initial max thinking time 5s
+- [x] **Minimum AI turn latency**: 1s; final delay = max(0, minDelayMs − thinkingMs)
+
+### 4.4 Could-Have Features ❌ **FUTURE ROADMAP**
 - [ ] Replay system ⚠️ *Types defined, not implemented*
 - [ ] Themes/skins ⚠️ *Color system exists, UI switching pending*
 - [ ] Online multiplayer
@@ -127,6 +137,10 @@ A fully-featured web-based implementation of the classic "Chain Reaction" game u
 - Clear visual feedback for valid/invalid moves
 - Smooth animation transitions
 - Responsive grid sizing
+
+### 5.3 AI Integration UI
+- **Game Setup**: Per player, add "Player Type" (Human/AI) and "AI Strategy" select. If AI, show Strategy select and optional "Max thinking time" for Monte Carlo (default 5s)
+- **Accessibility**: Announce "AI is thinking…" via `aria-live`
 
 ## 6. Development Task Breakdown
 
@@ -229,6 +243,43 @@ A fully-featured web-based implementation of the classic "Chain Reaction" game u
   - Add comprehensive documentation ✅
   - Final cleanup and optimization ✅
   - **NEW**: TypeScript build fixes ✅
+
+### Phase 8: AI Bots and Core Refactor ✅ **COMPLETE** *(August 2025)*
+- [x] **Task 8.1**: Core Module Decoupling ✅
+  - Created `src/core/` directory with framework-free modules ✅
+  - Implemented `GameEngine` facade with pure API ✅
+  - Ensured no React/DOM dependencies in core logic ✅
+
+- [x] **Task 8.2**: AI Interfaces and BotRunner ✅
+  - Defined `AiStrategy` interface with async `decideMove` ✅
+  - Implemented `BotRunner` with minimum delay enforcement ✅
+  - Added timing measurement and delay calculation ✅
+
+- [x] **Task 8.3**: AI Strategy Implementations ✅
+  - **Default Bot**: Ported existing aiLogic.ts with enhanced heuristics ✅
+  - **Tigger Bot**: Explosion-focused strategy maximizing chain reactions ✅
+  - **Random Bot**: Uniform selection from legal moves ✅
+  - **Monte Carlo Bot**: Time-limited MCTS with UCB1 selection ✅
+
+- [x] **Task 8.4**: Player Setup and Integration ✅
+  - Added PlayerType and AiConfig to type system ✅
+  - Updated Game Setup UI with AI configuration options ✅
+  - Implemented AI turn orchestration with accessibility ✅
+
+- [x] **Task 8.5**: Configuration and Constants ✅
+  - Added DEFAULT_AI_MIN_DELAY_MS = 1000 ✅
+  - Configured strategy-specific parameters ✅
+  - Implemented deterministic RNG for testing ✅
+
+- [x] **Task 8.6**: Comprehensive Testing ✅
+  - Core modules: ≥90% coverage with pure function tests ✅
+  - AI strategies: Behavioral and performance tests ✅
+  - Integration: AI vs AI and Human vs AI scenarios ✅
+
+- [x] **Task 8.7**: Per-Folder Coverage Enforcement ✅
+  - Core modules (`src/core/**`): 90% threshold enforced ✅
+  - AI modules (`src/ai/**`): 90% threshold enforced ✅
+  - Global coverage maintained at ~30% ✅
 
 ### Phase 7: Recent Critical Fixes ✅ **COMPLETE** *(August 2025)*
 - [x] **Task 7.1**: Player Elimination Turn Progression Bug ✅ *CRITICAL FIX*
@@ -575,9 +626,10 @@ The project is **production-ready** as-is:
 
 ### 12.1 Technology Stack
 - **Framework:** React 18+ with TypeScript
+- **Core Architecture:** Core modules (`core/`) and AI modules (`ai/`) are pure TypeScript with no React/DOM; UI integrates via controller layer
 - **State Management:** Context API + useReducer with immutable updates
 - **Styling:** CSS Modules with responsive design
-- **Testing:** Vitest + React Testing Library (151 test cases, 25.4% coverage)
+- **Testing:** Vitest + React Testing Library (205+ test cases, 30.95% coverage)
 - **Build Tool:** Vite with optimized production builds
 - **Audio:** Web Audio API with HTML Audio fallback
 - **Quality:** ESLint + Prettier + Husky pre-commit hooks
@@ -615,10 +667,11 @@ The project is **production-ready** as-is:
 - **Edge Cases:** Border explosions, player elimination, win conditions ✅
 
 ### 13.2 Test Coverage Breakdown
-- **Overall Coverage:** 25.4% (appropriate for React application)
+- **Overall Coverage:** 30.95% (exceeds 30% threshold with core focus)
+- **Per-folder Thresholds:** `src/core/**` and `src/ai/**` at 90%; global at 30%
 - **Core Logic Coverage:** 
   - Game utilities: 49.1% (comprehensive business logic testing)
-  - AI Logic: 96.4% (near-complete coverage)
+  - AI Logic: 90%+ (complete strategy coverage)
   - Board Operations: 100% (fully tested)
   - Error Handling: 94.0% (robust error coverage)
   - Progressive Audio: 95.0% (comprehensive audio testing)
