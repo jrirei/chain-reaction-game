@@ -203,7 +203,7 @@ export class TriggerBot implements AiStrategy {
     // Use simulation result if available, otherwise estimate
     if (simulation.finalBoard) {
       const newAdvantage = this.engine.calculateBoardAdvantage(
-        simulation.finalBoard as GameBoard,
+        simulation.finalBoard,
         move.playerId
       );
       return newAdvantage - currentAdvantage;

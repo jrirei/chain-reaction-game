@@ -2,6 +2,8 @@
  * Core types for the game engine - framework-agnostic
  */
 
+import type { GameBoard } from '../types/game';
+
 export interface Move {
   row: number;
   col: number;
@@ -10,7 +12,7 @@ export interface Move {
 
 export interface ChainSimulationResult {
   stepsCount: number;
-  finalBoard: unknown; // Will be GameBoard but avoiding circular imports
+  finalBoard: GameBoard;
   affectedCells: Array<{
     row: number;
     col: number;
