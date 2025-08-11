@@ -2,18 +2,23 @@ import { describe, it, expect } from 'vitest';
 import { executeOrbPlacement } from '../orbPlacement';
 import { createEmptyBoard } from '../gameLogic';
 import { gameReducer } from '../gameReducer';
+import { updateCell } from '../immutableUtils';
 import { GameStatus } from '../../types';
 import type { GameState } from '../../types';
 
 describe('Turn Progression After Moves', () => {
   it('should advance turn exactly once for non-explosive moves', async () => {
-    const board = createEmptyBoard(3, 3);
+    let board = createEmptyBoard(3, 3);
 
-    // Add some orbs for both players so no one gets eliminated
-    board.cells[0][1].orbCount = 1;
-    board.cells[0][1].playerId = 'player2';
-    board.cells[2][2].orbCount = 1;
-    board.cells[2][2].playerId = 'player1';
+    // Add some orbs for both players so no one gets eliminated using immutable updates
+    board = updateCell(board, 0, 1, {
+      orbCount: 1,
+      playerId: 'player2',
+    });
+    board = updateCell(board, 2, 2, {
+      orbCount: 1,
+      playerId: 'player1',
+    });
 
     const gameState: GameState = {
       board,
@@ -71,18 +76,24 @@ describe('Turn Progression After Moves', () => {
   });
 
   it('should advance turn exactly once after explosion animations complete', async () => {
-    const board = createEmptyBoard(3, 3);
+    let board = createEmptyBoard(3, 3);
 
-    // Add some orbs for both players so no one gets eliminated
+    // Add some orbs for both players so no one gets eliminated using immutable updates
     // Place player 2's orb far away from the explosion
-    board.cells[2][2].orbCount = 1;
-    board.cells[2][2].playerId = 'player2';
-    board.cells[2][1].orbCount = 1;
-    board.cells[2][1].playerId = 'player1';
+    board = updateCell(board, 2, 2, {
+      orbCount: 1,
+      playerId: 'player2',
+    });
+    board = updateCell(board, 2, 1, {
+      orbCount: 1,
+      playerId: 'player1',
+    });
 
     // Set up a corner cell that will explode when one more orb is added
-    board.cells[0][0].orbCount = 1; // Corner needs 2 to explode
-    board.cells[0][0].playerId = 'player1';
+    board = updateCell(board, 0, 0, {
+      orbCount: 1,
+      playerId: 'player1',
+    });
 
     const gameState: GameState = {
       board,
@@ -144,6 +155,19 @@ describe('Turn Progression After Moves', () => {
           `  Status: ${currentState.gameStatus}, Animating: ${currentState.isAnimating}`
         );
       }
+    }
+
+    // Simulate animation completion to trigger turn advancement
+    console.log('Simulating animation completion...');
+    const beforeCompleteIndex = currentState.currentPlayerIndex;
+    currentState = gameReducer(currentState, { type: 'COMPLETE_EXPLOSIONS' });
+    const afterCompleteIndex = currentState.currentPlayerIndex;
+
+    if (beforeCompleteIndex !== afterCompleteIndex) {
+      turnAdvanceCount++;
+      console.log(
+        `  ⭐ Turn advanced on COMPLETE_EXPLOSIONS: ${beforeCompleteIndex} -> ${afterCompleteIndex} (advance #${turnAdvanceCount})`
+      );
     }
 
     // Should advance turn exactly once

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { gameReducer, createInitialGameState } from '../gameReducer';
 import { executeOrbPlacement } from '../orbPlacement';
+import { updateCell, updateGameStateWithBoard } from '../immutableUtils';
 import type { GameState } from '../../types';
 
 describe('Multi-Player Game Mechanics', () => {
@@ -145,9 +146,11 @@ describe('Multi-Player Game Mechanics', () => {
 
     it('should detect win when only one player remains', () => {
       // Simulate game state where only player1 has orbs
-      gameState.board.cells[0][0].orbCount = 1;
-      gameState.board.cells[0][0].playerId = 'player1';
-      gameState.moveCount = 10; // Ensure minimum moves requirement
+      gameState = updateGameStateWithBoard(
+        gameState,
+        updateCell(gameState.board, 0, 0, { orbCount: 1, playerId: 'player1' }),
+        { moveCount: 10 }
+      ); // Ensure minimum moves requirement
 
       const finalState = gameReducer(gameState, {
         type: 'COMPLETE_EXPLOSIONS',
@@ -159,13 +162,21 @@ describe('Multi-Player Game Mechanics', () => {
 
     it('should continue game when multiple players have orbs', () => {
       // Multiple players have orbs
-      gameState.board.cells[0][0].orbCount = 1;
-      gameState.board.cells[0][0].playerId = 'player1';
-      gameState.board.cells[1][1].orbCount = 1;
-      gameState.board.cells[1][1].playerId = 'player2';
-      gameState.board.cells[2][2].orbCount = 1;
-      gameState.board.cells[2][2].playerId = 'player3';
-      gameState.moveCount = 10;
+      let newBoard = updateCell(gameState.board, 0, 0, {
+        orbCount: 1,
+        playerId: 'player1',
+      });
+      newBoard = updateCell(newBoard, 1, 1, {
+        orbCount: 1,
+        playerId: 'player2',
+      });
+      newBoard = updateCell(newBoard, 2, 2, {
+        orbCount: 1,
+        playerId: 'player3',
+      });
+      gameState = updateGameStateWithBoard(gameState, newBoard, {
+        moveCount: 10,
+      });
 
       const finalState = gameReducer(gameState, {
         type: 'COMPLETE_EXPLOSIONS',
@@ -177,11 +188,17 @@ describe('Multi-Player Game Mechanics', () => {
 
     it('should eliminate players correctly', () => {
       // Player 2 has no orbs (eliminated)
-      gameState.board.cells[0][0].orbCount = 1;
-      gameState.board.cells[0][0].playerId = 'player1';
-      gameState.board.cells[2][2].orbCount = 1;
-      gameState.board.cells[2][2].playerId = 'player3';
-      gameState.moveCount = 10;
+      let newBoard = updateCell(gameState.board, 0, 0, {
+        orbCount: 1,
+        playerId: 'player1',
+      });
+      newBoard = updateCell(newBoard, 2, 2, {
+        orbCount: 1,
+        playerId: 'player3',
+      });
+      gameState = updateGameStateWithBoard(gameState, newBoard, {
+        moveCount: 10,
+      });
 
       const finalState = gameReducer(gameState, {
         type: 'COMPLETE_EXPLOSIONS',
@@ -316,11 +333,17 @@ describe('Multi-Player Game Mechanics', () => {
 
     it('should handle complex elimination scenarios', () => {
       // Set up scenario: Player 1 and Player 4 have orbs, others eliminated
-      gameState.board.cells[0][0].orbCount = 2;
-      gameState.board.cells[0][0].playerId = 'player1';
-      gameState.board.cells[5][8].orbCount = 1;
-      gameState.board.cells[5][8].playerId = 'player4';
-      gameState.moveCount = 20;
+      let newBoard = updateCell(gameState.board, 0, 0, {
+        orbCount: 2,
+        playerId: 'player1',
+      });
+      newBoard = updateCell(newBoard, 5, 8, {
+        orbCount: 1,
+        playerId: 'player4',
+      });
+      gameState = updateGameStateWithBoard(gameState, newBoard, {
+        moveCount: 20,
+      });
 
       const finalState = gameReducer(gameState, {
         type: 'COMPLETE_EXPLOSIONS',
@@ -333,9 +356,11 @@ describe('Multi-Player Game Mechanics', () => {
 
     it('should detect winner in 4-player game', () => {
       // Only player3 has orbs
-      gameState.board.cells[2][4].orbCount = 3;
-      gameState.board.cells[2][4].playerId = 'player3';
-      gameState.moveCount = 25;
+      gameState = updateGameStateWithBoard(
+        gameState,
+        updateCell(gameState.board, 2, 4, { orbCount: 3, playerId: 'player3' }),
+        { moveCount: 25 }
+      );
 
       const finalState = gameReducer(gameState, {
         type: 'COMPLETE_EXPLOSIONS',
@@ -390,9 +415,11 @@ describe('Multi-Player Game Mechanics', () => {
       gameState = gameReducer(gameState, { type: 'START_GAME' });
 
       // Only player1 has orbs but minimum moves not reached
-      gameState.board.cells[0][0].orbCount = 1;
-      gameState.board.cells[0][0].playerId = 'player1';
-      gameState.moveCount = 2; // Less than required (3 for 3-player game)
+      gameState = updateGameStateWithBoard(
+        gameState,
+        updateCell(gameState.board, 0, 0, { orbCount: 1, playerId: 'player1' }),
+        { moveCount: 2 }
+      ); // Less than required (3 for 3-player game)
 
       const finalState = gameReducer(gameState, {
         type: 'COMPLETE_EXPLOSIONS',

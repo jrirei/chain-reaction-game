@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { gameReducer, createInitialGameState } from '../gameReducer';
 import { createEmptyBoard } from '../gameLogic';
 import { executeOrbPlacement } from '../orbPlacement';
+import { updateCell, updateGameStateWithBoard } from '../immutableUtils';
 import type { GameState } from '../../types';
 import { GameStatus } from '../../types';
 
@@ -29,16 +30,23 @@ describe('Chain Reaction Statistics', () => {
     console.log('=== TESTING CHAIN REACTION STATISTICS ===');
     console.log('Initial game stats:', gameState.gameStats);
 
-    // Set up a scenario for chain reaction
+    // Set up a scenario for chain reaction using immutable updates
     // Place orbs for both players to prevent elimination
-    gameState.board.cells[2][2].orbCount = 1;
-    gameState.board.cells[2][2].playerId = 'player2'; // Ensure player2 has orbs to prevent elimination
-    gameState.board.cells[2][1].orbCount = 1;
-    gameState.board.cells[2][1].playerId = 'player1'; // Player1 also has orbs
+    let newBoard = updateCell(gameState.board, 2, 2, {
+      orbCount: 1,
+      playerId: 'player2',
+    });
+    newBoard = updateCell(newBoard, 2, 1, {
+      orbCount: 1,
+      playerId: 'player1',
+    });
 
     // Set up corner cell with 1 orb, then place second to trigger explosion
-    gameState.board.cells[0][0].orbCount = 1;
-    gameState.board.cells[0][0].playerId = 'player1';
+    newBoard = updateCell(newBoard, 0, 0, {
+      orbCount: 1,
+      playerId: 'player1',
+    });
+    gameState = updateGameStateWithBoard(gameState, newBoard);
 
     // Place second orb in corner to trigger explosion
     const result = await executeOrbPlacement(gameState, 0, 0, 'player1', {
@@ -117,9 +125,12 @@ describe('Chain Reaction Statistics', () => {
 
     console.log('\n=== TESTING MOVE COUNT TRACKING ===');
 
-    // Place orbs for both players to prevent elimination
-    gameState.board.cells[2][2].orbCount = 1;
-    gameState.board.cells[2][2].playerId = 'player2';
+    // Place orbs for both players to prevent elimination using immutable updates
+    const newBoard = updateCell(gameState.board, 2, 2, {
+      orbCount: 1,
+      playerId: 'player2',
+    });
+    gameState = updateGameStateWithBoard(gameState, newBoard);
 
     // Place orbs for both players
     let result = await executeOrbPlacement(gameState, 1, 1, 'player1', {

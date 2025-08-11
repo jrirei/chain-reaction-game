@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { gameReducer, createInitialGameState } from '../gameReducer';
+import {
+  updateCell,
+  updateGameStateWithBoard,
+  updateGameState,
+} from '../immutableUtils';
 
 describe('Player Elimination Turn Progression Fix', () => {
   it('should advance turn correctly after player elimination', () => {
@@ -20,14 +25,17 @@ describe('Player Elimination Turn Progression Fix', () => {
     gameState = gameReducer(gameState, { type: 'START_GAME' });
 
     // Set up scenario where only players 1 and 3 have orbs (2 and 4 eliminated)
-    gameState.board.cells[0][0].orbCount = 2;
-    gameState.board.cells[0][0].playerId = 'player1';
-    gameState.board.cells[2][2].orbCount = 1;
-    gameState.board.cells[2][2].playerId = 'player3';
-    gameState.moveCount = 20; // Ensure minimum moves requirement
+    let newBoard = updateCell(gameState.board, 0, 0, {
+      orbCount: 2,
+      playerId: 'player1',
+    });
+    newBoard = updateCell(newBoard, 2, 2, { orbCount: 1, playerId: 'player3' });
+    gameState = updateGameStateWithBoard(gameState, newBoard, {
+      moveCount: 20,
+    }); // Ensure minimum moves requirement
 
     // Set current player to player 3 (index 2 in original array)
-    gameState.currentPlayerIndex = 2;
+    gameState = updateGameState(gameState, { currentPlayerIndex: 2 });
 
     console.log('Before COMPLETE_EXPLOSIONS:');
     console.log('Players:', gameState.players);
@@ -77,14 +85,17 @@ describe('Player Elimination Turn Progression Fix', () => {
     gameState = gameReducer(gameState, { type: 'START_GAME' });
 
     // Set up scenario where players 1 and 3 have orbs (2 and 4 eliminated)
-    gameState.board.cells[0][0].orbCount = 2;
-    gameState.board.cells[0][0].playerId = 'player1';
-    gameState.board.cells[2][2].orbCount = 1;
-    gameState.board.cells[2][2].playerId = 'player3';
-    gameState.moveCount = 20; // Ensure minimum moves requirement
+    let newBoard = updateCell(gameState.board, 0, 0, {
+      orbCount: 2,
+      playerId: 'player1',
+    });
+    newBoard = updateCell(newBoard, 2, 2, { orbCount: 1, playerId: 'player3' });
+    gameState = updateGameStateWithBoard(gameState, newBoard, {
+      moveCount: 20,
+    }); // Ensure minimum moves requirement
 
     // Set current player to player2 (who will be eliminated)
-    gameState.currentPlayerIndex = 1;
+    gameState = updateGameState(gameState, { currentPlayerIndex: 1 });
 
     console.log('Before elimination - Current player is player2 (eliminated)');
 
@@ -123,16 +134,18 @@ describe('Player Elimination Turn Progression Fix', () => {
     gameState = gameReducer(gameState, { type: 'START_GAME' });
 
     // All players have orbs
-    gameState.board.cells[0][0].orbCount = 1;
-    gameState.board.cells[0][0].playerId = 'player1';
-    gameState.board.cells[1][1].orbCount = 1;
-    gameState.board.cells[1][1].playerId = 'player2';
-    gameState.board.cells[2][2].orbCount = 1;
-    gameState.board.cells[2][2].playerId = 'player3';
-    gameState.moveCount = 10;
+    let newBoard = updateCell(gameState.board, 0, 0, {
+      orbCount: 1,
+      playerId: 'player1',
+    });
+    newBoard = updateCell(newBoard, 1, 1, { orbCount: 1, playerId: 'player2' });
+    newBoard = updateCell(newBoard, 2, 2, { orbCount: 1, playerId: 'player3' });
+    gameState = updateGameStateWithBoard(gameState, newBoard, {
+      moveCount: 10,
+    });
 
     // Current player is player1 (index 0)
-    gameState.currentPlayerIndex = 0;
+    gameState = updateGameState(gameState, { currentPlayerIndex: 0 });
 
     const finalState = gameReducer(gameState, { type: 'COMPLETE_EXPLOSIONS' });
 
