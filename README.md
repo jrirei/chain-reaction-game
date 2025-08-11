@@ -23,7 +23,7 @@
 - 🎮 **2-4 Player Support** - Local multiplayer with distinct player colors
 - 📱 **Responsive Design** - Works seamlessly on desktop and mobile devices
 - ⚡ **Fast & Modern** - Built with Vite for lightning-fast development and builds
-- 🧪 **Comprehensive Testing** - Full test suite with 151/151 tests passing
+- 🧪 **Comprehensive Testing** - Full test suite with 205/205 tests passing
 - 🔧 **TypeScript** - Full type safety with strict mode enabled
 - 🎨 **CSS Modules** - Scoped styling for maintainable component styles
 
@@ -33,7 +33,7 @@ Players take turns placing orbs on a grid. When a cell reaches **critical mass**
 
 ### Core Mechanics
 
-- **🎯 Grid**: 6×8 grid of cells (configurable)
+- **🎯 Grid**: 6×9 grid of cells (default; configurable)
 - **👥 Players**: 2-4 players with unique colors
 - **💥 Critical Mass**: 
   - Corner cells: 2 orbs
@@ -86,6 +86,8 @@ npm run preview  # Preview production build locally
 | `npm run preview` | Preview production build locally |
 | `npm run test` | Run test suite with Vitest |
 | `npm run test:ui` | Run tests with UI interface |
+| `npm run typecheck` | Run TypeScript type checking |
+| `npm run ci` | Run complete CI pipeline locally |
 | `npm run lint` | Run ESLint |
 | `npm run lint:fix` | Fix ESLint issues automatically |
 | `npm run format` | Format code with Prettier |
