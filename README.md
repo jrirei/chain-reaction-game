@@ -5,6 +5,8 @@
 ![Chain Reaction Game](https://img.shields.io/badge/React-18+-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-5+-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![CI](https://github.com/jrirei/chain-reaction-game/workflows/CI/badge.svg)
+[![codecov](https://codecov.io/gh/jrirei/chain-reaction-game/branch/main/graph/badge.svg)](https://codecov.io/gh/jrirei/chain-reaction-game)
 ![MIT License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
 **A modern, web-based implementation of the classic "Chain Reaction" game built with React and TypeScript**
@@ -21,7 +23,7 @@
 - 🎮 **2-4 Player Support** - Local multiplayer with distinct player colors
 - 📱 **Responsive Design** - Works seamlessly on desktop and mobile devices
 - ⚡ **Fast & Modern** - Built with Vite for lightning-fast development and builds
-- 🧪 **100% Test Coverage** - Comprehensive test suite with 24/24 tests passing
+- 🧪 **Comprehensive Testing** - Full test suite with 151/151 tests passing
 - 🔧 **TypeScript** - Full type safety with strict mode enabled
 - 🎨 **CSS Modules** - Scoped styling for maintainable component styles
 
@@ -128,7 +130,7 @@ npm run test:ui       # Run tests with UI
 npm run test:coverage # Generate coverage report
 ```
 
-**Current Status**: ✅ 24/24 tests passing with comprehensive coverage
+**Current Status**: ✅ 205/205 tests passing, 30.95% coverage (30% threshold enforced)
 
 ### Test Categories
 
