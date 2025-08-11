@@ -8,6 +8,8 @@
 import type { AiStrategy, AiStrategyName, AiConfig } from './types';
 import { DefaultBot } from './defaultBot';
 import { TriggerBot } from './triggerBot';
+import { RandomBot } from './randomBot';
+import { MonteCarloBot } from './monteCarloBot';
 
 export interface StrategyFactory {
   create: (config?: Partial<AiConfig>) => AiStrategy;
@@ -28,19 +30,14 @@ export const AI_STRATEGIES: Record<AiStrategyName, StrategyFactory> = {
     difficulty: 'hard',
   },
 
-  // Placeholder for future implementations
   random: {
-    create: () => {
-      throw new Error('Random bot not yet implemented');
-    },
+    create: () => new RandomBot(),
     description: 'Random move selection for testing and casual play',
     difficulty: 'easy',
   },
 
   monteCarlo: {
-    create: () => {
-      throw new Error('Monte Carlo bot not yet implemented');
-    },
+    create: () => new MonteCarloBot(),
     description: 'Advanced tree search with time-limited thinking',
     difficulty: 'hard',
   },

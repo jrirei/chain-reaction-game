@@ -7,6 +7,8 @@ import {
 } from '../registry';
 import { DefaultBot } from '../defaultBot';
 import { TriggerBot } from '../triggerBot';
+import { RandomBot } from '../randomBot';
+import { MonteCarloBot } from '../monteCarloBot';
 
 describe('AI Strategy Registry', () => {
   it('should create default bot instance', () => {
@@ -21,6 +23,20 @@ describe('AI Strategy Registry', () => {
 
     expect(strategy).toBeInstanceOf(TriggerBot);
     expect(strategy.name).toBe('trigger');
+  });
+
+  it('should create random bot instance', () => {
+    const strategy = createAiStrategy('random');
+
+    expect(strategy).toBeInstanceOf(RandomBot);
+    expect(strategy.name).toBe('random');
+  });
+
+  it('should create monte carlo bot instance', () => {
+    const strategy = createAiStrategy('monteCarlo');
+
+    expect(strategy).toBeInstanceOf(MonteCarloBot);
+    expect(strategy.name).toBe('monteCarlo');
   });
 
   it('should throw error for unknown strategy', () => {
@@ -46,13 +62,21 @@ describe('AI Strategy Registry', () => {
     const triggerInfo = getStrategyInfo('trigger');
     expect(triggerInfo.description).toContain('explosion-focused');
     expect(triggerInfo.difficulty).toBe('hard');
+
+    const randomInfo = getStrategyInfo('random');
+    expect(randomInfo.description).toContain('Random move selection');
+    expect(randomInfo.difficulty).toBe('easy');
+
+    const monteCarloInfo = getStrategyInfo('monteCarlo');
+    expect(monteCarloInfo.description).toContain('Advanced tree search');
+    expect(monteCarloInfo.difficulty).toBe('hard');
   });
 
   it('should check strategy availability', () => {
     expect(isStrategyAvailable('default')).toBe(true);
     expect(isStrategyAvailable('trigger')).toBe(true);
-    expect(isStrategyAvailable('random')).toBe(false);
-    expect(isStrategyAvailable('monteCarlo')).toBe(false);
+    expect(isStrategyAvailable('random')).toBe(true);
+    expect(isStrategyAvailable('monteCarlo')).toBe(true);
   });
 
   it('should throw error for unknown strategy info', () => {

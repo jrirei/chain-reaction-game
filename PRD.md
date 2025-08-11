@@ -3,7 +3,7 @@
 ## 📋 Document Status
 - **Version**: 3.3 - AI Bots Implementation
 - **Last Updated**: August 11, 2025
-- **Status**: ✅ **Production Ready - Verified** | **AI bots**: 4 strategies implemented (Default, Tigger, Random, Monte Carlo)
+- **Status**: ✅ **Production Ready - Verified** | **AI bots**: 4 strategies implemented (Default, Trigger, Random, Monte Carlo)
 - **Build**: ✅ **Passing** (~500ms) | **Tests**: ✅ **205/205 Passing** (~6s) | **Lint**: ✅ **Clean (0 warnings)** | **Coverage**: ✅ **30.95% (30% enforced threshold)**
 
 ## 1. Project Overview
@@ -101,7 +101,7 @@ A fully-featured web-based implementation of the classic "Chain Reaction" game u
 
 ### 4.3 Must-Have Features - AI Opponents ✅ **IMPLEMENTED**
 - [x] **Default Bot**: wraps/refactors current `utils/aiLogic.ts`
-- [x] **Tigger Bot**: explosion-focused heuristic (maximize chain length; otherwise push own tiles closest to critical mass)
+- [x] **Trigger Bot**: explosion-focused heuristic (maximize chain length; otherwise push own tiles closest to critical mass)
 - [x] **Random Bot**: uniformly random legal moves
 - [x] **Monte Carlo Bot**: time-limited nested MCTS, initial max thinking time 5s
 - [x] **Minimum AI turn latency**: 1s; final delay = max(0, minDelayMs − thinkingMs)
@@ -257,7 +257,7 @@ A fully-featured web-based implementation of the classic "Chain Reaction" game u
 
 - [x] **Task 8.3**: AI Strategy Implementations ✅
   - **Default Bot**: Ported existing aiLogic.ts with enhanced heuristics ✅
-  - **Tigger Bot**: Explosion-focused strategy maximizing chain reactions ✅
+  - **Trigger Bot**: Explosion-focused strategy maximizing chain reactions ✅
   - **Random Bot**: Uniform selection from legal moves ✅
   - **Monte Carlo Bot**: Time-limited MCTS with UCB1 selection ✅
 
