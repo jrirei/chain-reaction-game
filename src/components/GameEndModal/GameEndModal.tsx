@@ -48,8 +48,6 @@ const GameEndModal: React.FC<GameEndModalProps> = ({
     switch (gameEndResult.reason) {
       case 'elimination':
         return '💥';
-      case 'domination':
-        return '👑';
       case 'timeout':
         return '⏱️';
       default:
@@ -61,8 +59,6 @@ const GameEndModal: React.FC<GameEndModalProps> = ({
     switch (gameEndResult.reason) {
       case 'elimination':
         return 'All other players have been eliminated';
-      case 'domination':
-        return 'Achieved overwhelming board control';
       case 'timeout':
         return 'Game ended due to time limit';
       default:

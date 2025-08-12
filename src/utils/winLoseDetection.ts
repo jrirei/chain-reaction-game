@@ -5,7 +5,7 @@ import { countPlayerOrbs } from './boardOperations';
 export interface GameEndResult {
   isGameOver: boolean;
   winner: PlayerId | null;
-  reason: 'elimination' | 'domination' | 'timeout' | 'resignation' | null;
+  reason: 'elimination' | 'timeout' | 'resignation' | null;
   eliminatedPlayers: PlayerId[];
   finalScores: Array<{
     playerId: PlayerId;
@@ -22,7 +22,7 @@ export interface GameEndResult {
 }
 
 export interface WinCondition {
-  type: 'lastPlayerStanding' | 'domination' | 'timeout';
+  type: 'lastPlayerStanding' | 'timeout';
   description: string;
   checkCondition: (gameState: GameState) => boolean;
 }
@@ -96,31 +96,6 @@ export const checkGameEnd = (gameState: GameState): GameEndResult => {
       finalScores,
       gameStats,
     };
-  }
-
-  // Check for domination (one player controls significantly more orbs)
-  if (gameState.moveCount > minMovesRequired * 3) {
-    // After sufficient gameplay
-    const totalOrbs = finalScores.reduce(
-      (sum, score) => sum + score.orbCount,
-      0
-    );
-    const dominatingPlayer = finalScores.find(
-      (score) => score.orbCount > totalOrbs * 0.75 && score.orbCount > 10
-    );
-
-    if (dominatingPlayer) {
-      dominatingPlayer.isWinner = true;
-
-      return {
-        isGameOver: true,
-        winner: dominatingPlayer.playerId,
-        reason: 'domination',
-        eliminatedPlayers,
-        finalScores,
-        gameStats,
-      };
-    }
   }
 
   // Game continues
@@ -328,21 +303,6 @@ export const WIN_CONDITIONS: WinCondition[] = [
       );
     },
   },
-  {
-    type: 'domination',
-    description: 'Player controlling 75% of orbs wins',
-    checkCondition: (gameState: GameState) => {
-      const totalOrbs = gameState.players.reduce(
-        (sum, playerId) => sum + countPlayerOrbs(gameState.board, playerId),
-        0
-      );
-
-      return gameState.players.some((playerId) => {
-        const playerOrbs = countPlayerOrbs(gameState.board, playerId);
-        return playerOrbs > totalOrbs * 0.75 && playerOrbs > 10;
-      });
-    },
-  },
 ];
 
 /**
@@ -358,8 +318,6 @@ export const getWinMessage = (result: GameEndResult): string => {
   switch (result.reason) {
     case 'elimination':
       return `${result.winner} Wins by Elimination!`;
-    case 'domination':
-      return `${result.winner} Wins by Domination!`;
     case 'timeout':
       return `${result.winner} Wins by Time!`;
     default:
