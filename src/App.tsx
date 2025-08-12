@@ -7,7 +7,6 @@ import GameInfo from './components/GameInfo/GameInfo';
 import GameBoard from './components/GameBoard/GameBoard';
 import GameControls from './components/GameControls/GameControls';
 import PlayerList from './components/PlayerList/PlayerList';
-import CriticalMassDisplay from './components/CriticalMassDisplay';
 import GameEndModal from './components/GameEndModal';
 import './App.css';
 
@@ -60,16 +59,6 @@ function AppContent() {
           <GameControls />
         </ErrorBoundary>
       </nav>
-
-      <ErrorBoundary>
-        <CriticalMassDisplay
-          showAlerts={true}
-          showBoardTension={true}
-          showRecommendations={true}
-          position="top-right"
-          compact={false}
-        />
-      </ErrorBoundary>
 
       <ErrorBoundary>
         <GameEndModal onRestart={resetGame} showStats={true} />
