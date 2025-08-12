@@ -148,8 +148,11 @@
 .orbCountNumber {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #000000;
+  background-color: #ffffff;
   line-height: 1;
+  padding: 2px 4px;
+  border-radius: 3px;
 }
 
 .orbCountLabel {
@@ -184,8 +187,11 @@
 .statValue {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #000000;
+  background-color: #ffffff;
   margin-top: 2px;
+  padding: 2px 4px;
+  border-radius: 3px;
 }
 
 /* Animations */

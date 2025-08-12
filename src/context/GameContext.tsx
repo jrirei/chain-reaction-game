@@ -45,6 +45,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
         }
       }
     }
+
     return orbCount;
   };
 
@@ -55,6 +56,10 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     const config = gameState.settings.playerConfigs?.[playerNumber - 1];
     const colorIndex = (playerNumber - 1) % PLAYER_COLORS.length;
 
+    const calculatedOrbCount = calculateOrbCount(playerId);
+    const movesPlayed =
+      gameState.gameStats?.playerStats[playerId]?.movesPlayed || 0;
+
     const player = {
       id: playerId,
       name:
@@ -63,8 +68,8 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       color: PLAYER_COLORS[colorIndex],
       isActive: true,
       isEliminated: false,
-      orbCount: calculateOrbCount(playerId), // Calculate actual orb count
-      totalMoves: gameState.gameStats?.playerStats[playerId]?.movesPlayed || 0,
+      orbCount: calculatedOrbCount, // Calculate actual orb count
+      totalMoves: movesPlayed,
       type: config?.type || 'human',
       aiConfig: config?.aiConfig,
     };
