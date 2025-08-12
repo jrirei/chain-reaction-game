@@ -34,6 +34,20 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     createInitialGameState()
   );
 
+  // Helper function to calculate orb count for a player
+  const calculateOrbCount = (playerId: string): number => {
+    let orbCount = 0;
+    for (let row = 0; row < gameState.board.rows; row++) {
+      for (let col = 0; col < gameState.board.cols; col++) {
+        const cell = gameState.board.cells[row][col];
+        if (cell.playerId === playerId) {
+          orbCount += cell.orbCount;
+        }
+      }
+    }
+    return orbCount;
+  };
+
   // Create player objects from player IDs
   const players: Player[] = gameState.players.map((playerId, index) => {
     // Use player ID to determine original position, not current array position
@@ -49,8 +63,8 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       color: PLAYER_COLORS[colorIndex],
       isActive: true,
       isEliminated: false,
-      orbCount: 0, // Will be calculated from board state
-      totalMoves: 0, // Will be tracked separately
+      orbCount: calculateOrbCount(playerId), // Calculate actual orb count
+      totalMoves: gameState.gameStats?.playerStats[playerId]?.movesPlayed || 0,
       type: config?.type || 'human',
       aiConfig: config?.aiConfig,
     };

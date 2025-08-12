@@ -43,24 +43,8 @@ const PlayerList: React.FC<PlayerListProps> = ({
     );
   }
 
-  // Sort players: current first, then by orb count (descending), then by name
-  const sortedPlayers = [...players].sort((a, b) => {
-    // Current player first
-    if (currentPlayer?.id === a.id) return -1;
-    if (currentPlayer?.id === b.id) return 1;
-
-    // Eliminated players last
-    if (a.isEliminated && !b.isEliminated) return 1;
-    if (!a.isEliminated && b.isEliminated) return -1;
-
-    // Sort by orb count (descending)
-    if (a.orbCount !== b.orbCount) {
-      return b.orbCount - a.orbCount;
-    }
-
-    // Sort by name
-    return a.name.localeCompare(b.name);
-  });
+  // Keep players in fixed positions (original order) - highlighting shows current player
+  const sortedPlayers = [...players];
 
   const containerClasses = [
     styles.playerListContainer,
