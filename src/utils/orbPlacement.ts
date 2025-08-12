@@ -15,6 +15,8 @@ export interface OrbPlacementResult {
   actions?: GameAction[];
   error?: string;
   chainReactionSteps?: GameBoard[];
+  chainReactions?: number; // Number of chain reaction steps
+  gameWonEarly?: boolean; // Whether the game was won early during chain reaction
 }
 
 export interface OrbPlacementOptions {
@@ -73,6 +75,8 @@ export const executeOrbPlacement = async (
 
     let finalBoard = boardAfterPlacement;
     let chainReactionSteps: GameBoard[] = [];
+    let chainReactionCount = 0;
+    let gameWonEarly = false;
 
     // Process chain reactions if enabled
     if (calculateChainReactions) {
@@ -90,6 +94,8 @@ export const executeOrbPlacement = async (
           playerColor
         );
         finalBoard = sequentialResult.finalBoard;
+        chainReactionCount = sequentialResult.explosionSteps.length;
+        gameWonEarly = sequentialResult.gameWonEarly || false;
 
         console.log(
           `⚡ Sequential result: ${sequentialResult.explosionSteps.length} explosion steps`,
@@ -141,6 +147,8 @@ export const executeOrbPlacement = async (
             const chainResult = processChainReactions(boardAfterPlacement);
             finalBoard = chainResult.finalBoard;
             chainReactionSteps = chainResult.explosionSteps;
+            chainReactionCount = chainResult.explosionSteps.length;
+            // Note: old system doesn't detect gameWonEarly, so keep as false
 
             actions.push({
               type: 'RECORD_CHAIN_REACTION',
@@ -163,6 +171,8 @@ export const executeOrbPlacement = async (
             playerColor
           );
           finalBoard = sequentialResult.finalBoard;
+          chainReactionCount = sequentialResult.explosionSteps.length;
+          gameWonEarly = sequentialResult.gameWonEarly || false;
 
           if (sequentialResult.explosionSteps.length > 0) {
             // For backward compatibility, populate chainReactionSteps
@@ -189,6 +199,8 @@ export const executeOrbPlacement = async (
               const chainResult = processChainReactions(boardAfterPlacement);
               finalBoard = chainResult.finalBoard;
               chainReactionSteps = chainResult.explosionSteps;
+              chainReactionCount = chainResult.explosionSteps.length;
+              // Note: old system doesn't detect gameWonEarly, so keep current value
             }
           }
         }
@@ -243,6 +255,8 @@ export const executeOrbPlacement = async (
       actions,
       chainReactionSteps:
         chainReactionSteps.length > 0 ? chainReactionSteps : undefined,
+      chainReactions: chainReactionCount > 0 ? chainReactionCount : undefined,
+      gameWonEarly: gameWonEarly || undefined,
     };
   } catch (error) {
     return {

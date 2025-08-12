@@ -124,29 +124,12 @@ const ChainReactionManager: React.FC<ChainReactionManagerProps> = ({
       `🎯 Chain reaction manager: step ${currentStep}/${totalSteps}, steps available: ${explosionSteps.length}, gameWonEarly: ${gameWonEarly}`
     );
 
-    // If game was won early, skip all animations and complete immediately
+    // Continue with animations even if game was won early - let all explosions complete
     if (gameWonEarly && currentStep === 0) {
       console.log(
-        '🏆 Game won early! Skipping chain reaction animations and completing immediately'
+        '🏆 Game won early! Continuing chain reaction animations until all enemy orbs are consumed'
       );
-
-      // Complete the chain sequence immediately with final board state
-      dispatch({
-        type: 'COMPLETE_CHAIN_SEQUENCE',
-        payload: {
-          finalBoard:
-            chainReactionState.finalBoard ||
-            chainReactionState.explosionSteps[
-              chainReactionState.explosionSteps.length - 1
-            ]?.resultingBoard,
-          totalSteps: chainReactionState.explosionSteps.length,
-          safetyLimitReached: chainReactionState.safetyLimitReached || false,
-        },
-      });
-
-      // Trigger game end check
-      onSequenceComplete?.();
-      return;
+      // Continue with normal animation flow instead of skipping
     }
 
     // Only start the first step here - subsequent steps will be chained by playExplosionStep

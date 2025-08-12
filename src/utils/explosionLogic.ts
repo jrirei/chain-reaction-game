@@ -159,6 +159,7 @@ export const processChainReactionsSequential = (
   const steps: ExplosionStep[] = [];
   let currentBoard = deepCloneBoard(board);
   let stepCount = 0;
+  let gameWonEarly = false;
 
   while (stepCount < maxSteps) {
     const explodingCells = getExplodingCells(currentBoard);
@@ -196,18 +197,13 @@ export const processChainReactionsSequential = (
     currentBoard = newBoard;
     stepCount++;
 
-    // Check for early victory condition - if only one player remains, abort chain reaction
+    // Check for early victory condition - but continue animations until no more explosions
     const activePlayers = getActivePlayers(currentBoard);
-    if (activePlayers.length <= 1) {
+    if (activePlayers.length <= 1 && !gameWonEarly) {
       console.log(
-        `🏆 Game won early! Only ${activePlayers.length} active players remaining after explosion step ${stepCount}`
+        `🏆 Game won early! Only ${activePlayers.length} active players remaining after explosion step ${stepCount} - continuing chain reaction until completion`
       );
-      return {
-        explosionSteps: steps,
-        finalBoard: currentBoard,
-        safetyLimitReached: false,
-        gameWonEarly: true,
-      };
+      gameWonEarly = true; // Mark as won early but continue the chain reaction
     }
   }
 
@@ -215,7 +211,7 @@ export const processChainReactionsSequential = (
     explosionSteps: steps,
     finalBoard: currentBoard,
     safetyLimitReached: stepCount >= maxSteps,
-    gameWonEarly: false,
+    gameWonEarly,
   };
 };
 
