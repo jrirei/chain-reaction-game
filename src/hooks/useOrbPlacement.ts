@@ -28,7 +28,7 @@ export interface MovePreview {
 }
 
 export const useOrbPlacement = () => {
-  const { gameState, currentPlayer, dispatch } = useGameState();
+  const { gameState, currentPlayer, players, dispatch } = useGameState();
   const { playOrbPlace, playChainReaction, playInvalidMove } =
     useProgressiveAudioManager();
   const [isPlacingOrb, setIsPlacingOrb] = useState(false);
@@ -114,13 +114,22 @@ export const useOrbPlacement = () => {
           return false;
         }
 
-        // Execute the placement
+        // Get the current player's color for consistent animations
+        const currentPlayerData = players.find(
+          (p) => p.id === currentPlayer.id
+        );
+        const playerColor = currentPlayerData?.color;
+
+        // Execute the placement with player color for consistent animations
         const result = await executeOrbPlacement(
           gameState,
           row,
           col,
           currentPlayer.id,
-          options
+          {
+            ...options,
+            playerColor,
+          }
         );
 
         if (!result.success) {
@@ -246,6 +255,7 @@ export const useOrbPlacement = () => {
     [
       gameState,
       currentPlayer,
+      players,
       dispatch,
       isPlacingOrb,
       showFeedback,

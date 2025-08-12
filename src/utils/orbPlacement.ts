@@ -7,6 +7,7 @@ import {
   getExplodingCells,
 } from './gameLogic';
 import { checkGameEnd } from './winLoseDetection';
+import { GAME_CONFIG } from './constants';
 
 export interface OrbPlacementResult {
   success: boolean;
@@ -20,6 +21,7 @@ export interface OrbPlacementOptions {
   skipValidation?: boolean;
   enableAnimations?: boolean;
   calculateChainReactions?: boolean;
+  playerColor?: string; // Pass the actual player color for animations
 }
 
 /**
@@ -36,6 +38,7 @@ export const executeOrbPlacement = async (
     skipValidation = false,
     enableAnimations = true,
     calculateChainReactions = true,
+    playerColor,
   } = options;
 
   const actions: GameAction[] = [];
@@ -82,7 +85,9 @@ export const executeOrbPlacement = async (
         );
         const sequentialResult = processChainReactionsSequential(
           boardAfterPlacement,
-          playerId
+          playerId,
+          GAME_CONFIG.MAX_CHAIN_REACTION_STEPS,
+          playerColor
         );
         finalBoard = sequentialResult.finalBoard;
 
@@ -153,7 +158,9 @@ export const executeOrbPlacement = async (
         if (explodingCells.length > 0) {
           const sequentialResult = processChainReactionsSequential(
             boardAfterPlacement,
-            playerId
+            playerId,
+            GAME_CONFIG.MAX_CHAIN_REACTION_STEPS,
+            playerColor
           );
           finalBoard = sequentialResult.finalBoard;
 

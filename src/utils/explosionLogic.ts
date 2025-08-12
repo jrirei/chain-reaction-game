@@ -148,7 +148,8 @@ export const processChainReactions = (
 export const processChainReactionsSequential = (
   board: GameBoard,
   currentPlayerId: string,
-  maxSteps: number = GAME_CONFIG.MAX_CHAIN_REACTION_STEPS
+  maxSteps: number = GAME_CONFIG.MAX_CHAIN_REACTION_STEPS,
+  playerColor?: string // Optional player color override
 ): {
   explosionSteps: ExplosionStep[];
   finalBoard: GameBoard;
@@ -170,7 +171,8 @@ export const processChainReactionsSequential = (
     const orbMovements = calculateOrbMovements(
       explodingCells,
       currentBoard,
-      currentPlayerId
+      currentPlayerId,
+      playerColor
     );
 
     // Process the explosion step
@@ -223,7 +225,8 @@ export const processChainReactionsSequential = (
 export const calculateOrbMovements = (
   explodingCells: Cell[],
   board: GameBoard,
-  currentPlayerId: string
+  currentPlayerId: string,
+  playerColor?: string // Optional player color override
 ): OrbMovementAnimation[] => {
   const movements: OrbMovementAnimation[] = [];
   const baseStartTime = Date.now();
@@ -253,7 +256,7 @@ export const calculateOrbMovements = (
         toCell: pos,
         startTime: startTime + index * 10, // Slight stagger for visual effect
         duration: 300, // 300ms of the 400ms step (original speed)
-        orbColor: getPlayerColor(currentPlayerId),
+        orbColor: playerColor || getPlayerColor(currentPlayerId),
         id: `${cell.id}-to-${pos.row}-${pos.col}-${startTime}`,
       });
     });
