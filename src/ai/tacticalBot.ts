@@ -17,7 +17,6 @@ import type { GameState } from '../types/game';
 import type { Move } from '../core/types';
 import { GameEngine } from '../core/engineSimple';
 import type { AiStrategy, AiContext } from './types';
-import { DefaultBot } from './defaultBot';
 import { TACTICAL_BOT_CONFIG } from './constants';
 
 interface MCTSNode {
@@ -38,7 +37,6 @@ export class TacticalBot implements AiStrategy {
   readonly name = 'tactical' as const;
 
   private engine = new GameEngine();
-  private defaultBot = new DefaultBot();
   private defaultMaxThinkingMs = TACTICAL_BOT_CONFIG.DEFAULT_MAX_THINKING_MS;
 
   async decideMove(
@@ -241,7 +239,7 @@ export class TacticalBot implements AiStrategy {
     }
 
     // 3. Simulation - play out the game randomly
-    const simulationResult = this.simulate(node, state, rng);
+    const simulationResult = this.simulate(node, state);
 
     // 4. Backpropagation - update statistics up the tree
     this.backpropagate(node, simulationResult);
@@ -306,12 +304,7 @@ export class TacticalBot implements AiStrategy {
   /**
    * Simulation phase: Evaluate the position after applying the node's move
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private simulate(
-    node: MCTSNode,
-    originalState: GameState,
-    _rng: () => number
-  ): number {
+  private simulate(node: MCTSNode, originalState: GameState): number {
     const currentPlayerId =
       originalState.players[originalState.currentPlayerIndex];
 

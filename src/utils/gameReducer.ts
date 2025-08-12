@@ -347,8 +347,13 @@ export const gameReducer = (
     }
 
     case 'START_CHAIN_SEQUENCE': {
-      const { explosionSteps, totalSteps, finalBoard, safetyLimitReached } =
-        action.payload;
+      const {
+        explosionSteps,
+        totalSteps,
+        finalBoard,
+        safetyLimitReached,
+        gameWonEarly,
+      } = action.payload;
 
       return {
         ...state,
@@ -361,6 +366,7 @@ export const gameReducer = (
           explosionSteps,
           finalBoard, // Store final board for completion
           safetyLimitReached,
+          gameWonEarly,
           safety: {
             maxSteps: 10000,
             currentCount: totalSteps,

@@ -5,7 +5,7 @@
  * Integrates with the game state to trigger AI moves when it's an AI player's turn.
  */
 
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useMemo } from 'react';
 import { useGameContext } from '../context/useGameContext';
 import { BotRunner } from '../ai/botRunner';
 import type { Player } from '../types/player';
@@ -15,8 +15,11 @@ import { GameStatus } from '../types/game';
 export const useAiTurn = () => {
   const { gameState, currentPlayer, dispatch } = useGameContext();
 
-  const engine = new GameEngine();
-  const botRunner = new BotRunner(engine, { minDelayMs: 500 });
+  const engine = useMemo(() => new GameEngine(), []);
+  const botRunner = useMemo(
+    () => new BotRunner(engine, { minDelayMs: 500 }),
+    [engine]
+  );
 
   // Rate limiting: prevent multiple AI turns from executing simultaneously
   const [isExecutingAiTurn, setIsExecutingAiTurn] = useState(false);

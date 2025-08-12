@@ -80,8 +80,10 @@ export const executeOrbPlacement = async (
         console.log(
           `🔥 Cell at (${row}, ${col}) reached critical mass, processing sequentially...`
         );
-        const sequentialResult =
-          processChainReactionsSequential(boardAfterPlacement);
+        const sequentialResult = processChainReactionsSequential(
+          boardAfterPlacement,
+          playerId
+        );
         finalBoard = sequentialResult.finalBoard;
 
         console.log(
@@ -89,6 +91,7 @@ export const executeOrbPlacement = async (
           {
             stepsCount: sequentialResult.explosionSteps.length,
             safetyReached: sequentialResult.safetyLimitReached,
+            gameWonEarly: sequentialResult.gameWonEarly,
             enableAnimations,
           }
         );
@@ -112,6 +115,7 @@ export const executeOrbPlacement = async (
                 totalSteps: sequentialResult.explosionSteps.length,
                 finalBoard: sequentialResult.finalBoard,
                 safetyLimitReached: sequentialResult.safetyLimitReached,
+                gameWonEarly: sequentialResult.gameWonEarly,
               },
             });
 
@@ -147,8 +151,10 @@ export const executeOrbPlacement = async (
         // Check if any other cells are at critical mass (shouldn't happen in normal gameplay)
         const explodingCells = getExplodingCells(boardAfterPlacement);
         if (explodingCells.length > 0) {
-          const sequentialResult =
-            processChainReactionsSequential(boardAfterPlacement);
+          const sequentialResult = processChainReactionsSequential(
+            boardAfterPlacement,
+            playerId
+          );
           finalBoard = sequentialResult.finalBoard;
 
           if (sequentialResult.explosionSteps.length > 0) {
@@ -165,6 +171,7 @@ export const executeOrbPlacement = async (
                   totalSteps: sequentialResult.explosionSteps.length,
                   finalBoard: sequentialResult.finalBoard,
                   safetyLimitReached: sequentialResult.safetyLimitReached,
+                  gameWonEarly: sequentialResult.gameWonEarly,
                 },
               });
 

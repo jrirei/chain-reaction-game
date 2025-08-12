@@ -8,6 +8,7 @@ import type {
 import { deepCloneBoard, getAdjacentCells } from './boardOperations';
 import { processExplosionImmutable } from './immutableUtils';
 import { PLAYER_COLORS, GAME_CONFIG } from './constants';
+import { getActivePlayers } from './gameValidation';
 
 /**
  * Identifies all cells on the board that have reached their critical mass and are ready to explode.
@@ -146,11 +147,13 @@ export const processChainReactions = (
  */
 export const processChainReactionsSequential = (
   board: GameBoard,
+  currentPlayerId: string,
   maxSteps: number = GAME_CONFIG.MAX_CHAIN_REACTION_STEPS
 ): {
   explosionSteps: ExplosionStep[];
   finalBoard: GameBoard;
   safetyLimitReached: boolean;
+  gameWonEarly?: boolean;
 } => {
   const steps: ExplosionStep[] = [];
   let currentBoard = deepCloneBoard(board);
@@ -164,7 +167,11 @@ export const processChainReactionsSequential = (
     }
 
     // Calculate orb movements for this step
-    const orbMovements = calculateOrbMovements(explodingCells, currentBoard);
+    const orbMovements = calculateOrbMovements(
+      explodingCells,
+      currentBoard,
+      currentPlayerId
+    );
 
     // Process the explosion step
     let newBoard = currentBoard;
@@ -186,12 +193,27 @@ export const processChainReactionsSequential = (
     steps.push(explosionStep);
     currentBoard = newBoard;
     stepCount++;
+
+    // Check for early victory condition - if only one player remains, abort chain reaction
+    const activePlayers = getActivePlayers(currentBoard);
+    if (activePlayers.length <= 1) {
+      console.log(
+        `🏆 Game won early! Only ${activePlayers.length} active players remaining after explosion step ${stepCount}`
+      );
+      return {
+        explosionSteps: steps,
+        finalBoard: currentBoard,
+        safetyLimitReached: false,
+        gameWonEarly: true,
+      };
+    }
   }
 
   return {
     explosionSteps: steps,
     finalBoard: currentBoard,
     safetyLimitReached: stepCount >= maxSteps,
+    gameWonEarly: false,
   };
 };
 
@@ -200,7 +222,8 @@ export const processChainReactionsSequential = (
  */
 export const calculateOrbMovements = (
   explodingCells: Cell[],
-  board: GameBoard
+  board: GameBoard,
+  currentPlayerId: string
 ): OrbMovementAnimation[] => {
   const movements: OrbMovementAnimation[] = [];
   const baseStartTime = Date.now();
@@ -230,7 +253,7 @@ export const calculateOrbMovements = (
         toCell: pos,
         startTime: startTime + index * 10, // Slight stagger for visual effect
         duration: 300, // 300ms of the 400ms step (original speed)
-        orbColor: getPlayerColor(cell.playerId),
+        orbColor: getPlayerColor(currentPlayerId),
         id: `${cell.id}-to-${pos.row}-${pos.col}-${startTime}`,
       });
     });

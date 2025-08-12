@@ -235,6 +235,7 @@ export interface ChainReactionState {
   explosionSteps: ExplosionStep[];
   finalBoard?: GameBoard;
   safetyLimitReached?: boolean;
+  gameWonEarly?: boolean;
   safety: {
     maxSteps: number;
     currentCount: number;
@@ -249,6 +250,7 @@ export interface StartChainSequenceAction {
     totalSteps: number;
     finalBoard: GameBoard;
     safetyLimitReached: boolean;
+    gameWonEarly?: boolean;
   };
 }
 

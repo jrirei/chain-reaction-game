@@ -73,15 +73,20 @@ export class MonteCarloBot implements AiStrategy {
 
     let iterations = 0;
 
-    // Run MCTS iterations until time limit
-    while (performance.now() < endTime && iterations < 10000) {
-      // Safety limit
+    // Run MCTS iterations until time limit (remove arbitrary iteration limit)
+    while (performance.now() < endTime && iterations < 1000000) {
+      // Very high safety limit - rely on time limit instead
       const leaf = this.selectNode(root);
       const expandedNode = this.expandNode(leaf, state, rng);
       const result = this.simulateGame(expandedNode, state, rng);
       this.backpropagate(expandedNode, result);
       iterations++;
     }
+
+    const actualThinkingMs = performance.now() - startTime;
+    console.log(
+      `🧠 Monte Carlo Bot completed ${iterations} iterations in ${Math.round(actualThinkingMs)}ms (limit: ${maxThinkingMs}ms)`
+    );
 
     // Select the most visited child (most robust choice)
     return this.selectBestMove(root);

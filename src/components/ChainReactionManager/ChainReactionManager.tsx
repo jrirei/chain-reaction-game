@@ -118,10 +118,36 @@ const ChainReactionManager: React.FC<ChainReactionManagerProps> = ({
       return;
     }
 
-    const { explosionSteps, currentStep, totalSteps } = chainReactionState;
+    const { explosionSteps, currentStep, totalSteps, gameWonEarly } =
+      chainReactionState;
     console.log(
-      `🎯 Chain reaction manager: step ${currentStep}/${totalSteps}, steps available: ${explosionSteps.length}`
+      `🎯 Chain reaction manager: step ${currentStep}/${totalSteps}, steps available: ${explosionSteps.length}, gameWonEarly: ${gameWonEarly}`
     );
+
+    // If game was won early, skip all animations and complete immediately
+    if (gameWonEarly && currentStep === 0) {
+      console.log(
+        '🏆 Game won early! Skipping chain reaction animations and completing immediately'
+      );
+
+      // Complete the chain sequence immediately with final board state
+      dispatch({
+        type: 'COMPLETE_CHAIN_SEQUENCE',
+        payload: {
+          finalBoard:
+            chainReactionState.finalBoard ||
+            chainReactionState.explosionSteps[
+              chainReactionState.explosionSteps.length - 1
+            ]?.resultingBoard,
+          totalSteps: chainReactionState.explosionSteps.length,
+          safetyLimitReached: chainReactionState.safetyLimitReached || false,
+        },
+      });
+
+      // Trigger game end check
+      onSequenceComplete?.();
+      return;
+    }
 
     // Only start the first step here - subsequent steps will be chained by playExplosionStep
     if (currentStep === 0 && explosionSteps.length > 0) {
@@ -131,7 +157,7 @@ const ChainReactionManager: React.FC<ChainReactionManagerProps> = ({
       // Start the first step immediately
       playExplosionStep(firstStep, 1);
     }
-  }, [chainReactionState, playExplosionStep]); // Include complete dependency
+  }, [chainReactionState, playExplosionStep, dispatch, onSequenceComplete]); // Include complete dependency
 
   // Handle animation completion
   const handleAnimationComplete = useCallback(() => {
