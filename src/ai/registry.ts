@@ -10,6 +10,7 @@ import { DefaultBot } from './defaultBot';
 import { TriggerBot } from './triggerBot';
 import { RandomBot } from './randomBot';
 import { MonteCarloBot } from './monteCarloBot';
+import { TacticalBot } from './tacticalBot';
 import { STRATEGY_DISPLAY } from './constants';
 
 export interface StrategyFactory {
@@ -44,6 +45,13 @@ export const AI_STRATEGIES: Record<AiStrategyName, StrategyFactory> = {
     create: () => new MonteCarloBot(),
     description:
       'Advanced tree search AI with configurable thinking time for maximum strategic depth',
+    difficulty: 'hard',
+  },
+
+  tactical: {
+    create: () => new TacticalBot(),
+    description:
+      'Elite hybrid AI combining heuristic filtering with Monte Carlo tree search for optimal play',
     difficulty: 'hard',
   },
 };

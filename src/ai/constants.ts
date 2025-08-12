@@ -125,8 +125,14 @@ export const DIFFICULTY_LEVELS = {
   },
   EXPERT: {
     label: 'Expert',
-    description: 'Maximum strength Monte Carlo',
+    description: 'Elite tactical hybrid AI',
     thinkingTime: AI_THINKING_TIMES.SLOW,
+    strategy: 'tactical' as const,
+  },
+  MASTER: {
+    label: 'Master',
+    description: 'Maximum strength Monte Carlo',
+    thinkingTime: AI_THINKING_TIMES.VERY_SLOW,
     strategy: 'monteCarlo' as const,
   },
 } as const;
@@ -157,6 +163,39 @@ export const STRATEGY_DISPLAY = {
     icon: '🧠',
     color: '#8B5CF6', // Purple
   },
+  tactical: {
+    name: 'Tactical Bot',
+    shortName: 'Elite',
+    icon: '🎯',
+    color: '#F59E0B', // Amber
+  },
+} as const;
+
+// Tactical Bot Configuration (hybrid MCTS + heuristics)
+export const TACTICAL_BOT_CONFIG = {
+  // Thinking time configuration
+  DEFAULT_MAX_THINKING_MS: AI_THINKING_TIMES.SLOW, // 10 seconds for deep analysis
+  MIN_MCTS_TIME_MS: 2000, // Minimum time before switching to pure heuristics
+
+  // Candidate move selection (adaptive based on game phase)
+  MAX_CANDIDATES_EARLY: 12, // More exploration in early game
+  MAX_CANDIDATES_MID: 10, // Balanced approach in mid game
+  MAX_CANDIDATES_LATE: 8, // Focus on quality in late game
+
+  // Scoring weights for move pre-filtering
+  CRITICAL_MASS_WEIGHT: 15, // Weight for critical mass progress
+  EXPLOSION_BONUS: 25, // Bonus for immediate explosions
+  OWN_CELL_BONUS: 12, // Bonus for building on own cells
+
+  // Position value bonuses
+  CORNER_BONUS: 8, // Corners are easier to explode
+  EDGE_BONUS: 5, // Edges are moderately easy
+  CENTER_BONUS: 3, // Centers require more orbs
+
+  // MCTS parameters
+  UCB1_EXPLORATION: Math.sqrt(2), // √2 - standard UCB1 exploration
+  MAX_ITERATIONS: 50000, // Maximum MCTS iterations to prevent infinite loops
+  MAX_SIMULATION_STEPS: 200, // Maximum steps in random playout
 } as const;
 
 // Available thinking time options for UI

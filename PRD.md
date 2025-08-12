@@ -3,8 +3,8 @@
 ## 📋 Document Status
 - **Version**: 3.3 - AI Bots Implementation
 - **Last Updated**: August 11, 2025
-- **Status**: ✅ **Production Ready - Verified** | **AI bots**: 4 strategies implemented (Default, Trigger, Random, Monte Carlo)
-- **Build**: ✅ **Passing** (~500ms) | **Tests**: ✅ **237+ Passing** (~6s) | **Lint**: ✅ **Clean (0 warnings)** | **Coverage**: ✅ **30.95% (30% enforced threshold)**
+- **Status**: ✅ **Production Ready - Verified** | **AI bots**: 5 strategies implemented (Default, Trigger, Random, Monte Carlo, Tactical)
+- **Build**: ✅ **Passing** (~500ms) | **Tests**: ✅ **312+ Passing** (~6s) | **Lint**: ✅ **Clean (0 warnings)** | **Coverage**: ✅ **93.08% AI Coverage**
 
 ## 1. Project Overview
 
@@ -100,10 +100,11 @@ A fully-featured web-based implementation of the classic "Chain Reaction" game u
 - [x] **Production build system** ✅ *TypeScript, ESLint, Prettier*
 
 ### 4.3 Must-Have Features - AI Opponents ✅ **IMPLEMENTED**
-- [x] **Default Bot**: wraps/refactors current `utils/aiLogic.ts`
-- [x] **Trigger Bot**: explosion-focused heuristic (maximize chain length; otherwise push own tiles closest to critical mass)
-- [x] **Random Bot**: uniformly random legal moves
-- [x] **Monte Carlo Bot**: time-limited nested MCTS, initial max thinking time 5s
+- [x] **Default Bot**: balanced strategic play with solid fundamentals (3s thinking time)
+- [x] **Trigger Bot**: explosion-focused heuristic maximizing chain reactions (3s thinking time)  
+- [x] **Random Bot**: uniformly random legal moves (1s thinking time)
+- [x] **Monte Carlo Bot**: pure MCTS tree search with UCB1 exploration (5s thinking time)
+- [x] **Tactical Bot**: hybrid AI combining Default heuristics + MCTS on filtered moves (10s thinking time) ⭐ **NEW**
 - [x] **Minimum AI turn latency**: 1s; final delay = max(0, minDelayMs − thinkingMs)
 
 ### 4.4 Could-Have Features ❌ **FUTURE ROADMAP**
@@ -139,8 +140,32 @@ A fully-featured web-based implementation of the classic "Chain Reaction" game u
 - Responsive grid sizing
 
 ### 5.3 AI Integration UI
-- **Game Setup**: Per player, add "Player Type" (Human/AI) and "AI Strategy" select. If AI, show Strategy select and optional "Max thinking time" for Monte Carlo (default 5s)
+- **Game Setup**: Per player, add "Player Type" (Human/AI) and "AI Strategy" select. If AI, show Strategy select and optional "Max thinking time" for advanced strategies
 - **Accessibility**: Announce "AI is thinking…" via `aria-live`
+
+### 5.4 AI Strategy Reference ✅ **IMPLEMENTED**
+
+#### Beginner Level
+- **🎲 Random Bot** (1s) - Completely random move selection for unpredictable gameplay
+
+#### Easy Level  
+- **⚖️ Default Bot** (3s) - Balanced strategic play with solid fundamentals and risk management
+
+#### Medium Level
+- **💥 Trigger Bot** (3s) - Aggressive explosive strategy prioritizing chain reactions and dramatic plays
+
+#### Hard Level
+- **🧠 Monte Carlo Bot** (5s) - Pure MCTS tree search with UCB1 exploration for deep strategic analysis
+
+#### Expert Level ⭐ **NEW**
+- **🎯 Tactical Bot** (10s) - Elite hybrid AI combining Default heuristics with MCTS on filtered candidates
+  - **Phase 1**: Uses Default Bot evaluation to score all legal moves
+  - **Phase 2**: Applies MCTS only on top 8-12 most promising moves
+  - **Adaptive Selection**: 12 candidates (early game), 10 (mid game), 8 (late game)
+  - **Performance**: Focuses computational power on quality moves, avoiding Monte Carlo's weakness of exploring obviously bad positions
+
+#### Master Level
+- **🧠 Monte Carlo Bot** (15s) - Maximum strength pure tree search for tournament play
 
 ## 6. Development Task Breakdown
 
@@ -258,8 +283,9 @@ A fully-featured web-based implementation of the classic "Chain Reaction" game u
 - [x] **Task 8.3**: AI Strategy Implementations ✅
   - **Default Bot**: Ported existing aiLogic.ts with enhanced heuristics ✅
   - **Trigger Bot**: Explosion-focused strategy maximizing chain reactions ✅
-  - **Random Bot**: Uniform selection from legal moves ✅
+  - **Random Bot**: Uniform selection from legal moves ✅  
   - **Monte Carlo Bot**: Time-limited MCTS with UCB1 selection ✅
+  - **Tactical Bot**: Hybrid strategy using Default heuristics + MCTS on best candidates ✅ **NEW**
 
 - [x] **Task 8.4**: Player Setup and Integration ✅
   - Added PlayerType and AiConfig to type system ✅
@@ -280,6 +306,12 @@ A fully-featured web-based implementation of the classic "Chain Reaction" game u
   - Core modules (`src/core/**`): 90% threshold enforced ✅
   - AI modules (`src/ai/**`): 90% threshold enforced ✅
   - Global coverage maintained at ~30% ✅
+
+- [x] **Task 8.8**: Tactical Bot - Elite Hybrid Strategy ✅ **NEW**
+  - Advanced hybrid AI combining heuristic pre-filtering + MCTS tree search ✅
+  - Adaptive candidate selection (12/10/8 moves for early/mid/late game) ✅  
+  - Solves Monte Carlo bot's weakness by focusing on promising moves only ✅
+  - Expert difficulty level with 10-second thinking time ✅
 
 ### Phase 7: Recent Critical Fixes ✅ **COMPLETE** *(August 2025)*
 - [x] **Task 7.1**: Player Elimination Turn Progression Bug ✅ *CRITICAL FIX*
