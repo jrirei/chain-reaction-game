@@ -102,6 +102,7 @@
 .compact .botIndicator {
   padding: 1px 4px;
   font-size: 0.6rem;
+  gap: 2px;
 }
 
 .compact .botIcon {

@@ -48,7 +48,7 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
         >
           {strategyInfo.icon}
         </span>
-        <span className={styles.botLabel}>Bot</span>
+        <span className={styles.botLabel}>{strategyInfo.shortName} Bot</span>
       </span>
     );
   };
