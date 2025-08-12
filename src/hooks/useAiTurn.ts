@@ -5,7 +5,7 @@
  * Integrates with the game state to trigger AI moves when it's an AI player's turn.
  */
 
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { useGameContext } from '../context/useGameContext';
 import { BotRunner } from '../ai/botRunner';
 import type { Player } from '../types/player';
@@ -18,9 +18,19 @@ export const useAiTurn = () => {
   const engine = new GameEngine();
   const botRunner = new BotRunner(engine, { minDelayMs: 500 });
 
+  // Rate limiting: prevent multiple AI turns from executing simultaneously
+  const [isExecutingAiTurn, setIsExecutingAiTurn] = useState(false);
+
   // Execute AI turn
   const executeAiTurn = useCallback(
     async (aiPlayer: Player) => {
+      // Rate limiting: prevent simultaneous AI turn execution
+      if (isExecutingAiTurn) {
+        console.log('⏳ AI turn already in progress, skipping...');
+        return;
+      }
+
+      setIsExecutingAiTurn(true);
       console.log('🚀 Starting AI turn execution for:', aiPlayer.name);
 
       try {
@@ -42,8 +52,14 @@ export const useAiTurn = () => {
           return;
         }
 
+        // Clamp maxThinkingMs for better UX and performance
+        const clampedThinkingMs = Math.max(
+          100,
+          Math.min(30000, aiPlayer.aiConfig.maxThinkingMs || 3000)
+        );
+
         console.log(
-          `🤖 AI ${aiPlayer.name} is thinking... (${aiPlayer.aiConfig.strategy})`
+          `🤖 AI ${aiPlayer.name} is thinking... (${aiPlayer.aiConfig.strategy}, max: ${clampedThinkingMs}ms)`
         );
 
         // Create AI strategy
@@ -53,16 +69,21 @@ export const useAiTurn = () => {
           aiPlayer.aiConfig
         );
 
-        // Execute AI turn using BotRunner
+        // Execute AI turn using BotRunner with clamped thinking time
         const result = await botRunner.playTurn(strategy, gameState, {
           rng: Math.random,
-          maxThinkingMs: aiPlayer.aiConfig.maxThinkingMs,
+          maxThinkingMs: clampedThinkingMs,
         });
+
+        // Calculate effective timing information
+        const effectiveThinkingMs = Math.round(result.thinkingMs);
+        const effectiveDelayMs = Math.round(result.delayAppliedMs || 0);
+        const totalTimeMs = effectiveThinkingMs + effectiveDelayMs;
 
         console.log(
           `🎯 AI ${aiPlayer.name} chose move:`,
           result.move,
-          `(${result.thinkingMs}ms)`
+          `(thinking: ${effectiveThinkingMs}ms, delay: ${effectiveDelayMs}ms, total: ${totalTimeMs}ms)`
         );
 
         // Execute the move using proper orb placement logic
@@ -105,9 +126,12 @@ export const useAiTurn = () => {
           console.error('Stack trace:', error.stack);
         }
         // TODO: Handle AI failure gracefully - maybe skip turn or fall back to random move
+      } finally {
+        // Always clear the execution flag
+        setIsExecutingAiTurn(false);
       }
     },
-    [gameState, engine, botRunner, dispatch]
+    [gameState, engine, botRunner, dispatch, isExecutingAiTurn]
   );
 
   // Effect to trigger AI turns when it's an AI player's turn
@@ -124,13 +148,14 @@ export const useAiTurn = () => {
         : null,
     });
 
-    // Only trigger if game is active and not animating
+    // Only trigger if game is active and not animating, and no AI turn in progress
     if (
       gameState.gameStatus !== GameStatus.PLAYING ||
       gameState.isAnimating ||
-      !currentPlayer
+      !currentPlayer ||
+      isExecutingAiTurn
     ) {
-      console.log('⏸️ AI Turn skipped - game not ready');
+      console.log('⏸️ AI Turn skipped - game not ready or AI turn in progress');
       return;
     }
 
@@ -157,10 +182,12 @@ export const useAiTurn = () => {
     gameState.gameStatus,
     gameState.isAnimating,
     executeAiTurn,
+    isExecutingAiTurn,
   ]);
 
   return {
     executeAiTurn,
     isAiTurn: currentPlayer?.type === 'ai',
+    isExecutingAiTurn,
   };
 };
