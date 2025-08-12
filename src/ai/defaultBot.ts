@@ -80,7 +80,7 @@ export class DefaultBot implements AiStrategy {
             move.playerId
           );
           const advantageAfter = this.engine.calculateBoardAdvantage(
-            simulation.finalBoard as GameBoard,
+            simulation.finalBoard,
             move.playerId
           );
           score += advantageAfter - advantageBefore;

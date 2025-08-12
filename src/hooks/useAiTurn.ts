@@ -99,9 +99,11 @@ export const useAiTurn = () => {
             dispatch(action);
           }
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('❌ AI turn execution failed:', error);
-        console.error('Stack trace:', error.stack);
+        if (error instanceof Error) {
+          console.error('Stack trace:', error.stack);
+        }
         // TODO: Handle AI failure gracefully - maybe skip turn or fall back to random move
       }
     },

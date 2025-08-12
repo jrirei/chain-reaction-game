@@ -23,7 +23,7 @@
 - 🎮 **2-4 Player Support** - Local multiplayer with distinct player colors
 - 📱 **Responsive Design** - Works seamlessly on desktop and mobile devices
 - ⚡ **Fast & Modern** - Built with Vite for lightning-fast development and builds
-- 🧪 **Comprehensive Testing** - Full test suite with 205/205 tests passing
+- 🧪 **Comprehensive Testing** - Full test suite with 237+ tests passing
 - 🔧 **TypeScript** - Full type safety with strict mode enabled
 - 🎨 **CSS Modules** - Scoped styling for maintainable component styles
 
@@ -132,7 +132,7 @@ npm run test:ui       # Run tests with UI
 npm run test:coverage # Generate coverage report
 ```
 
-**Current Status**: ✅ 205/205 tests passing, 30.95% coverage (30% threshold enforced)
+**Current Status**: ✅ 237+ tests passing, 30.95% coverage (30% threshold enforced)
 
 ### Test Categories
 
