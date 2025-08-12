@@ -163,6 +163,10 @@ export class TacticalBot implements AiStrategy {
       score += TACTICAL_BOT_CONFIG.OWN_CELL_BONUS;
     }
 
+    // CRITICAL SAFETY CHECK: Penalize suicidal moves heavily
+    const suicidePenalty = this.calculateSuicideRisk(state, move);
+    score -= suicidePenalty;
+
     return score;
   }
 
@@ -370,6 +374,110 @@ export class TacticalBot implements AiStrategy {
     }
 
     return bestChild.move;
+  }
+
+  /**
+   * Calculate suicide risk penalty for moves that create vulnerable positions
+   * This is CRITICAL to prevent the bot from making moves that opponents can exploit
+   */
+  private calculateSuicideRisk(state: GameState, move: Move): number {
+    const { board } = state;
+    const currentPlayerId = state.players[state.currentPlayerIndex];
+    const targetCell = board.cells[move.row][move.col];
+
+    // If we're placing on an opponent's cell, this is already invalid
+    if (targetCell.playerId && targetCell.playerId !== currentPlayerId) {
+      return 1000; // Massive penalty for invalid moves
+    }
+
+    let riskPenalty = 0;
+
+    // Calculate what the cell state will be after our move
+    const orbsAfterMove =
+      (targetCell.playerId === currentPlayerId ? targetCell.orbCount : 0) + 1;
+    const criticalMass = targetCell.criticalMass;
+
+    // If our move will cause immediate explosion, it's generally safe (we're attacking)
+    if (orbsAfterMove >= criticalMass) {
+      return 0; // No penalty for explosive moves
+    }
+
+    // Check adjacent cells for enemy orbs that could kill us
+    const adjacentPositions = [
+      { row: move.row - 1, col: move.col }, // up
+      { row: move.row + 1, col: move.col }, // down
+      { row: move.row, col: move.col - 1 }, // left
+      { row: move.row, col: move.col + 1 }, // right
+    ].filter(
+      (pos) =>
+        pos.row >= 0 &&
+        pos.row < board.rows &&
+        pos.col >= 0 &&
+        pos.col < board.cols
+    );
+
+    for (const adjPos of adjacentPositions) {
+      const adjCell = board.cells[adjPos.row][adjPos.col];
+
+      // Skip empty cells and our own cells
+      if (!adjCell.playerId || adjCell.playerId === currentPlayerId) {
+        continue;
+      }
+
+      // ENEMY CELL DETECTED! Check if they can kill us
+      const enemyOrbsAfterTheirMove = adjCell.orbCount + 1;
+      const enemyCriticalMass = adjCell.criticalMass;
+
+      if (enemyOrbsAfterTheirMove >= enemyCriticalMass) {
+        // CRITICAL THREAT: Enemy can explode and kill our orb
+        let threatLevel = 100; // Base severe penalty
+
+        // Extra penalty based on position vulnerability
+        const orbsWeLose = orbsAfterMove; // We lose all orbs we just placed
+        const positionMultiplier = this.getVulnerabilityMultiplier(
+          move.row,
+          move.col,
+          board.rows,
+          board.cols
+        );
+
+        threatLevel *= positionMultiplier;
+        threatLevel += orbsWeLose * 50; // Penalty per orb we'll lose
+
+        riskPenalty += threatLevel;
+
+        // Corner and edge positions are especially dangerous when next to enemies
+        if (targetCell.criticalMass <= 2) {
+          // Corner
+          riskPenalty += 200; // MASSIVE penalty for corner suicide
+        } else if (targetCell.criticalMass <= 3) {
+          // Edge
+          riskPenalty += 100; // Large penalty for edge suicide
+        }
+      }
+    }
+
+    return riskPenalty;
+  }
+
+  /**
+   * Get vulnerability multiplier based on cell position
+   * Corners and edges are more vulnerable than center cells
+   */
+  private getVulnerabilityMultiplier(
+    row: number,
+    col: number,
+    rows: number,
+    cols: number
+  ): number {
+    const isCorner =
+      (row === 0 || row === rows - 1) && (col === 0 || col === cols - 1);
+    const isEdge =
+      row === 0 || row === rows - 1 || col === 0 || col === cols - 1;
+
+    if (isCorner) return 3.0; // Corners are extremely vulnerable
+    if (isEdge) return 2.0; // Edges are very vulnerable
+    return 1.0; // Center cells are least vulnerable
   }
 
   /**

@@ -303,4 +303,116 @@ describe('Tactical Bot', () => {
       expect(legalMoves).toContainEqual(chosenMove);
     });
   });
+
+  describe('Suicide Prevention', () => {
+    it('should avoid placing orbs next to enemy orbs in corners', async () => {
+      // Enemy has 1 orb in edge cell (0,1) - can explode with one more orb
+      gameState.board.cells[0][1] = {
+        id: 'cell-0-1',
+        row: 0,
+        col: 1,
+        orbCount: 2, // One away from critical mass for edge cell
+        playerId: 'player2', // Enemy player
+        criticalMass: 3, // Edge cell
+        isExploding: false,
+        animationDelay: 0,
+      };
+
+      const legalMoves = [
+        { row: 0, col: 0, playerId: 'player1' }, // SUICIDAL: Corner next to enemy edge
+        { row: 2, col: 2, playerId: 'player1' }, // SAFE: Far from enemies
+        { row: 3, col: 3, playerId: 'player1' }, // SAFE: Far from enemies
+      ];
+
+      const rng = createSeededRng(42);
+
+      const chosenMove = await bot.decideMove(gameState, legalMoves, {
+        rng,
+        maxThinkingMs: 1000,
+      });
+
+      // Should NOT choose the suicidal corner move
+      expect(chosenMove).not.toEqual({ row: 0, col: 0, playerId: 'player1' });
+
+      // Should choose one of the safe moves
+      const safeMove1 = { row: 2, col: 2, playerId: 'player1' };
+      const safeMove2 = { row: 3, col: 3, playerId: 'player1' };
+      expect([safeMove1, safeMove2]).toContainEqual(chosenMove);
+    });
+
+    it('should avoid placing orbs that can be immediately killed by enemies', async () => {
+      // Enemy has 1 orb in corner (0,0) - one more orb will make it explode
+      gameState.board.cells[0][0] = {
+        id: 'cell-0-0',
+        row: 0,
+        col: 0,
+        orbCount: 1, // One away from critical mass
+        playerId: 'player2', // Enemy player
+        criticalMass: 2, // Corner cell
+        isExploding: false,
+        animationDelay: 0,
+      };
+
+      const legalMoves = [
+        { row: 0, col: 1, playerId: 'player1' }, // SUICIDAL: Next to enemy corner ready to explode
+        { row: 1, col: 0, playerId: 'player1' }, // SUICIDAL: Next to enemy corner ready to explode
+        { row: 3, col: 3, playerId: 'player1' }, // SAFE: Far from enemy
+      ];
+
+      const rng = createSeededRng(123);
+
+      const chosenMove = await bot.decideMove(gameState, legalMoves, {
+        rng,
+        maxThinkingMs: 1000,
+      });
+
+      // Should NOT choose either suicidal move
+      expect(chosenMove).not.toEqual({ row: 0, col: 1, playerId: 'player1' });
+      expect(chosenMove).not.toEqual({ row: 1, col: 0, playerId: 'player1' });
+
+      // Should choose the safe move
+      expect(chosenMove).toEqual({ row: 3, col: 3, playerId: 'player1' });
+    });
+
+    it('should allow moves next to enemies when we can explode immediately', async () => {
+      // Enemy has orb in corner
+      gameState.board.cells[0][0] = {
+        id: 'cell-0-0',
+        row: 0,
+        col: 0,
+        orbCount: 1,
+        playerId: 'player2', // Enemy player
+        criticalMass: 2,
+        isExploding: false,
+        animationDelay: 0,
+      };
+
+      // We already have 2 orbs in adjacent edge cell
+      gameState.board.cells[0][1] = {
+        id: 'cell-0-1',
+        row: 0,
+        col: 1,
+        orbCount: 2, // Adding one more will explode (critical mass = 3)
+        playerId: 'player1', // Our orb
+        criticalMass: 3,
+        isExploding: false,
+        animationDelay: 0,
+      };
+
+      const legalMoves = [
+        { row: 0, col: 1, playerId: 'player1' }, // EXPLOSIVE: We can explode and capture enemy
+        { row: 3, col: 3, playerId: 'player1' }, // SAFE: But passive
+      ];
+
+      const rng = createSeededRng(456);
+
+      const chosenMove = await bot.decideMove(gameState, legalMoves, {
+        rng,
+        maxThinkingMs: 1000,
+      });
+
+      // Should choose the explosive move since we're attacking, not being vulnerable
+      expect(chosenMove).toEqual({ row: 0, col: 1, playerId: 'player1' });
+    });
+  });
 });
