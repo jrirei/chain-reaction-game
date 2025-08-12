@@ -21,11 +21,26 @@ export default defineConfig({
         '**/*.d.ts',
       ],
       thresholds: {
+        // Global minimum thresholds (30%)
         branches: 30,
         functions: 30,
         lines: 30,
         statements: 30,
         autoUpdate: false,
+        
+        // Per-folder coverage thresholds
+        'src/ai/**': {
+          branches: 90,
+          functions: 85,
+          lines: 90,
+          statements: 90,
+        },
+        'src/core/**': {
+          branches: 85,
+          functions: 80,
+          lines: 85,
+          statements: 85,
+        },
       },
       reportOnFailure: true,
       all: true,
