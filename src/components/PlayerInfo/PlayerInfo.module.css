@@ -148,11 +148,12 @@
 .orbCountNumber {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #000000;
-  background-color: #ffffff;
+  color: var(--stat-text-color);
+  background-color: var(--stat-bg-color);
   line-height: 1;
   padding: 2px 4px;
   border-radius: 3px;
+  border: 1px solid var(--stat-border-color);
 }
 
 .orbCountLabel {
@@ -187,11 +188,12 @@
 .statValue {
   font-size: 1rem;
   font-weight: 600;
-  color: #000000;
-  background-color: #ffffff;
+  color: var(--stat-text-color);
+  background-color: var(--stat-bg-color);
   margin-top: 2px;
   padding: 2px 4px;
   border-radius: 3px;
+  border: 1px solid var(--stat-border-color);
 }
 
 /* Animations */
@@ -264,6 +266,11 @@
   .playerInfo {
     background: #ffffff;
     border-color: #dee2e6;
+
+    /* Light theme stat colors for high contrast */
+    --stat-text-color: #ffffff;
+    --stat-bg-color: rgba(0, 0, 0, 0.85);
+    --stat-border-color: rgba(0, 0, 0, 0.3);
   }
 
   .playerInfo.currentPlayer {

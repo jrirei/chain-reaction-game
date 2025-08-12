@@ -8,6 +8,11 @@
   --hover-color: #3d3d3d;
   --accent-color: #646cff;
 
+  /* High-contrast stat colors for dark theme */
+  --stat-text-color: #000000;
+  --stat-bg-color: rgba(255, 255, 255, 0.95);
+  --stat-border-color: rgba(255, 255, 255, 0.3);
+
   /* Spacing */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
