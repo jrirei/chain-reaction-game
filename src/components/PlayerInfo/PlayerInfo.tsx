@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Player } from '../../types';
+import { STRATEGY_DISPLAY } from '../../ai/constants';
 import styles from './PlayerInfo.module.css';
 
 interface PlayerInfoProps {
@@ -32,6 +33,25 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
   ]
     .filter(Boolean)
     .join(' ');
+
+  const renderBotIndicator = () => {
+    if (player.type !== 'ai' || !player.aiConfig) return null;
+
+    const strategyInfo = STRATEGY_DISPLAY[player.aiConfig.strategy];
+    if (!strategyInfo) return null;
+
+    return (
+      <span className={styles.botIndicator} title={strategyInfo.name}>
+        <span
+          className={styles.botIcon}
+          aria-label={`AI bot: ${strategyInfo.name}`}
+        >
+          {strategyInfo.icon}
+        </span>
+        <span className={styles.botLabel}>Bot</span>
+      </span>
+    );
+  };
 
   const renderPlayerStatus = () => {
     if (player.isEliminated) {
@@ -109,7 +129,8 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
                 #{rank}
               </span>
             )}
-            {player.name}
+            <span className={styles.playerNameText}>{player.name}</span>
+            {renderBotIndicator()}
           </div>
 
           {!compact && (

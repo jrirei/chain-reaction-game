@@ -64,8 +64,48 @@
   white-space: nowrap;
 }
 
+.playerNameText {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.botIndicator {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(100, 108, 255, 0.1);
+  border: 1px solid rgba(100, 108, 255, 0.3);
+  border-radius: 12px;
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.botIcon {
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.botLabel {
+  color: var(--accent-color);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
 .compact .playerName {
   font-size: 0.875rem;
+}
+
+.compact .botIndicator {
+  padding: 1px 4px;
+  font-size: 0.6rem;
+}
+
+.compact .botIcon {
+  font-size: 0.7rem;
 }
 
 .playerRank {
