@@ -36,11 +36,17 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
 
   // Create player objects from player IDs
   const players: Player[] = gameState.players.map((playerId, index) => {
-    const config = gameState.settings.playerConfigs?.[index];
+    // Use player ID to determine original position, not current array position
+    const playerNumber = parseInt(playerId.replace('player', ''));
+    const config = gameState.settings.playerConfigs?.[playerNumber - 1];
+    const colorIndex = (playerNumber - 1) % PLAYER_COLORS.length;
+
     const player = {
       id: playerId,
-      name: gameState.settings.playerNames[index] || `Player ${index + 1}`,
-      color: PLAYER_COLORS[index % PLAYER_COLORS.length],
+      name:
+        gameState.settings.playerNames[playerNumber - 1] ||
+        `Player ${playerNumber}`,
+      color: PLAYER_COLORS[colorIndex],
       isActive: true,
       isEliminated: false,
       orbCount: 0, // Will be calculated from board state

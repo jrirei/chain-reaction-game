@@ -176,7 +176,7 @@ export const gameReducer = (
       let nextPlayerIndex = 0; // Default fallback
 
       if (activePlayers.length < newState.players.length) {
-        // Players have been eliminated
+        // Players have been eliminated - keep only the active player IDs
         updatedPlayers = activePlayers;
 
         // Find the next active player in the original turn order
@@ -189,7 +189,7 @@ export const gameReducer = (
           const candidatePlayerId = originalPlayers[searchIndex];
 
           if (activePlayers.includes(candidatePlayerId)) {
-            // Found next active player, get their index in the new active players array
+            // Found next active player, get their index in the updated players array
             nextPlayerIndex = activePlayers.indexOf(candidatePlayerId);
             break;
           }
@@ -423,7 +423,7 @@ export const gameReducer = (
       let nextPlayerIndex = 0;
 
       if (activePlayers.length < state.players.length) {
-        // Players have been eliminated
+        // Players have been eliminated - keep only the active player IDs
         updatedPlayers = activePlayers;
 
         // Find the next active player in the original turn order
@@ -436,7 +436,7 @@ export const gameReducer = (
           const candidatePlayerId = originalPlayers[searchIndex];
 
           if (activePlayers.includes(candidatePlayerId)) {
-            // Found next active player, get their index in the new active players array
+            // Found next active player, get their index in the updated players array
             nextPlayerIndex = activePlayers.indexOf(candidatePlayerId);
             break;
           }
