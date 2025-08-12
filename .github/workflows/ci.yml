@@ -34,8 +34,8 @@ jobs:
       - name: Run type checking
         run: npm run typecheck
         
-      - name: Run tests
-        run: npm run test:run
+      - name: Run tests with coverage
+        run: npm run test:coverage
         
       - name: Run build
         run: npm run build
@@ -64,6 +64,9 @@ jobs:
         
       - name: Run tests with coverage
         run: npm run test:coverage
+        
+      - name: Print coverage summary
+        run: ./scripts/coverage-report.sh
         
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3

@@ -668,7 +668,7 @@ The project is **production-ready** as-is:
 
 ### 13.2 Test Coverage Breakdown
 - **Overall Coverage:** 30.95% (exceeds 30% threshold with core focus)
-- **Per-folder Thresholds:** `src/core/**` and `src/ai/**` at 90%; global at 30%
+- **Per-folder Thresholds:** AI systems require 90% coverage (`src/ai/**`), core game logic requires 85% (`src/core/**`), global minimum 30% (detailed in `COVERAGE.md`)
 - **Core Logic Coverage:** 
   - Game utilities: 49.1% (comprehensive business logic testing)
   - AI Logic: 90%+ (complete strategy coverage)

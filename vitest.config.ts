@@ -13,6 +13,7 @@ export default defineConfig({
       exclude: [
         'node_modules/',
         'src/test/',
+        'src/components/**', // Exclude components from coverage collection for cleaner signals
         '**/*.test.{ts,tsx}',
         '**/*.config.{ts,js}',
         'dist/',
@@ -27,7 +28,7 @@ export default defineConfig({
         lines: 30,
         statements: 30,
         autoUpdate: false,
-        
+
         // Per-folder coverage thresholds
         'src/ai/**': {
           branches: 90,

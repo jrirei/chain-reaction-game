@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>0/0</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>0/0</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -239,12 +239,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -298,13 +298,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import type { PlayerId } from './player';
@@ -361,12 +361,12 @@ export interface ModalState {
   data?: unknown;
 }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >export const ModalType = {</span>
-<span class="cstat-no" title="statement not covered" >  GAME_OVER: 'GAME_OVER',</span>
-<span class="cstat-no" title="statement not covered" >  SETTINGS: 'SETTINGS',</span>
-<span class="cstat-no" title="statement not covered" >  HELP: 'HELP',</span>
-<span class="cstat-no" title="statement not covered" >  CONFIRM_RESET: 'CONFIRM_RESET',</span>
-<span class="cstat-no" title="statement not covered" >} as const;</span>
+export const ModalType = {
+  GAME_OVER: 'GAME_OVER',
+  SETTINGS: 'SETTINGS',
+  HELP: 'HELP',
+  CONFIRM_RESET: 'CONFIRM_RESET',
+} as const;
 &nbsp;
 export type ModalType = (typeof ModalType)[keyof typeof ModalType];
 &nbsp;
@@ -420,13 +420,13 @@ export interface GameError {
   timestamp: number;
 }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >export const ErrorCode = {</span>
-<span class="cstat-no" title="statement not covered" >  INVALID_MOVE: 'INVALID_MOVE',</span>
-<span class="cstat-no" title="statement not covered" >  GAME_NOT_STARTED: 'GAME_NOT_STARTED',</span>
-<span class="cstat-no" title="statement not covered" >  PLAYER_NOT_FOUND: 'PLAYER_NOT_FOUND',</span>
-<span class="cstat-no" title="statement not covered" >  CELL_NOT_FOUND: 'CELL_NOT_FOUND',</span>
-<span class="cstat-no" title="statement not covered" >  ANIMATION_ERROR: 'ANIMATION_ERROR',</span>
-<span class="cstat-no" title="statement not covered" >} as const;</span>
+export const ErrorCode = {
+  INVALID_MOVE: 'INVALID_MOVE',
+  GAME_NOT_STARTED: 'GAME_NOT_STARTED',
+  PLAYER_NOT_FOUND: 'PLAYER_NOT_FOUND',
+  CELL_NOT_FOUND: 'CELL_NOT_FOUND',
+  ANIMATION_ERROR: 'ANIMATION_ERROR',
+} as const;
 &nbsp;
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
 &nbsp;</pre></td></tr></table></pre>
@@ -436,7 +436,7 @@ export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-12T07:48:30.613Z
+                at 2025-08-12T09:10:03.269Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
