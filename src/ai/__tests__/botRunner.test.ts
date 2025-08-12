@@ -1,6 +1,6 @@
 /**
  * BotRunner Test Suite
- * 
+ *
  * Tests the AI turn orchestration system including timing controls,
  * strategy execution, and error handling.
  */
@@ -15,9 +15,9 @@ import { createTestGameState } from '../../utils/__tests__/testHelpers';
 // Mock strategy for testing
 const createMockStrategy = (moveDelay = 0): AiStrategy => ({
   name: 'test-strategy',
-  async decideMove(state, legalMoves, context) {
+  async decideMove(state, legalMoves) {
     // Simulate thinking time
-    await new Promise(resolve => setTimeout(resolve, moveDelay));
+    await new Promise((resolve) => setTimeout(resolve, moveDelay));
     return legalMoves[0]; // Return first legal move
   },
 });
@@ -47,7 +47,7 @@ describe('BotRunner', () => {
     engine = new GameEngine();
     botRunner = new BotRunner(engine, { minDelayMs: 100 });
     gameState = createTestGameState();
-    
+
     // Mock performance.now for consistent timing tests
     vi.spyOn(performance, 'now').mockImplementation(() => Date.now());
   });
@@ -103,7 +103,7 @@ describe('BotRunner', () => {
     it('should pass context to strategy', async () => {
       const mockRng = vi.fn().mockReturnValue(0.5);
       const mockContext: AiContext = { rng: mockRng, maxThinkingMs: 5000 };
-      
+
       const strategy: AiStrategy = {
         name: 'context-test',
         async decideMove(state, legalMoves, context) {
@@ -123,7 +123,9 @@ describe('BotRunner', () => {
     it('should handle strategy errors gracefully', async () => {
       const strategy = createErrorStrategy();
 
-      await expect(botRunner.playTurn(strategy, gameState)).rejects.toThrow('AI strategy failed');
+      await expect(botRunner.playTurn(strategy, gameState)).rejects.toThrow(
+        'AI strategy failed'
+      );
     });
 
     it('should validate move returned by strategy', async () => {
@@ -199,7 +201,7 @@ describe('BotRunner', () => {
       const startTime = Date.now();
 
       // Access private method through type assertion for testing
-      await (botRunner as any).sleep(delayMs);
+      await (botRunner as { sleep(ms: number): Promise<void> }).sleep(delayMs);
 
       const endTime = Date.now();
       expect(endTime - startTime).toBeGreaterThanOrEqual(delayMs - 10);
@@ -216,12 +218,14 @@ describe('BotRunner', () => {
 
       expect(result.move.row).toBeGreaterThanOrEqual(0);
       expect(result.move.col).toBeGreaterThanOrEqual(0);
-      expect(result.move.playerId).toBe(gameState.players[gameState.currentPlayerIndex]);
+      expect(result.move.playerId).toBe(
+        gameState.players[gameState.currentPlayerIndex]
+      );
     });
 
     it('should handle different game states', async () => {
       const strategy = createMockStrategy();
-      
+
       // Test with different board sizes
       const smallGameState = createTestGameState({ rows: 3, cols: 3 });
       const largeGameState = createTestGameState({ rows: 9, cols: 9 });
@@ -257,7 +261,7 @@ describe('BotRunner', () => {
 
       const results = await Promise.all(promises);
       expect(results).toHaveLength(10);
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.move).toBeDefined();
         expect(result.strategyName).toBe('test-strategy');
       });

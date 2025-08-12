@@ -164,7 +164,7 @@ export const THINKING_TIME_OPTIONS = [
   {
     value: AI_THINKING_TIMES.INSTANT,
     label: 'Instant',
-    description: 'No delay (testing)',
+    description: 'No delay',
   },
   {
     value: AI_THINKING_TIMES.VERY_FAST,
@@ -176,7 +176,7 @@ export const THINKING_TIME_OPTIONS = [
   {
     value: AI_THINKING_TIMES.MEDIUM,
     label: '5s',
-    description: 'Medium (default)',
+    description: 'Default',
   },
   { value: AI_THINKING_TIMES.SLOW, label: '10s', description: 'Slow' },
   {
@@ -187,7 +187,7 @@ export const THINKING_TIME_OPTIONS = [
   {
     value: AI_THINKING_TIMES.MAXIMUM,
     label: '30s',
-    description: 'Maximum strength',
+    description: 'Maximum',
   },
 ] as const;
 

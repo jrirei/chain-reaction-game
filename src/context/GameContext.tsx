@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useReducer, useCallback } from 'react';
 import type { GameState, GameAction, Player, PlayerId } from '../types';
+import type { PlayerConfig } from '../types/player';
 import { gameReducer, createInitialGameState } from '../utils/gameReducer';
 import { PLAYER_COLORS } from '../utils/constants';
 export interface GameContextType {
@@ -12,7 +13,7 @@ export interface GameContextType {
   isGameActive: boolean;
   canMakeMove: (row: number, col: number) => boolean;
   // Helper functions
-  initializeGame: (playerCount: number, playerNames?: string[]) => void;
+  initializeGame: (playerCount: number, playerConfigs: PlayerConfig[]) => void;
   startGame: () => void;
   resetGame: () => void;
   pauseGame: () => void;
@@ -34,16 +35,32 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
   );
 
   // Create player objects from player IDs
-  const players: Player[] = gameState.players.map((playerId, index) => ({
-    id: playerId,
-    name: gameState.settings.playerNames[index] || `Player ${index + 1}`,
-    color: PLAYER_COLORS[index % PLAYER_COLORS.length],
-    isActive: true,
-    isEliminated: false,
-    orbCount: 0, // Will be calculated from board state
-    totalMoves: 0, // Will be tracked separately
-    type: 'human', // Default to human for now - will be enhanced with AI config later
-  }));
+  const players: Player[] = gameState.players.map((playerId, index) => {
+    const config = gameState.settings.playerConfigs?.[index];
+    const player = {
+      id: playerId,
+      name: gameState.settings.playerNames[index] || `Player ${index + 1}`,
+      color: PLAYER_COLORS[index % PLAYER_COLORS.length],
+      isActive: true,
+      isEliminated: false,
+      orbCount: 0, // Will be calculated from board state
+      totalMoves: 0, // Will be tracked separately
+      type: config?.type || 'human',
+      aiConfig: config?.aiConfig,
+    };
+
+    // Debug logging for player creation
+    if (config) {
+      console.log(`👤 Created player ${index + 1}:`, {
+        name: player.name,
+        type: player.type,
+        aiConfig: player.aiConfig,
+        config: config,
+      });
+    }
+
+    return player;
+  });
 
   // Get current player
   const currentPlayer = players[gameState.currentPlayerIndex] || null;
@@ -92,29 +109,30 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
 
   // Helper function to initialize a new game with multi-player support
   const initializeGame = useCallback(
-    (playerCount: number, playerNames?: string[]) => {
+    (playerCount: number, playerConfigs: PlayerConfig[]) => {
+      console.log('🎮 Initializing game with configs:', playerConfigs);
+
       // Validate player count
       const validPlayerCount = Math.max(2, Math.min(4, playerCount));
 
       const playerIds: PlayerId[] = [];
-      const names = playerNames || [];
+      const names: string[] = [];
 
-      // Generate unique player IDs
+      // Generate unique player IDs and collect names
       for (let i = 0; i < validPlayerCount; i++) {
         playerIds.push(`player${i + 1}`); // Simplified ID format
-      }
-
-      // Ensure we have names for all players
-      while (names.length < validPlayerCount) {
-        names.push(`Player ${names.length + 1}`);
+        names.push(playerConfigs[i]?.name || `Player ${i + 1}`);
       }
 
       const settings = {
         ...gameState.settings,
         playerCount: validPlayerCount,
-        playerNames: names.slice(0, validPlayerCount), // Ensure exact count
+        playerNames: names,
+        playerConfigs: playerConfigs.slice(0, validPlayerCount), // Store AI configs
         maxPlayers: 4,
       };
+
+      console.log('📦 Game settings:', settings);
 
       dispatch({
         type: 'INITIALIZE_GAME',

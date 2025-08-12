@@ -1,5 +1,6 @@
 import { GameProvider } from './context';
 import { useGameState } from './hooks/useGameState';
+import { useAiTurn } from './hooks/useAiTurn';
 import { ErrorBoundary, GameErrorBoundary } from './components/ErrorBoundary';
 import GameHeader from './components/GameHeader/GameHeader';
 import GameInfo from './components/GameInfo/GameInfo';
@@ -12,6 +13,8 @@ import './App.css';
 
 function AppContent() {
   const { resetGame, gameState } = useGameState();
+  // Initialize AI turn handling
+  useAiTurn();
   return (
     <div className="app">
       {/* Skip link for keyboard navigation */}

@@ -1,6 +1,6 @@
 /**
  * DefaultBot Comprehensive Test Suite
- * 
+ *
  * Extended tests for DefaultBot covering edge cases, scoring logic,
  * and integration scenarios to achieve high coverage.
  */
@@ -34,7 +34,7 @@ describe('DefaultBot - Comprehensive Tests', () => {
     it('should work with custom engine', () => {
       const customEngine = new GameEngine();
       const customBot = new DefaultBot(customEngine);
-      
+
       expect(customBot).toBeInstanceOf(DefaultBot);
     });
   });
@@ -53,9 +53,7 @@ describe('DefaultBot - Comprehensive Tests', () => {
     });
 
     it('should return single move when only one option', async () => {
-      const legalMoves: Move[] = [
-        { row: 0, col: 0, playerId: 'player1' }
-      ];
+      const legalMoves: Move[] = [{ row: 0, col: 0, playerId: 'player1' }];
 
       const move = await bot.decideMove(gameState, legalMoves, context);
 
@@ -65,7 +63,9 @@ describe('DefaultBot - Comprehensive Tests', () => {
     it('should handle empty legal moves gracefully', async () => {
       const legalMoves: Move[] = [];
 
-      await expect(bot.decideMove(gameState, legalMoves, context)).rejects.toThrow();
+      await expect(
+        bot.decideMove(gameState, legalMoves, context)
+      ).rejects.toThrow();
     });
   });
 
@@ -75,8 +75,12 @@ describe('DefaultBot - Comprehensive Tests', () => {
         const cornerMove: Move = { row: 0, col: 0, playerId: 'player1' }; // Corner
         const centerMove: Move = { row: 3, col: 4, playerId: 'player1' }; // Center
 
-        const cornerScore = await (bot as any).evaluateMove(gameState, cornerMove);
-        const centerScore = await (bot as any).evaluateMove(gameState, centerMove);
+        const cornerScore = await (
+          bot as { evaluateMove(state: GameState, move: Move): Promise<number> }
+        ).evaluateMove(gameState, cornerMove);
+        const centerScore = await (
+          bot as { evaluateMove(state: GameState, move: Move): Promise<number> }
+        ).evaluateMove(gameState, centerMove);
 
         expect(cornerScore).toBeGreaterThan(centerScore);
       });
@@ -85,8 +89,12 @@ describe('DefaultBot - Comprehensive Tests', () => {
         const edgeMove: Move = { row: 0, col: 4, playerId: 'player1' }; // Top edge
         const centerMove: Move = { row: 3, col: 4, playerId: 'player1' }; // Center
 
-        const edgeScore = await (bot as any).evaluateMove(gameState, edgeMove);
-        const centerScore = await (bot as any).evaluateMove(gameState, centerMove);
+        const edgeScore = await (
+          bot as { evaluateMove(state: GameState, move: Move): Promise<number> }
+        ).evaluateMove(gameState, edgeMove);
+        const centerScore = await (
+          bot as { evaluateMove(state: GameState, move: Move): Promise<number> }
+        ).evaluateMove(gameState, centerMove);
 
         expect(edgeScore).toBeGreaterThan(centerScore);
       });
@@ -101,11 +109,19 @@ describe('DefaultBot - Comprehensive Tests', () => {
         cell.orbCount = cell.criticalMass - 1; // One away from explosion
         cell.playerId = 'player1';
 
-        const explosiveMove: Move = { row: targetRow, col: targetCol, playerId: 'player1' };
+        const explosiveMove: Move = {
+          row: targetRow,
+          col: targetCol,
+          playerId: 'player1',
+        };
         const normalMove: Move = { row: 2, col: 2, playerId: 'player1' };
 
-        const explosiveScore = await (bot as any).evaluateMove(gameState, explosiveMove);
-        const normalScore = await (bot as any).evaluateMove(gameState, normalMove);
+        const explosiveScore = await (
+          bot as { evaluateMove(state: GameState, move: Move): Promise<number> }
+        ).evaluateMove(gameState, explosiveMove);
+        const normalScore = await (
+          bot as { evaluateMove(state: GameState, move: Move): Promise<number> }
+        ).evaluateMove(gameState, normalMove);
 
         expect(explosiveScore).toBeGreaterThan(normalScore);
       });
@@ -116,9 +132,11 @@ describe('DefaultBot - Comprehensive Tests', () => {
         gameState.board.cells[0][0].playerId = 'player1';
         gameState.board.cells[0][1].orbCount = 1;
         gameState.board.cells[0][1].playerId = 'opponent';
-        
+
         const move: Move = { row: 0, col: 0, playerId: 'player1' };
-        const score = await (bot as any).evaluateMove(gameState, move);
+        const score = await (
+          bot as { evaluateMove(state: GameState, move: Move): Promise<number> }
+        ).evaluateMove(gameState, move);
 
         expect(score).toBeGreaterThan(0);
       });
@@ -131,13 +149,19 @@ describe('DefaultBot - Comprehensive Tests', () => {
 
         // Fill adjacent cells with opponent orbs that would be strengthened
         const adjacentPositions = [
-          { row: 0, col: 1 }, { row: 2, col: 1 },
-          { row: 1, col: 0 }, { row: 1, col: 2 }
+          { row: 0, col: 1 },
+          { row: 2, col: 1 },
+          { row: 1, col: 0 },
+          { row: 1, col: 2 },
         ];
 
-        adjacentPositions.forEach(pos => {
-          if (pos.row >= 0 && pos.row < gameState.board.rows && 
-              pos.col >= 0 && pos.col < gameState.board.cols) {
+        adjacentPositions.forEach((pos) => {
+          if (
+            pos.row >= 0 &&
+            pos.row < gameState.board.rows &&
+            pos.col >= 0 &&
+            pos.col < gameState.board.cols
+          ) {
             const adjCell = gameState.board.cells[pos.row][pos.col];
             adjCell.orbCount = 2;
             adjCell.playerId = 'opponent';
@@ -147,8 +171,12 @@ describe('DefaultBot - Comprehensive Tests', () => {
         const explosiveMove: Move = { row: 1, col: 1, playerId: 'player1' };
         const safeMove: Move = { row: 5, col: 5, playerId: 'player1' };
 
-        const explosiveScore = await (bot as any).evaluateMove(gameState, explosiveMove);
-        const safeScore = await (bot as any).evaluateMove(gameState, safeMove);
+        const explosiveScore = await (
+          bot as { evaluateMove(state: GameState, move: Move): Promise<number> }
+        ).evaluateMove(gameState, explosiveMove);
+        const safeScore = await (
+          bot as { evaluateMove(state: GameState, move: Move): Promise<number> }
+        ).evaluateMove(gameState, safeMove);
 
         // AI might still prefer the explosive move if strategic conditions are right
         expect(typeof explosiveScore).toBe('number');
@@ -165,8 +193,12 @@ describe('DefaultBot - Comprehensive Tests', () => {
         const buildMove: Move = { row: 2, col: 2, playerId: 'player1' };
         const newMove: Move = { row: 3, col: 3, playerId: 'player1' };
 
-        const buildScore = await (bot as any).evaluateMove(gameState, buildMove);
-        const newScore = await (bot as any).evaluateMove(gameState, newMove);
+        const buildScore = await (
+          bot as { evaluateMove(state: GameState, move: Move): Promise<number> }
+        ).evaluateMove(gameState, buildMove);
+        const newScore = await (
+          bot as { evaluateMove(state: GameState, move: Move): Promise<number> }
+        ).evaluateMove(gameState, newMove);
 
         expect(buildScore).toBeGreaterThan(newScore);
       });
@@ -180,8 +212,12 @@ describe('DefaultBot - Comprehensive Tests', () => {
         const criticalMove: Move = { row: 1, col: 1, playerId: 'player1' };
         const randomMove: Move = { row: 4, col: 4, playerId: 'player1' };
 
-        const criticalScore = await (bot as any).evaluateMove(gameState, criticalMove);
-        const randomScore = await (bot as any).evaluateMove(gameState, randomMove);
+        const criticalScore = await (
+          bot as { evaluateMove(state: GameState, move: Move): Promise<number> }
+        ).evaluateMove(gameState, criticalMove);
+        const randomScore = await (
+          bot as { evaluateMove(state: GameState, move: Move): Promise<number> }
+        ).evaluateMove(gameState, randomMove);
 
         expect(criticalScore).toBeGreaterThan(randomScore);
       });
@@ -190,15 +226,19 @@ describe('DefaultBot - Comprehensive Tests', () => {
     describe('Error Handling in Scoring', () => {
       it('should handle edge cases in scoring', async () => {
         const validMove: Move = { row: 0, col: 0, playerId: 'player1' };
-        
+
         // Valid moves should work fine
-        const score = await (bot as any).evaluateMove(gameState, validMove);
+        const score = await (
+          bot as { evaluateMove(state: GameState, move: Move): Promise<number> }
+        ).evaluateMove(gameState, validMove);
         expect(typeof score).toBe('number');
         expect(score).toBeGreaterThan(0);
-        
+
         // Test with different valid positions
         const centerMove: Move = { row: 2, col: 4, playerId: 'player1' };
-        const centerScore = await (bot as any).evaluateMove(gameState, centerMove);
+        const centerScore = await (
+          bot as { evaluateMove(state: GameState, move: Move): Promise<number> }
+        ).evaluateMove(gameState, centerMove);
         expect(typeof centerScore).toBe('number');
       });
     });
@@ -220,9 +260,7 @@ describe('DefaultBot - Comprehensive Tests', () => {
     });
 
     it('should handle missing context gracefully', async () => {
-      const legalMoves: Move[] = [
-        { row: 0, col: 0, playerId: 'player1' }
-      ];
+      const legalMoves: Move[] = [{ row: 0, col: 0, playerId: 'player1' }];
 
       const move = await bot.decideMove(gameState, legalMoves, {} as AiContext);
 
@@ -230,9 +268,9 @@ describe('DefaultBot - Comprehensive Tests', () => {
     });
 
     it('should respect maxThinkingMs from context', async () => {
-      const contextWithTime: AiContext = { 
+      const contextWithTime: AiContext = {
         rng: Math.random,
-        maxThinkingMs: 100 // Short time limit
+        maxThinkingMs: 100, // Short time limit
       };
 
       const legalMoves: Move[] = [
@@ -292,7 +330,7 @@ describe('DefaultBot - Comprehensive Tests', () => {
       for (let row = 0; row < gameState.board.rows; row++) {
         for (let col = 0; col < gameState.board.cols; col++) {
           if (row < 2 && col < 3) continue; // Leave some empty spots
-          
+
           const cell = gameState.board.cells[row][col];
           cell.orbCount = cell.criticalMass - 1;
           cell.playerId = 'opponent';
@@ -310,16 +348,16 @@ describe('DefaultBot - Comprehensive Tests', () => {
     it('should make decisions within reasonable time', async () => {
       const startTime = Date.now();
       const legalMoves = engine.getLegalMoves(gameState);
-      
+
       await bot.decideMove(gameState, legalMoves, context);
-      
+
       const endTime = Date.now();
       expect(endTime - startTime).toBeLessThan(5000); // 5 seconds max
     });
 
     it('should handle large numbers of legal moves efficiently', async () => {
       const manyMoves: Move[] = [];
-      
+
       for (let row = 0; row < gameState.board.rows; row++) {
         for (let col = 0; col < gameState.board.cols; col++) {
           manyMoves.push({ row, col, playerId: 'player1' });
@@ -338,7 +376,7 @@ describe('DefaultBot - Comprehensive Tests', () => {
     it('should produce consistent results with same RNG seed', async () => {
       const fixedRng = () => 0.42; // Fixed value
       const fixedContext: AiContext = { rng: fixedRng };
-      
+
       const legalMoves: Move[] = [
         { row: 0, col: 0, playerId: 'player1' },
         { row: 1, col: 1, playerId: 'player1' },
@@ -354,7 +392,7 @@ describe('DefaultBot - Comprehensive Tests', () => {
     it('should produce different results with different RNG values', async () => {
       const rng1 = () => 0.1;
       const rng2 = () => 0.9;
-      
+
       const legalMoves: Move[] = [
         { row: 0, col: 0, playerId: 'player1' },
         { row: 1, col: 1, playerId: 'player1' },

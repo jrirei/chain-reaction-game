@@ -21,10 +21,13 @@ export const usePlayerManager = () => {
       const newPlayers = createPlayers(options);
       const playersWithColors = assignPlayerColors(newPlayers);
 
-      initializeGame(
-        playersWithColors.length,
-        playersWithColors.map((p) => p.name)
-      );
+      const playerConfigs = playersWithColors.map((player) => ({
+        name: player.name,
+        type: player.type,
+        aiConfig: player.aiConfig,
+      }));
+
+      initializeGame(playersWithColors.length, playerConfigs);
 
       return playersWithColors;
     },

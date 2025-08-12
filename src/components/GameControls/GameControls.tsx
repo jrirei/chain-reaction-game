@@ -27,9 +27,8 @@ const GameControls: React.FC = () => {
     playerCount: number,
     playerConfigs: PlayerConfig[]
   ) => {
-    // Convert PlayerConfig to just names for now - will update initializeGame later
-    const playerNames = playerConfigs.map((config) => config.name);
-    initializeGame(playerCount, playerNames);
+    // Pass PlayerConfig directly to support AI configuration
+    initializeGame(playerCount, playerConfigs);
     startGame();
     setShowSetup(false);
   };
