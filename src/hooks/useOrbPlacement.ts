@@ -57,7 +57,7 @@ export const useOrbPlacement = () => {
 
     feedbackTimeoutRef.current = setTimeout(() => {
       setFeedback(null);
-    }, delay);
+    }, delay) as unknown as number;
   }, []);
 
   // Show feedback message
@@ -205,7 +205,7 @@ export const useOrbPlacement = () => {
             );
             dispatch({ type: 'COMPLETE_EXPLOSIONS' });
             animationTimeoutRef.current = null;
-          }, totalAnimationTime);
+          }, totalAnimationTime) as unknown as number;
         } else if (isUsingNewSystem) {
           // New step-wise system is active - ChainReactionManager will handle the timing
           console.log(
