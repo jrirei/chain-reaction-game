@@ -13,8 +13,10 @@ export interface TournamentBot {
 }
 
 export interface TournamentConfig {
-  /** Number of games each pair of bots plays against each other */
-  gamesPerMatchup: number;
+  /** Number of times each combination should play */
+  gamesPerCombination: number;
+  /** Which player counts to include (e.g., [2, 3, 4] for 2v2, 3-way, 4-way games) */
+  playerCounts: number[];
   /** Maximum thinking time per move in milliseconds */
   maxThinkingTimeMs: number;
   /** Timeout for entire game in milliseconds */
@@ -25,33 +27,36 @@ export interface TournamentConfig {
 
 export interface GameResult {
   gameId: string;
-  player1: TournamentBot;
-  player2: TournamentBot;
+  players: TournamentBot[];
   winner: TournamentBot | null; // null for timeout/draw
+  finalRanking: TournamentBot[]; // Players ordered by elimination (winner first, eliminated last)
   totalMoves: number;
   gameDurationMs: number;
   isQuickWin: boolean; // true if won with <= 50 total moves
-  eliminationDetails?: {
-    eliminatedPlayer: TournamentBot;
+  eliminationHistory?: {
+    player: TournamentBot;
     eliminationMove: number;
-  };
+    remainingPlayers: number;
+  }[];
 }
 
-export interface MatchupResult {
-  player1: TournamentBot;
-  player2: TournamentBot;
+export interface CombinationResult {
+  players: TournamentBot[];
+  playerCount: number;
   games: GameResult[];
-  player1Wins: number;
-  player2Wins: number;
-  draws: number;
-  player1QuickWins: number;
-  player2QuickWins: number;
+  playerStats: {
+    player: TournamentBot;
+    wins: number;
+    quickWins: number;
+    averagePosition: number; // Average final position (1 = always won, playerCount = always eliminated first)
+    totalGames: number;
+  }[];
 }
 
 export interface TournamentResult {
   config: TournamentConfig;
   participants: TournamentBot[];
-  matchups: MatchupResult[];
+  combinations: CombinationResult[];
   rankings: TournamentRanking[];
   totalGames: number;
   totalDurationMs: number;
@@ -67,12 +72,13 @@ export interface TournamentRanking {
   gamesPlayed: number;
   quickWins: number;
   winRate: number;
+  averagePosition: number; // Average position across all games (1.0 = always won, higher = worse)
   averageMovesToWin?: number;
-  matchupResults: {
-    vsBot: string;
+  performanceByPlayerCount: {
+    playerCount: number;
+    gamesPlayed: number;
     wins: number;
-    losses: number;
-    draws: number;
+    averagePosition: number;
   }[];
 }
 
@@ -82,8 +88,7 @@ export interface ITournamentRunner {
     config: TournamentConfig
   ): Promise<TournamentResult>;
   runSingleGame(
-    bot1: TournamentBot,
-    bot2: TournamentBot,
+    players: TournamentBot[],
     config: TournamentConfig
   ): Promise<GameResult>;
 }

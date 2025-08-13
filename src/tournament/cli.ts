@@ -16,7 +16,8 @@ import type { AiStrategyName } from '../ai/types';
 
 interface CliOptions {
   bots?: string;
-  games?: number;
+  rounds?: number;
+  playerCounts?: string;
   thinkingTime?: number;
   timeout?: number;
   verbose?: boolean;
@@ -37,9 +38,14 @@ function parseCliArgs(args: string[]): CliOptions {
         options.bots = nextArg;
         i++;
         break;
-      case '--games':
-      case '-g':
-        options.games = parseInt(nextArg, 10);
+      case '--rounds':
+      case '-r':
+        options.rounds = parseInt(nextArg, 10);
+        i++;
+        break;
+      case '--player-counts':
+      case '-c':
+        options.playerCounts = nextArg;
         i++;
         break;
       case '--thinking-time':
@@ -72,15 +78,17 @@ function parseCliArgs(args: string[]): CliOptions {
 
 function printHelp(): void {
   console.log(`
-🏆 Chain Reaction AI Tournament CLI
+🏆 Chain Reaction AI Tournament CLI (Multi-Player Edition)
 
 USAGE:
   npm run tournament [options]
 
 OPTIONS:
   -b, --bots <strategies>     Comma-separated list of AI strategies to include
-                              Available: default,trigger,random,monteCarlo,tactical
-  -g, --games <number>        Number of games each pair plays (default: 1)
+                              Available: default,trigger,random,monteCarlo,fred
+  -r, --rounds <number>       Number of times each combination plays (default: 1)
+  -c, --player-counts <list>  Comma-separated player counts (e.g., "2,3,4" for 2v2, 3-way, 4-way games)
+                              Available: 2, 3, 4 (default: "2")
   -t, --thinking-time <ms>    Max thinking time per move in milliseconds (default: 1000)
   --timeout <ms>              Max time per game in milliseconds (default: 300000)
   -v, --verbose               Enable detailed logging during games
@@ -89,22 +97,29 @@ OPTIONS:
   -h, --help                  Show this help message
 
 EXAMPLES:
-  npm run tournament                           # Run all bots, 1 game each
-  npm run tournament -p smart -g 3            # Smart bots only, 3 games each
-  npm run tournament -b "default,trigger" -v  # Only DefaultBot vs TriggerBot with verbose output
-  npm run tournament -g 5 -t 2000            # All bots, 5 games each, 2s thinking time
+  npm run tournament                                    # All bots, 2-player games, 1 round each
+  npm run tournament -c "2,3,4" -r 2                  # All combinations, 2v2/3-way/4-way, 2 rounds each
+  npm run tournament -p smart -c "3,4" -v             # Smart bots, 3-way and 4-way games, verbose
+  npm run tournament -b "default,trigger,random" -c "3" # 3 specific bots, 3-way games only
+  npm run tournament -r 3 -t 2000                     # All bots, 2-player games, 3 rounds, 2s thinking
+
+GAME MODES:
+  • 2-player: Classic head-to-head battles
+  • 3-player: Free-for-all with elimination order tracking
+  • 4-player: Maximum chaos with complex elimination dynamics
 
 SCORING:
   • Win: +1 point
   • Quick Win (≤50 total moves): +1 bonus point (total +2)
-  • Draw/Timeout: 0 points
+  • Rankings by: Points → Average Position → Win Rate
+  • Average Position: 1.0 = always won, higher = worse performance
 
 AI STRATEGIES:
   • default    - Balanced strategic play (medium difficulty)
   • trigger    - Aggressive explosive strategy (hard difficulty)  
   • random     - Random move selection (easy difficulty)
   • monteCarlo - Tree search AI with configurable time (hard difficulty)
-  • tactical   - Elite hybrid AI with heuristic filtering (hard difficulty)
+  • fred       - Specialized Monte Carlo AI assuming TriggerBot opponents (hard difficulty)
 `);
 }
 
@@ -112,10 +127,20 @@ function validateOptions(options: CliOptions): string[] {
   const errors: string[] = [];
 
   if (
-    options.games !== undefined &&
-    (options.games < 1 || options.games > 100)
+    options.rounds !== undefined &&
+    (options.rounds < 1 || options.rounds > 100)
   ) {
-    errors.push('Games per matchup must be between 1 and 100');
+    errors.push('Rounds per combination must be between 1 and 100');
+  }
+
+  if (options.playerCounts) {
+    const counts = options.playerCounts
+      .split(',')
+      .map((s) => parseInt(s.trim(), 10));
+    const invalidCounts = counts.filter((c) => isNaN(c) || c < 2 || c > 4);
+    if (invalidCounts.length > 0) {
+      errors.push('Player counts must be numbers between 2 and 4');
+    }
   }
 
   if (
@@ -143,7 +168,7 @@ function validateOptions(options: CliOptions): string[] {
       'trigger',
       'random',
       'monteCarlo',
-      'tactical',
+      'fred',
     ];
     const invalidStrategies = strategies.filter(
       (s) => !validStrategies.includes(s)
@@ -210,9 +235,15 @@ async function runTournament(): Promise<void> {
     tournamentBots = getAllTournamentBots();
   }
 
+  // Parse player counts
+  const playerCounts = options.playerCounts
+    ? options.playerCounts.split(',').map((s) => parseInt(s.trim(), 10))
+    : [2]; // Default to 2-player games only
+
   // Create tournament config
   const config: TournamentConfig = {
-    gamesPerMatchup: options.games ?? 1,
+    gamesPerCombination: options.rounds ?? 1,
+    playerCounts,
     maxThinkingTimeMs: options.thinkingTime ?? 1000,
     gameTimeoutMs: options.timeout ?? 300000, // 5 minutes default
     enableDetailedLogging: options.verbose ?? false,

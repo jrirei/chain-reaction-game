@@ -84,9 +84,11 @@ export const executeOrbPlacement = async (
       const placedCell = boardAfterPlacement.cells[row][col];
       if (placedCell.orbCount >= placedCell.criticalMass) {
         // Cell reached critical mass - process chain reactions sequentially
-        console.log(
-          `🔥 Cell at (${row}, ${col}) reached critical mass, processing sequentially...`
-        );
+        if (enableAnimations) {
+          console.log(
+            `🔥 Cell at (${row}, ${col}) reached critical mass, processing sequentially...`
+          );
+        }
         const sequentialResult = processChainReactionsSequential(
           boardAfterPlacement,
           playerId,
@@ -97,15 +99,17 @@ export const executeOrbPlacement = async (
         chainReactionCount = sequentialResult.explosionSteps.length;
         gameWonEarly = sequentialResult.gameWonEarly || false;
 
-        console.log(
-          `⚡ Sequential result: ${sequentialResult.explosionSteps.length} explosion steps`,
-          {
-            stepsCount: sequentialResult.explosionSteps.length,
-            safetyReached: sequentialResult.safetyLimitReached,
-            gameWonEarly: sequentialResult.gameWonEarly,
-            enableAnimations,
-          }
-        );
+        if (enableAnimations) {
+          console.log(
+            `⚡ Sequential result: ${sequentialResult.explosionSteps.length} explosion steps`,
+            {
+              stepsCount: sequentialResult.explosionSteps.length,
+              safetyReached: sequentialResult.safetyLimitReached,
+              gameWonEarly: sequentialResult.gameWonEarly,
+              enableAnimations,
+            }
+          );
+        }
 
         // Add sequential chain reaction actions if there were explosions
         if (sequentialResult.explosionSteps.length > 0) {

@@ -54,82 +54,105 @@ function getLegalMoves(gameState: GameState): Move[] {
 
 export class HeadlessGame {
   private gameId: string;
-  private bot1: TournamentBot;
-  private bot2: TournamentBot;
+  private bots: TournamentBot[];
   private config: TournamentConfig;
   private gameState: GameState;
-  private ai1: AiStrategy;
-  private ai2: AiStrategy;
+  private aiStrategies: AiStrategy[];
   private startTime: number;
   private moveLog: string[] = [];
+  private eliminationHistory: {
+    player: TournamentBot;
+    eliminationMove: number;
+    remainingPlayers: number;
+  }[] = [];
 
-  constructor(
-    bot1: TournamentBot,
-    bot2: TournamentBot,
-    config: TournamentConfig
-  ) {
+  constructor(players: TournamentBot[], config: TournamentConfig) {
+    if (players.length < 2 || players.length > 4) {
+      throw new Error('HeadlessGame supports 2-4 players only');
+    }
+
     this.gameId = generateUniqueId();
-    this.bot1 = bot1;
-    this.bot2 = bot2;
+    this.bots = [...players];
     this.config = config;
     this.startTime = Date.now();
 
-    // Initialize game state for 2 players
+    // Initialize game state for multiple players
     const initialState = createInitialGameState();
+    const playerIds = Array.from(
+      { length: players.length },
+      (_, i) => `player${i + 1}`
+    );
+
     this.gameState = gameReducer(initialState, {
       type: 'INITIALIZE_GAME',
       payload: {
         settings: {
           ...initialState.settings,
-          playerCount: 2,
-          playerNames: [bot1.name, bot2.name],
+          playerCount: players.length,
+          playerNames: players.map((bot) => bot.name),
           enableAnimations: false, // Disable for speed
           enableSounds: false,
         },
-        players: ['player1', 'player2'],
+        players: playerIds,
       },
     });
 
     this.gameState = gameReducer(this.gameState, { type: 'START_GAME' });
 
-    // Create AI instances
-    this.ai1 = createAiStrategy(bot1.strategy, {
-      maxThinkingMs: config.maxThinkingTimeMs,
-    });
-    this.ai2 = createAiStrategy(bot2.strategy, {
-      maxThinkingMs: config.maxThinkingTimeMs,
-    });
+    // Create AI instances for each player
+    this.aiStrategies = players.map((bot) =>
+      createAiStrategy(bot.strategy, {
+        maxThinkingMs: config.maxThinkingTimeMs,
+      })
+    );
   }
 
   public async playGame(): Promise<GameResult> {
     let moveCount = 0;
     const maxMoves = 1000; // Safety limit to prevent infinite games
+    const activePlayers = new Set(this.gameState.players);
 
-    if (this.config.enableDetailedLogging) {
-      console.log(`🎮 Starting game: ${this.bot1.name} vs ${this.bot2.name}`);
-    }
+    // Game starting silently
 
     while (
       this.gameState.gameStatus === 'playing' &&
       moveCount < maxMoves &&
-      Date.now() - this.startTime < this.config.gameTimeoutMs
+      Date.now() - this.startTime < this.config.gameTimeoutMs &&
+      activePlayers.size > 1
     ) {
       const currentPlayerId =
         this.gameState.players[this.gameState.currentPlayerIndex];
-      const currentBot = currentPlayerId === 'player1' ? this.bot1 : this.bot2;
-      const currentAi = currentPlayerId === 'player1' ? this.ai1 : this.ai2;
+
+      // Skip if current player has been eliminated
+      if (!activePlayers.has(currentPlayerId)) {
+        // Move to next player
+        this.gameState = gameReducer(this.gameState, { type: 'NEXT_TURN' });
+        continue;
+      }
+
+      const currentPlayerIndex =
+        parseInt(currentPlayerId.replace('player', '')) - 1;
+      const currentBot = this.bots[currentPlayerIndex];
+      const currentAi = this.aiStrategies[currentPlayerIndex];
 
       try {
         // Get legal moves
         const legalMoves = getLegalMoves(this.gameState);
 
         if (legalMoves.length === 0) {
-          if (this.config.enableDetailedLogging) {
-            console.log(
-              `❌ No legal moves for ${currentBot.name}, ending game`
-            );
-          }
-          break;
+          // Player eliminated silently
+
+          // Eliminate current player
+          activePlayers.delete(currentPlayerId);
+          this.eliminationHistory.push({
+            player: currentBot,
+            eliminationMove: moveCount,
+            remainingPlayers: activePlayers.size,
+          });
+
+          // Move to next turn
+          this.gameState = gameReducer(this.gameState, { type: 'NEXT_TURN' });
+          continue;
         }
 
         // AI decides move
@@ -141,11 +164,7 @@ export class HeadlessGame {
         });
         const thinkingTime = Date.now() - moveStartTime;
 
-        if (this.config.enableDetailedLogging) {
-          console.log(
-            `🤖 ${currentBot.name} plays (${move.row},${move.col}) [${thinkingTime}ms]`
-          );
-        }
+        // Move executed silently
 
         this.moveLog.push(
           `Move ${moveCount + 1}: ${currentBot.name} -> (${move.row},${move.col}) [${thinkingTime}ms]`
@@ -156,17 +175,20 @@ export class HeadlessGame {
           this.gameState,
           move.row,
           move.col,
-          currentPlayerId
+          currentPlayerId,
+          { enableAnimations: false } // Disable animations for headless games
         );
 
         if (!result.success || !result.updatedGameState || !result.actions) {
-          if (this.config.enableDetailedLogging) {
-            console.log(
-              `❌ Invalid move by ${currentBot.name}: ${result.error}`
-            );
-          }
-          // Penalize invalid move by ending game
-          break;
+          // Invalid move handled silently
+          // Eliminate player for invalid move
+          activePlayers.delete(currentPlayerId);
+          this.eliminationHistory.push({
+            player: currentBot,
+            eliminationMove: moveCount,
+            remainingPlayers: activePlayers.size,
+          });
+          continue;
         }
 
         // Apply all actions
@@ -185,48 +207,103 @@ export class HeadlessGame {
             type: 'COMPLETE_EXPLOSIONS',
           });
         }
-      } catch (error) {
-        if (this.config.enableDetailedLogging) {
-          console.log(`❌ Error during ${currentBot.name}'s turn:`, error);
-        }
-        break;
+
+        // Check if any players were eliminated by the chain reaction
+        this.checkForEliminatedPlayers(activePlayers, moveCount);
+      } catch {
+        // Error handled silently
+        // Eliminate player due to error
+        activePlayers.delete(currentPlayerId);
+        this.eliminationHistory.push({
+          player: currentBot,
+          eliminationMove: moveCount,
+          remainingPlayers: activePlayers.size,
+        });
       }
     }
 
     const endTime = Date.now();
     const duration = endTime - this.startTime;
 
-    // Determine winner
+    // Determine winner and final ranking
     let winner: TournamentBot | null = null;
-    if (this.gameState.winner === 'player1') {
-      winner = this.bot1;
-    } else if (this.gameState.winner === 'player2') {
-      winner = this.bot2;
+    const finalRanking: TournamentBot[] = [];
+
+    if (activePlayers.size === 1) {
+      // Single winner
+      const winnerPlayerId = Array.from(activePlayers)[0];
+      const winnerIndex = parseInt(winnerPlayerId.replace('player', '')) - 1;
+      winner = this.bots[winnerIndex];
+      finalRanking.push(winner);
+    }
+
+    // Add eliminated players in reverse order of elimination (last eliminated = 2nd place, etc.)
+    for (let i = this.eliminationHistory.length - 1; i >= 0; i--) {
+      finalRanking.push(this.eliminationHistory[i].player);
     }
 
     const isQuickWin = winner !== null && moveCount <= 50;
 
-    if (this.config.enableDetailedLogging) {
-      const result = winner ? `Winner: ${winner.name}` : 'Draw/Timeout';
-      console.log(
-        `🏁 Game ended after ${moveCount} moves (${duration}ms) - ${result}`
-      );
-      if (isQuickWin) {
-        console.log(`⚡ Quick win bonus awarded!`);
-      }
-    }
+    // Game completed silently - only tournament summary will be shown
 
     const gameResult: GameResult = {
       gameId: this.gameId,
-      player1: this.bot1,
-      player2: this.bot2,
+      players: this.bots,
       winner,
+      finalRanking,
       totalMoves: moveCount,
       gameDurationMs: duration,
       isQuickWin,
+      eliminationHistory:
+        this.eliminationHistory.length > 0
+          ? this.eliminationHistory
+          : undefined,
     };
 
     return gameResult;
+  }
+
+  private checkForEliminatedPlayers(
+    activePlayers: Set<string>,
+    moveCount: number
+  ): void {
+    // FIXED: Only check for eliminations after all players have had at least one turn
+    // This prevents eliminating players who simply haven't moved yet
+    const minimumMovesBeforeElimination = this.gameState.players.length;
+
+    if (moveCount < minimumMovesBeforeElimination) {
+      // Too early to eliminate anyone - not all players have had a turn yet
+      return;
+    }
+
+    // Check if any players have no orbs left on the board
+    const playersWithOrbs = new Set<string>();
+
+    for (let row = 0; row < this.gameState.board.rows; row++) {
+      for (let col = 0; col < this.gameState.board.cols; col++) {
+        const cell = this.gameState.board.cells[row][col];
+        if (cell.playerId && cell.orbCount > 0) {
+          playersWithOrbs.add(cell.playerId);
+        }
+      }
+    }
+
+    // Eliminate players who have no orbs left (only after everyone has had a turn)
+    for (const playerId of activePlayers) {
+      if (!playersWithOrbs.has(playerId)) {
+        activePlayers.delete(playerId);
+        const playerIndex = parseInt(playerId.replace('player', '')) - 1;
+        const eliminatedBot = this.bots[playerIndex];
+
+        this.eliminationHistory.push({
+          player: eliminatedBot,
+          eliminationMove: moveCount,
+          remainingPlayers: activePlayers.size,
+        });
+
+        // Player eliminated silently
+      }
+    }
   }
 
   public getGameState(): GameState {

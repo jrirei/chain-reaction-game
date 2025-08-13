@@ -90,6 +90,6 @@ export const TOURNAMENT_PRESETS = {
     createTournamentBot('default', 'Classic'),
     createTournamentBot('trigger', 'Aggressive'),
     createTournamentBot('monteCarlo', 'Calculator'),
-    createTournamentBot('tactical', 'Mastermind'),
+    createTournamentBot('fred', 'Specialist'),
   ],
 } as const;

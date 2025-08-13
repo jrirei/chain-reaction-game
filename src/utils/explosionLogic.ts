@@ -200,9 +200,7 @@ export const processChainReactionsSequential = (
     // Check for early victory condition - but continue animations until no more explosions
     const activePlayers = getActivePlayers(currentBoard);
     if (activePlayers.length <= 1 && !gameWonEarly) {
-      console.log(
-        `🏆 Game won early! Only ${activePlayers.length} active players remaining after explosion step ${stepCount} - continuing chain reaction until completion`
-      );
+      // Game won early - logging disabled for performance in headless mode
       gameWonEarly = true; // Mark as won early but continue the chain reaction
     }
   }

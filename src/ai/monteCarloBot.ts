@@ -13,6 +13,7 @@ import type { GameState } from '../types/game';
 import type { Move } from '../core/types';
 import { GameEngine } from '../core/engineSimple';
 import type { AiStrategy, AiContext } from './types';
+import { AI_PERFORMANCE } from './constants';
 
 interface MCTSNode {
   move: Move | null; // null for root node
@@ -73,8 +74,11 @@ export class MonteCarloBot implements AiStrategy {
 
     let iterations = 0;
 
-    // Run MCTS iterations until time limit (remove arbitrary iteration limit)
-    while (performance.now() < endTime && iterations < 1000000) {
+    // Run MCTS iterations until time limit (shared limit across all MCTS bots)
+    while (
+      performance.now() < endTime &&
+      iterations < AI_PERFORMANCE.MAX_MCTS_ITERATIONS
+    ) {
       // Very high safety limit - rely on time limit instead
       const leaf = this.selectNode(root);
       const expandedNode = this.expandNode(leaf, state, rng);
@@ -83,10 +87,7 @@ export class MonteCarloBot implements AiStrategy {
       iterations++;
     }
 
-    const actualThinkingMs = performance.now() - startTime;
-    console.log(
-      `🧠 Monte Carlo Bot completed ${iterations} iterations in ${Math.round(actualThinkingMs)}ms (limit: ${maxThinkingMs}ms)`
-    );
+    // MCTS completed silently
 
     // Select the most visited child (most robust choice)
     return this.selectBestMove(root);

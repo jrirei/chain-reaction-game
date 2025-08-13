@@ -38,7 +38,7 @@ describe('Player Box Display Fixes', () => {
           { type: 'human' },
           { type: 'ai', aiConfig: { strategy: 'default' } },
           { type: 'human' },
-          { type: 'ai', aiConfig: { strategy: 'tactical' } },
+          { type: 'ai', aiConfig: { strategy: 'fred' } },
         ],
         enableAnimations: true,
         enableSounds: false,

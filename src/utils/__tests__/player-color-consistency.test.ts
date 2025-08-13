@@ -12,7 +12,7 @@ describe('Player Color Consistency After Elimination', () => {
           { type: 'human' },
           { type: 'ai', aiConfig: { strategy: 'default' } },
           { type: 'human' }, // This is the user (Player 3)
-          { type: 'ai', aiConfig: { strategy: 'tactical' } },
+          { type: 'ai', aiConfig: { strategy: 'fred' } },
         ],
       },
     };
@@ -116,7 +116,7 @@ describe('Player Color Consistency After Elimination', () => {
           { type: 'human' }, // User
           {
             type: 'ai',
-            aiConfig: { strategy: 'tactical', maxThinkingMs: 3000 },
+            aiConfig: { strategy: 'fred', maxThinkingMs: 3000 },
           },
         ];
 
@@ -154,7 +154,7 @@ describe('Player Color Consistency After Elimination', () => {
     expect(remainingPlayers[1].aiConfig).toBeUndefined();
 
     expect(remainingPlayers[2].id).toBe('player4');
-    expect(remainingPlayers[2].aiConfig?.strategy).toBe('tactical');
+    expect(remainingPlayers[2].aiConfig?.strategy).toBe('fred');
     expect(remainingPlayers[2].aiConfig?.maxThinkingMs).toBe(3000);
 
     console.log('\n✅ All players maintain their original AI configurations');

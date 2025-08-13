@@ -95,6 +95,9 @@ export const AI_PERFORMANCE = {
   // Timeout handling
   MOVE_TIMEOUT_MS: 60000, // 1 minute maximum per move
   GRACE_PERIOD_MS: 1000, // Grace period before timeout
+
+  // MCTS Iteration Limits (shared across all MCTS-based bots)
+  MAX_MCTS_ITERATIONS: 5000000, // 5M iterations limit for Monte Carlo bots
 } as const;
 
 // Difficulty Level Mappings
@@ -122,12 +125,6 @@ export const DIFFICULTY_LEVELS = {
     description: 'Advanced tree search AI',
     thinkingTime: AI_THINKING_TIMES.MEDIUM,
     strategy: 'monteCarlo' as const,
-  },
-  EXPERT: {
-    label: 'Expert',
-    description: 'Elite tactical hybrid AI',
-    thinkingTime: AI_THINKING_TIMES.SLOW,
-    strategy: 'tactical' as const,
   },
   MASTER: {
     label: 'Master',
@@ -163,39 +160,12 @@ export const STRATEGY_DISPLAY = {
     icon: '🧠',
     color: '#8B5CF6', // Purple
   },
-  tactical: {
-    name: 'Tactical Bot',
-    shortName: 'Elite',
-    icon: '🎯',
-    color: '#F59E0B', // Amber
+  fred: {
+    name: 'Fred Bot',
+    shortName: 'Fred',
+    icon: '🎭',
+    color: '#10B981', // Emerald
   },
-} as const;
-
-// Tactical Bot Configuration (hybrid MCTS + heuristics)
-export const TACTICAL_BOT_CONFIG = {
-  // Thinking time configuration
-  DEFAULT_MAX_THINKING_MS: AI_THINKING_TIMES.SLOW, // 10 seconds for deep analysis
-  MIN_MCTS_TIME_MS: 2000, // Minimum time before switching to pure heuristics
-
-  // Candidate move selection (adaptive based on game phase)
-  MAX_CANDIDATES_EARLY: 12, // More exploration in early game
-  MAX_CANDIDATES_MID: 10, // Balanced approach in mid game
-  MAX_CANDIDATES_LATE: 8, // Focus on quality in late game
-
-  // Scoring weights for move pre-filtering
-  CRITICAL_MASS_WEIGHT: 15, // Weight for critical mass progress
-  EXPLOSION_BONUS: 25, // Bonus for immediate explosions
-  OWN_CELL_BONUS: 12, // Bonus for building on own cells
-
-  // Position value bonuses
-  CORNER_BONUS: 8, // Corners are easier to explode
-  EDGE_BONUS: 5, // Edges are moderately easy
-  CENTER_BONUS: 3, // Centers require more orbs
-
-  // MCTS parameters
-  UCB1_EXPLORATION: Math.sqrt(2), // √2 - standard UCB1 exploration
-  MAX_ITERATIONS: 50000, // Maximum MCTS iterations to prevent infinite loops
-  MAX_SIMULATION_STEPS: 200, // Maximum steps in random playout
 } as const;
 
 // Available thinking time options for UI

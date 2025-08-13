@@ -10,7 +10,7 @@ import { DefaultBot } from './defaultBot';
 import { TriggerBot } from './triggerBot';
 import { RandomBot } from './randomBot';
 import { MonteCarloBot } from './monteCarloBot';
-import { TacticalBot } from './tacticalBot';
+import { FredBot } from './fredBot';
 import { STRATEGY_DISPLAY } from './constants';
 
 export interface StrategyFactory {
@@ -48,10 +48,10 @@ export const AI_STRATEGIES: Record<AiStrategyName, StrategyFactory> = {
     difficulty: 'hard',
   },
 
-  tactical: {
-    create: () => new TacticalBot(),
+  fred: {
+    create: () => new FredBot(),
     description:
-      'Elite hybrid AI combining heuristic filtering with Monte Carlo tree search for optimal play',
+      'Specialized Monte Carlo AI that assumes opponents use TriggerBot strategy and focuses on explosive cell advantage',
     difficulty: 'hard',
   },
 };

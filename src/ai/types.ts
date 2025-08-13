@@ -10,7 +10,7 @@ export type AiStrategyName =
   | 'trigger'
   | 'random'
   | 'monteCarlo'
-  | 'tactical';
+  | 'fred';
 
 export interface AiContext {
   /** Random number generator (0-1) - for deterministic testing */
