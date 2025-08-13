@@ -1,6 +1,7 @@
 import { GameProvider } from './context';
 import { useGameState } from './hooks/useGameState';
 import { useAiTurn } from './hooks/useAiTurn';
+import { useTheme } from './hooks/useTheme';
 import { ErrorBoundary, GameErrorBoundary } from './components/ErrorBoundary';
 import GameHeader from './components/GameHeader/GameHeader';
 import GameInfo from './components/GameInfo/GameInfo';
@@ -15,6 +16,8 @@ function AppContent() {
   const { resetGame, gameState } = useGameState();
   // Initialize AI turn handling
   useAiTurn();
+  // Initialize dark theme by default
+  useTheme();
 
   // Check if we should show the design showcase
   const showDesignShowcase =

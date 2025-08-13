@@ -186,9 +186,9 @@
   flex-direction: column;
   gap: 2px; /* Much smaller gap */
   padding: 4px var(--spacing-sm); /* Even more compact padding */
-  background: rgba(100, 108, 255, 0.05);
+  background: var(--hover-color);
   border-radius: 4px; /* Smaller border radius */
-  border: 1px solid rgba(100, 108, 255, 0.2);
+  border: 1px solid var(--border-color);
   min-width: 0; /* Allow shrinking */
   overflow: hidden; /* Prevent overflow */
 }
@@ -229,16 +229,16 @@
 
 /* Game Preview */
 .gamePreview {
-  background: #2d2d2d !important;
-  border: 2px solid #646cff !important;
+  background: var(--secondary-bg);
+  border: 2px solid var(--accent-color);
   border-radius: 8px;
-  padding: 16px !important;
+  padding: var(--spacing-md);
 }
 
 .previewInfo {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--spacing-sm);
 }
 
 .previewItem {
@@ -248,15 +248,15 @@
 }
 
 .previewLabel {
-  font-size: 14px !important;
-  color: #ffffff !important;
-  font-weight: 500 !important;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  font-weight: 500;
 }
 
 .previewValue {
-  font-size: 14px !important;
-  font-weight: 700 !important;
-  color: #646cff !important;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--accent-color);
 }
 
 /* Actions */
@@ -297,7 +297,7 @@
 }
 
 .startButton:hover {
-  background: #5865f2;
+  background: #5a67e8;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(100, 108, 255, 0.4);
 }
@@ -356,40 +356,4 @@
   }
 }
 
-/* Dark mode adjustments */
-@media (prefers-color-scheme: light) {
-  .setupOverlay {
-    background: rgba(0, 0, 0, 0.4);
-  }
-
-  .setupModal {
-    background: #ffffff;
-    border-color: #dee2e6;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  }
-
-  .setupHeader {
-    border-bottom-color: #dee2e6;
-  }
-
-  .playerNameRow,
-  .gamePreview {
-    background: #f8f9fa;
-    border-color: #dee2e6;
-  }
-
-  .playerNameInput {
-    background: #ffffff;
-    border-color: #ced4da;
-  }
-
-  .countButton {
-    background: #f8f9fa;
-    border-color: #dee2e6;
-  }
-
-  .cancelButton {
-    background: #f8f9fa;
-    border-color: #dee2e6;
-  }
-}
+/* The modal now uses CSS variables that automatically adapt to the theme */

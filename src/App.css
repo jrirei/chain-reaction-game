@@ -6,6 +6,8 @@
   margin: 0 auto;
   padding: var(--spacing-md);
   gap: var(--spacing-lg);
+  background-color: var(--primary-bg);
+  color: var(--text-primary);
 }
 
 .game-content {
@@ -73,12 +75,5 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-}
-
-@media (prefers-color-scheme: light) {
-  .app {
-    background-color: #f5f5f5;
-    color: #333;
   }
 }

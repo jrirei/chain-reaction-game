@@ -120,9 +120,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
   };
 
   const getPlayerColor = (playerId: string | null): string => {
-    if (!playerId) return '#4ECDC4';
+    if (!playerId) return 'var(--accent-color)';
     const player = players.find((p) => p.id === playerId);
-    return player?.color || '#4ECDC4';
+    return player?.color || 'var(--accent-color)';
   };
 
   const renderCell = (cell: (typeof boardInfo.cells)[0][0]) => {

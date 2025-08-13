@@ -41,7 +41,7 @@ const GameInfo: React.FC = () => {
         </span>
         <span
           className={styles.currentPlayer}
-          style={{ color: currentPlayer?.color || '#4ECDC4' }}
+          style={{ color: currentPlayer?.color || 'var(--accent-color)' }}
           role="status"
           aria-live="polite"
           aria-labelledby="current-player-label"

@@ -27,7 +27,7 @@
 .currentPlayer {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #4ecdc4; /* Default to teal, will be dynamic later */
+  color: var(--accent-color);
 }
 
 .moveCount {

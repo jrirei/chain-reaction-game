@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './DesignShowcase.module.css';
 
 const DesignShowcase: React.FC = () => {
   const [selectedTheme, setSelectedTheme] = useState<'dark' | 'light'>('dark');
+
+  // Apply theme to document root when theme changes
+  useEffect(() => {
+    const root = document.documentElement;
+    root.setAttribute('data-theme', selectedTheme);
+  }, [selectedTheme]);
 
   const sampleColors = [
     { name: 'Primary Background', var: '--primary-bg', value: '#1a1a1a' },

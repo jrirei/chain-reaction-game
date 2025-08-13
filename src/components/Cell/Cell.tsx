@@ -23,7 +23,7 @@ const Cell: React.FC<CellProps> = ({
   onMouseEnter,
   onMouseLeave,
   isClickable,
-  playerColor = '#4ECDC4',
+  playerColor = 'var(--accent-color)',
   isCurrentPlayerCell,
   showCriticalMass = false,
   showCriticalMassVisualization = true,

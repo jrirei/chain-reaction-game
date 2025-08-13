@@ -28,14 +28,14 @@
 }
 
 .controlBtn.primary {
-  background: #646cff;
+  background: var(--accent-color);
   color: white;
-  border: 2px solid #646cff;
+  border: 2px solid var(--accent-color);
 }
 
-.control-btn.primary:hover:not(:disabled) {
-  background: #535bf2;
-  border-color: #535bf2;
+.controlBtn.primary:hover:not(:disabled) {
+  background: #5a67e8;
+  border-color: #5a67e8;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(100, 108, 255, 0.4);
 }
@@ -46,19 +46,19 @@
   border: 2px solid var(--border-color);
 }
 
-.control-btn.secondary:hover:not(:disabled) {
+.controlBtn.secondary:hover:not(:disabled) {
   background: var(--hover-color);
-  border-color: #646cff;
+  border-color: var(--accent-color);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(100, 108, 255, 0.2);
 }
 
-.control-btn:focus {
-  outline: 2px solid #646cff;
+.controlBtn:focus {
+  outline: 2px solid var(--accent-color);
   outline-offset: 2px;
 }
 
-.control-btn:active:not(:disabled) {
+.controlBtn:active:not(:disabled) {
   transform: translateY(0);
 }
 
@@ -124,24 +124,13 @@
     transition: none;
   }
 
-  .control-btn:hover:not(:disabled) {
+  .controlBtn:hover:not(:disabled) {
     transform: none;
   }
 
-  .control-btn:active:not(:disabled) {
+  .controlBtn:active:not(:disabled) {
     transform: none;
   }
 }
 
-/* Dark/Light theme adjustments */
-@media (prefers-color-scheme: light) {
-  .controlBtn.secondary {
-    background: #ffffff;
-    color: #333;
-    border-color: #dee2e6;
-  }
-
-  .control-btn.secondary:hover:not(:disabled) {
-    background: #f8f9fa;
-  }
-}
+/* Controls now use CSS variables that automatically adapt to the theme */

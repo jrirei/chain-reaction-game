@@ -36,3 +36,55 @@
   --z-modal: 100;
   --z-tooltip: 1000;
 }
+
+/* Light theme color overrides - automatic based on system preference */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    /* Light theme colors */
+    --primary-bg: #ffffff;
+    --secondary-bg: #f8f9fa;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --border-color: #dee2e6;
+    --hover-color: #e9ecef;
+    --accent-color: #646cff;
+
+    /* Light theme stat colors for high contrast */
+    --stat-text-color: #ffffff;
+    --stat-bg-color: rgba(0, 0, 0, 0.85);
+    --stat-border-color: rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Manual theme overrides */
+:root[data-theme='light'] {
+  /* Light theme colors */
+  --primary-bg: #ffffff;
+  --secondary-bg: #f8f9fa;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --border-color: #dee2e6;
+  --hover-color: #e9ecef;
+  --accent-color: #646cff;
+
+  /* Light theme stat colors for high contrast */
+  --stat-text-color: #ffffff;
+  --stat-bg-color: rgba(0, 0, 0, 0.85);
+  --stat-border-color: rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme='dark'] {
+  /* Force dark theme colors */
+  --primary-bg: #1a1a1a;
+  --secondary-bg: #2d2d2d;
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --border-color: #444444;
+  --hover-color: #3d3d3d;
+  --accent-color: #646cff;
+
+  /* Dark theme stat colors for high contrast */
+  --stat-text-color: #000000;
+  --stat-bg-color: rgba(255, 255, 255, 0.95);
+  --stat-border-color: rgba(255, 255, 255, 0.3);
+}
