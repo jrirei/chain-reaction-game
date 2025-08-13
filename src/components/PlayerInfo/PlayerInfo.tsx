@@ -69,10 +69,6 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
     return (
       <div className={styles.playerStats}>
         <div className={styles.statItem}>
-          <span className={styles.statLabel}>Orbs:</span>
-          <span className={styles.statValue}>{player.orbCount}</span>
-        </div>
-        <div className={styles.statItem}>
           <span className={styles.statLabel}>Moves:</span>
           <span className={styles.statValue}>{player.totalMoves}</span>
         </div>
