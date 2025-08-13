@@ -8,12 +8,22 @@ import GameBoard from './components/GameBoard/GameBoard';
 import GameControls from './components/GameControls/GameControls';
 import PlayerList from './components/PlayerList/PlayerList';
 import GameEndModal from './components/GameEndModal';
+import DesignShowcase from './components/DesignShowcase';
 import './App.css';
 
 function AppContent() {
   const { resetGame, gameState } = useGameState();
   // Initialize AI turn handling
   useAiTurn();
+
+  // Check if we should show the design showcase
+  const showDesignShowcase =
+    new URLSearchParams(window.location.search).get('design') === 'true';
+
+  if (showDesignShowcase) {
+    return <DesignShowcase />;
+  }
+
   return (
     <div className="app">
       {/* Skip link for keyboard navigation */}
