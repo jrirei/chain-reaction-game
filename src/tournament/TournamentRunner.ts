@@ -20,23 +20,36 @@ export class TournamentRunner implements ITournamentRunner {
   ): Promise<TournamentResult> {
     const startTime = Date.now();
 
+    // Randomize bot order at tournament startup for fairness
+    const shuffledBots = [...bots];
+    for (let i = shuffledBots.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledBots[i], shuffledBots[j]] = [shuffledBots[j], shuffledBots[i]];
+    }
+
     // Starting tournament silently - only final results will be shown
 
     // Generate all combinations for different player counts
     const combinations: CombinationResult[] = [];
     let totalGames = 0;
+    let globalGameNumber = 1; // Global game counter
 
     for (const playerCount of config.playerCounts) {
-      if (bots.length < playerCount) {
+      if (shuffledBots.length < playerCount) {
         continue; // Skip silently
       }
 
-      const combos = this.generateCombinations(bots, playerCount);
+      const combos = this.generateCombinations(shuffledBots, playerCount);
 
       for (const combo of combos) {
-        const combinationResult = await this.runCombination(combo, config);
+        const combinationResult = await this.runCombination(
+          combo,
+          config,
+          globalGameNumber
+        );
         combinations.push(combinationResult);
         totalGames += combinationResult.games.length;
+        globalGameNumber += combinationResult.games.length; // Update global counter
       }
     }
 
@@ -44,11 +57,11 @@ export class TournamentRunner implements ITournamentRunner {
     const totalDuration = endTime - startTime;
 
     // Calculate rankings
-    const rankings = this.calculateRankings(bots, combinations);
+    const rankings = this.calculateRankings(shuffledBots, combinations);
 
     const result: TournamentResult = {
       config,
-      participants: bots,
+      participants: bots, // Return original order for tests, while using shuffled order for gameplay
       combinations,
       rankings,
       totalGames,
@@ -105,11 +118,14 @@ export class TournamentRunner implements ITournamentRunner {
 
   private async runCombination(
     players: TournamentBot[],
-    config: TournamentConfig
+    config: TournamentConfig,
+    startingGameNumber: number = 1
   ): Promise<CombinationResult> {
     const games: GameResult[] = [];
 
     for (let gameNum = 1; gameNum <= config.gamesPerCombination; gameNum++) {
+      const globalGameNum = startingGameNumber + gameNum - 1;
+
       // Randomize player order for fairness in multi-player games
       const shuffledPlayers = [...players];
       for (let i = shuffledPlayers.length - 1; i > 0; i--) {
@@ -123,15 +139,33 @@ export class TournamentRunner implements ITournamentRunner {
       const gameResult = await this.runSingleGame(shuffledPlayers, config);
       games.push(gameResult);
 
+      // Always show game winner (minimal logging)
+      const quickWinStr = gameResult.isQuickWin ? ' (Quick Win!)' : '';
+      const startingPlayer = shuffledPlayers[0]; // First player in shuffled order starts
+
+      if (gameResult.winner) {
+        const opponents = players
+          .filter((bot) => bot.id !== gameResult.winner!.id)
+          .map((bot) => bot.name)
+          .join(', ');
+        console.log(
+          `   Game ${globalGameNum}: ${gameResult.winner.name} wins against ${opponents} after ${gameResult.totalMoves} moves${quickWinStr} (${startingPlayer.name} started)`
+        );
+      } else {
+        // This shouldn't happen in Chain Reaction - investigate why there's no winner
+        console.log(
+          `   Game ${globalGameNum}: ERROR - No winner found after ${gameResult.totalMoves} moves (this shouldn't happen) (${startingPlayer.name} started)`
+        );
+        console.log(
+          `   Final ranking: ${gameResult.finalRanking.map((bot) => bot.name).join(', ')}`
+        );
+      }
+
+      // Show detailed positions only if detailed logging is enabled
       if (config.enableDetailedLogging) {
-        const winner = gameResult.winner ? gameResult.winner.name : 'Draw';
-        const quickWinStr = gameResult.isQuickWin ? ' (Quick Win!)' : '';
         const positions = gameResult.finalRanking
           .map((bot, idx) => `${idx + 1}.${bot.name}`)
           .join(' ');
-        console.log(
-          `   Game ${gameNum}: ${winner} in ${gameResult.totalMoves} moves${quickWinStr}`
-        );
         console.log(`   Final positions: ${positions}`);
       }
     }

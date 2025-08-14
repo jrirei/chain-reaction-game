@@ -64,6 +64,7 @@ export const useGameState = () => {
       gameTime: gameState.gameStartTime
         ? (gameState.gameEndTime || Date.now()) - gameState.gameStartTime
         : 0,
+      gameStats: gameState.gameStats,
     }),
     [gameState, currentPlayerWithStats, playersWithStats]
   );

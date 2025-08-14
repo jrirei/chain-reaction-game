@@ -140,21 +140,20 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
             </div>
           )}
         </div>
-
-        {!compact && (
-          <div
-            className={styles.playerOrbCount}
-            role="status"
-            aria-live={isCurrentPlayer ? 'polite' : 'off'}
-            aria-label={`${player.orbCount} orbs`}
-          >
-            <span className={styles.orbCountNumber}>{player.orbCount}</span>
-            <span className={styles.orbCountLabel} aria-hidden="true">
-              orbs
-            </span>
-          </div>
-        )}
       </div>
+
+      {/* Orb Counter Second Line */}
+      {!compact && (
+        <div
+          className={styles.playerOrbCountLine}
+          role="status"
+          aria-live={isCurrentPlayer ? 'polite' : 'off'}
+          aria-label={`${player.orbCount} orbs`}
+        >
+          <span className={styles.orbCountLabel}>Orbs:</span>
+          <span className={styles.orbCountNumber}>{player.orbCount}</span>
+        </div>
+      )}
 
       {chainReactionInfo?.isActive && isCurrentPlayer && (
         <div

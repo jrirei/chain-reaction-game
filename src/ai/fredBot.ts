@@ -10,7 +10,7 @@
 
 import type { GameState } from '../types/game';
 import type { Move } from '../core/types';
-import { GameEngine } from '../core/engineSimple';
+// import { GameEngine } from '../core/engineSimple'; // Unused, commented out
 import type { AiStrategy, AiContext } from './types';
 import { AI_PERFORMANCE } from './constants';
 
@@ -26,7 +26,7 @@ interface MCTSNode {
 export class FredBot implements AiStrategy {
   readonly name = 'fred' as const;
 
-  private engine = new GameEngine();
+  // private engine = new GameEngine(); // Currently unused, commented out
   private defaultMaxThinkingMs = 5000; // 5 seconds default
 
   private lastFredMove: Move | null = null; // Track Fred's last move for enemy modeling
@@ -136,7 +136,7 @@ export class FredBot implements AiStrategy {
    */
   private expandNode(
     parent: MCTSNode,
-    state: GameState,
+    _state: GameState, // Unused parameter, prefixed with underscore
     rng: () => number
   ): MCTSNode {
     if (parent.untriedMoves.length === 0) {

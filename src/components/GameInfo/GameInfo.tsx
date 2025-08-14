@@ -12,6 +12,28 @@ const GameInfo: React.FC = () => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+  const formatPlayerThinkingTime = (milliseconds: number): string => {
+    if (milliseconds < 1000) {
+      return `${Math.round(milliseconds)}ms`;
+    }
+    const seconds = Math.floor(milliseconds / 1000);
+    const remainingMs = Math.round(milliseconds % 1000);
+    if (seconds < 60) {
+      return `${seconds}.${Math.floor(remainingMs / 100)}s`;
+    }
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  const getCurrentPlayerThinkingTime = (): number => {
+    if (!currentPlayer || !gameInfo.gameStats?.playerStats) {
+      return 0;
+    }
+    const playerStats = gameInfo.gameStats.playerStats[currentPlayer.id];
+    return playerStats?.totalThinkingTimeMs || 0;
+  };
+
   const getStatusDisplay = (): string => {
     switch (gameInfo.status) {
       case 'setup':
@@ -50,16 +72,17 @@ const GameInfo: React.FC = () => {
         </span>
       </div>
       <div className={styles.infoSection}>
-        <span className={styles.infoLabel} id="move-count-label">
-          Move:
+        <span className={styles.infoLabel} id="player-time-label">
+          {currentPlayer ? `${currentPlayer.name} Time:` : 'Player Time:'}
         </span>
         <span
-          className={styles.moveCount}
+          className={styles.playerTime}
           role="status"
           aria-live="polite"
-          aria-labelledby="move-count-label"
+          aria-labelledby="player-time-label"
+          title={`Total thinking time for ${currentPlayer?.name || 'current player'}`}
         >
-          {gameInfo.moveCount}
+          {formatPlayerThinkingTime(getCurrentPlayerThinkingTime())}
         </span>
       </div>
       <div className={styles.infoSection}>

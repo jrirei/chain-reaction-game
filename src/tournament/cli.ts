@@ -85,7 +85,7 @@ USAGE:
 
 OPTIONS:
   -b, --bots <strategies>     Comma-separated list of AI strategies to include
-                              Available: default,trigger,random,monteCarlo,fred
+                              Available: default,trigger,random,monteCarlo,fred,oskar
   -r, --rounds <number>       Number of times each combination plays (default: 1)
   -c, --player-counts <list>  Comma-separated player counts (e.g., "2,3,4" for 2v2, 3-way, 4-way games)
                               Available: 2, 3, 4 (default: "2")
@@ -169,6 +169,7 @@ function validateOptions(options: CliOptions): string[] {
       'random',
       'monteCarlo',
       'fred',
+      'oskar',
     ];
     const invalidStrategies = strategies.filter(
       (s) => !validStrategies.includes(s)

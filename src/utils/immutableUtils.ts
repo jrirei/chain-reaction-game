@@ -246,6 +246,7 @@ export const updatePlayerStats = (
         chainReactionsTriggered: 0,
         explosionsCaused: 0,
         longestChainReaction: 0,
+        totalThinkingTimeMs: 0,
       };
     }
 

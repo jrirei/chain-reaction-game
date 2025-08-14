@@ -166,6 +166,12 @@ export const STRATEGY_DISPLAY = {
     icon: '🎭',
     color: '#10B981', // Emerald
   },
+  oskar: {
+    name: 'Oskar Bot',
+    shortName: 'Oskar',
+    icon: '🎯',
+    color: '#F59E0B', // Amber
+  },
 } as const;
 
 // Available thinking time options for UI

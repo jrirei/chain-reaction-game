@@ -230,16 +230,73 @@ export class HeadlessGame {
     const finalRanking: TournamentBot[] = [];
 
     if (activePlayers.size === 1) {
-      // Single winner
+      // Single winner - normal game end
       const winnerPlayerId = Array.from(activePlayers)[0];
       const winnerIndex = parseInt(winnerPlayerId.replace('player', '')) - 1;
       winner = this.bots[winnerIndex];
       finalRanking.push(winner);
+    } else if (activePlayers.size > 1) {
+      // Game ended abnormally (timeout, max moves, etc.) - determine winner by orb count
+      const playerOrbCounts = new Map<string, number>();
+
+      // Count orbs for each remaining player
+      for (const playerId of activePlayers) {
+        playerOrbCounts.set(playerId, 0);
+      }
+
+      for (let row = 0; row < this.gameState.board.rows; row++) {
+        for (let col = 0; col < this.gameState.board.cols; col++) {
+          const cell = this.gameState.board.cells[row][col];
+          if (cell.playerId && activePlayers.has(cell.playerId)) {
+            const currentCount = playerOrbCounts.get(cell.playerId) || 0;
+            playerOrbCounts.set(cell.playerId, currentCount + cell.orbCount);
+          }
+        }
+      }
+
+      // Find player with most orbs
+      let maxOrbs = -1;
+      let winnerPlayerId: string | null = null;
+
+      for (const [playerId, orbCount] of playerOrbCounts.entries()) {
+        if (orbCount > maxOrbs) {
+          maxOrbs = orbCount;
+          winnerPlayerId = playerId;
+        }
+      }
+
+      if (winnerPlayerId) {
+        const winnerIndex = parseInt(winnerPlayerId.replace('player', '')) - 1;
+        winner = this.bots[winnerIndex];
+        finalRanking.push(winner);
+
+        // Add other active players in order of orb count (descending)
+        const sortedActivePlayers = Array.from(activePlayers)
+          .filter((pid) => pid !== winnerPlayerId)
+          .map((pid) => ({
+            playerId: pid,
+            bot: this.bots[parseInt(pid.replace('player', '')) - 1],
+            orbCount: playerOrbCounts.get(pid) || 0,
+          }))
+          .sort((a, b) => b.orbCount - a.orbCount);
+
+        for (const player of sortedActivePlayers) {
+          finalRanking.push(player.bot);
+        }
+      }
     }
 
     // Add eliminated players in reverse order of elimination (last eliminated = 2nd place, etc.)
     for (let i = this.eliminationHistory.length - 1; i >= 0; i--) {
       finalRanking.push(this.eliminationHistory[i].player);
+    }
+
+    // Ensure all players are included in final ranking
+    // Add any remaining players who weren't explicitly eliminated but didn't win
+    for (const bot of this.bots) {
+      if (!finalRanking.includes(bot)) {
+        finalRanking.push(bot);
+      }
     }
 
     const isQuickWin = winner !== null && moveCount <= 50;

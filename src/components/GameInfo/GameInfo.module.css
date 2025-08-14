@@ -36,6 +36,17 @@
   color: var(--text-primary);
 }
 
+.playerTime {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--accent-color);
+  font-family: 'Courier New', monospace;
+  background: rgba(100, 108, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(100, 108, 255, 0.2);
+}
+
 .gameStatus {
   font-size: 1rem;
   font-weight: 500;
@@ -61,7 +72,8 @@
   }
 
   .current-player,
-  .moveCount {
+  .moveCount,
+  .playerTime {
     font-size: 1rem;
   }
 

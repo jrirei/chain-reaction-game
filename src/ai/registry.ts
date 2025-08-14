@@ -11,6 +11,7 @@ import { TriggerBot } from './triggerBot';
 import { RandomBot } from './randomBot';
 import { MonteCarloBot } from './monteCarloBot';
 import { FredBot } from './fredBot';
+import { OskarBot } from './oskarBot';
 import { STRATEGY_DISPLAY } from './constants';
 
 export interface StrategyFactory {
@@ -52,6 +53,13 @@ export const AI_STRATEGIES: Record<AiStrategyName, StrategyFactory> = {
     create: () => new FredBot(),
     description:
       'Specialized Monte Carlo AI that assumes opponents use TriggerBot strategy and focuses on explosive cell advantage',
+    difficulty: 'hard',
+  },
+
+  oskar: {
+    create: () => new OskarBot(),
+    description:
+      'Advanced heuristic AI with minimax search, game phase adaptation, and comprehensive strategic analysis',
     difficulty: 'hard',
   },
 };

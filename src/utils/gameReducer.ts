@@ -49,6 +49,8 @@ export const gameReducer = (
           chainReactionsTriggered: 0,
           explosionsCaused: 0,
           longestChainReaction: 0,
+          totalThinkingTimeMs: 0,
+          turnStartTime: null,
         };
       });
 
@@ -73,9 +75,42 @@ export const gameReducer = (
     }
 
     case 'START_GAME': {
+      const currentTime = Date.now();
+      const firstPlayerId = state.players[0];
+
+      // Start timing for the first player
+      const gameStats = state.gameStats || {
+        totalExplosions: 0,
+        chainReactionsCount: 0,
+        longestChainReaction: 0,
+        playerStats: {},
+      };
+
+      const firstPlayerStats = gameStats.playerStats[firstPlayerId] || {
+        playerId: firstPlayerId,
+        movesPlayed: 0,
+        chainReactionsTriggered: 0,
+        explosionsCaused: 0,
+        longestChainReaction: 0,
+        totalThinkingTimeMs: 0,
+        turnStartTime: null,
+      };
+
+      const updatedGameStats = {
+        ...gameStats,
+        playerStats: {
+          ...gameStats.playerStats,
+          [firstPlayerId]: {
+            ...firstPlayerStats,
+            turnStartTime: currentTime,
+          },
+        },
+      };
+
       return updateGameState(state, {
         gameStatus: GameStatus.PLAYING,
-        gameStartTime: Date.now(),
+        gameStartTime: currentTime,
+        gameStats: updatedGameStats,
       });
     }
 
@@ -213,11 +248,68 @@ export const gameReducer = (
     }
 
     case 'NEXT_TURN': {
+      const currentPlayerId = state.players[state.currentPlayerIndex];
       const nextPlayerIndex =
         (state.currentPlayerIndex + 1) % state.players.length;
+      const nextPlayerId = state.players[nextPlayerIndex];
+      const currentTime = Date.now();
+
+      // End current player's turn timing
+      const gameStats = state.gameStats || {
+        totalExplosions: 0,
+        chainReactionsCount: 0,
+        longestChainReaction: 0,
+        playerStats: {},
+      };
+
+      const currentPlayerStats = gameStats.playerStats[currentPlayerId] || {
+        playerId: currentPlayerId,
+        movesPlayed: 0,
+        chainReactionsTriggered: 0,
+        explosionsCaused: 0,
+        longestChainReaction: 0,
+        totalThinkingTimeMs: 0,
+        turnStartTime: null,
+      };
+
+      // Calculate thinking time if we have a start time
+      const thinkingTime = currentPlayerStats.turnStartTime
+        ? currentTime - currentPlayerStats.turnStartTime
+        : 0;
+
+      // Initialize next player stats if needed
+      const nextPlayerStats = gameStats.playerStats[nextPlayerId] || {
+        playerId: nextPlayerId,
+        movesPlayed: 0,
+        chainReactionsTriggered: 0,
+        explosionsCaused: 0,
+        longestChainReaction: 0,
+        totalThinkingTimeMs: 0,
+        turnStartTime: null,
+      };
+
+      const updatedGameStats = {
+        ...gameStats,
+        playerStats: {
+          ...gameStats.playerStats,
+          [currentPlayerId]: {
+            ...currentPlayerStats,
+            totalThinkingTimeMs:
+              currentPlayerStats.totalThinkingTimeMs + thinkingTime,
+            turnStartTime: null, // Reset for next turn
+            // movesPlayed is already incremented in PLACE_ORB action, don't double-count
+          },
+          [nextPlayerId]: {
+            ...nextPlayerStats,
+            turnStartTime: currentTime, // Start timing for next player
+          },
+        },
+      };
+
       return {
         ...state,
         currentPlayerIndex: nextPlayerIndex,
+        gameStats: updatedGameStats,
       };
     }
 
@@ -312,6 +404,8 @@ export const gameReducer = (
         chainReactionsTriggered: 0,
         explosionsCaused: 0,
         longestChainReaction: 0,
+        totalThinkingTimeMs: 0,
+        turnStartTime: null,
       };
 
       // Update player stats
@@ -453,6 +547,92 @@ export const gameReducer = (
         chainReactionState: undefined,
         players: updatedPlayers,
         currentPlayerIndex: nextPlayerIndex,
+      };
+    }
+
+    case 'START_PLAYER_TURN': {
+      const { playerId, turnStartTime } = action.payload;
+
+      const gameStats = state.gameStats || {
+        totalExplosions: 0,
+        chainReactionsCount: 0,
+        longestChainReaction: 0,
+        playerStats: {},
+      };
+
+      const currentPlayerStats = gameStats.playerStats[playerId] || {
+        playerId,
+        movesPlayed: 0,
+        chainReactionsTriggered: 0,
+        explosionsCaused: 0,
+        longestChainReaction: 0,
+        totalThinkingTimeMs: 0,
+        turnStartTime: null,
+      };
+
+      const updatedPlayerStats = {
+        ...currentPlayerStats,
+        turnStartTime,
+      };
+
+      const updatedGameStats = {
+        ...gameStats,
+        playerStats: {
+          ...gameStats.playerStats,
+          [playerId]: updatedPlayerStats,
+        },
+      };
+
+      return {
+        ...state,
+        gameStats: updatedGameStats,
+      };
+    }
+
+    case 'END_PLAYER_TURN': {
+      const { playerId, turnEndTime } = action.payload;
+
+      const gameStats = state.gameStats || {
+        totalExplosions: 0,
+        chainReactionsCount: 0,
+        longestChainReaction: 0,
+        playerStats: {},
+      };
+
+      const currentPlayerStats = gameStats.playerStats[playerId] || {
+        playerId,
+        movesPlayed: 0,
+        chainReactionsTriggered: 0,
+        explosionsCaused: 0,
+        longestChainReaction: 0,
+        totalThinkingTimeMs: 0,
+        turnStartTime: null,
+      };
+
+      // Calculate thinking time if we have a start time
+      const thinkingTime = currentPlayerStats.turnStartTime
+        ? turnEndTime - currentPlayerStats.turnStartTime
+        : 0;
+
+      const updatedPlayerStats = {
+        ...currentPlayerStats,
+        totalThinkingTimeMs:
+          currentPlayerStats.totalThinkingTimeMs + thinkingTime,
+        turnStartTime: null, // Reset for next turn
+        // movesPlayed is already incremented in PLACE_ORB action, don't double-count
+      };
+
+      const updatedGameStats = {
+        ...gameStats,
+        playerStats: {
+          ...gameStats.playerStats,
+          [playerId]: updatedPlayerStats,
+        },
+      };
+
+      return {
+        ...state,
+        gameStats: updatedGameStats,
       };
     }
 

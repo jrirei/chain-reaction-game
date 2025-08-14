@@ -45,6 +45,8 @@ export interface PlayerGameStats {
   chainReactionsTriggered: number;
   explosionsCaused: number;
   longestChainReaction: number;
+  totalThinkingTimeMs: number;
+  turnStartTime?: number | null;
 }
 
 export const GameStatus = {
@@ -79,6 +81,8 @@ export const GameActionType = {
   DEFER_WIN_CHECK: 'DEFER_WIN_CHECK',
   SET_GAME_STATE: 'SET_GAME_STATE',
   RECORD_CHAIN_REACTION: 'RECORD_CHAIN_REACTION',
+  START_PLAYER_TURN: 'START_PLAYER_TURN',
+  END_PLAYER_TURN: 'END_PLAYER_TURN',
 } as const;
 
 export type GameActionType =
@@ -151,6 +155,22 @@ export interface RecordChainReactionAction {
   };
 }
 
+export interface StartPlayerTurnAction {
+  type: typeof GameActionType.START_PLAYER_TURN;
+  payload: {
+    playerId: PlayerId;
+    turnStartTime: number;
+  };
+}
+
+export interface EndPlayerTurnAction {
+  type: typeof GameActionType.END_PLAYER_TURN;
+  payload: {
+    playerId: PlayerId;
+    turnEndTime: number;
+  };
+}
+
 // Generic action for simple actions without payload
 export interface SimpleGameAction {
   type:
@@ -174,6 +194,8 @@ export type GameAction =
   | SetAnimatingAction
   | SetGameStateAction
   | RecordChainReactionAction
+  | StartPlayerTurnAction
+  | EndPlayerTurnAction
   | StartChainSequenceAction
   | PlayExplosionStepAction
   | CompleteChainSequenceAction

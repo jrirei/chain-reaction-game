@@ -11,8 +11,8 @@
 
 .playerInfo.currentPlayer {
   border-color: var(--accent-color);
-  background: rgba(78, 205, 196, 0.1);
-  box-shadow: 0 0 0 1px rgba(78, 205, 196, 0.3);
+  background: rgba(100, 108, 255, 0.1);
+  box-shadow: 0 0 0 1px rgba(100, 108, 255, 0.3);
   animation: currentPlayerGlow 2s ease-in-out infinite alternate;
 }
 
@@ -145,20 +145,35 @@
   min-width: 40px;
 }
 
+.playerOrbCountLine {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  margin-top: var(--spacing-xs);
+  background: rgba(100, 108, 255, 0.05);
+  border: 1px solid rgba(100, 108, 255, 0.2);
+  border-radius: var(--cell-border-radius);
+  transition: var(--transition-fast);
+}
+
 .orbCountNumber {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--stat-text-color);
   background-color: var(--stat-bg-color);
   line-height: 1;
-  padding: 2px 4px;
+  padding: 2px 6px;
   border-radius: 3px;
   border: 1px solid var(--stat-border-color);
+  min-width: 28px;
+  text-align: center;
 }
 
 .orbCountLabel {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-secondary);
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -199,10 +214,10 @@
 /* Animations */
 @keyframes currentPlayerGlow {
   0% {
-    box-shadow: 0 0 0 1px rgba(78, 205, 196, 0.3);
+    box-shadow: 0 0 0 1px rgba(100, 108, 255, 0.3);
   }
   100% {
-    box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.6);
+    box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.6);
   }
 }
 
@@ -258,6 +273,54 @@
 
   .playerInfo {
     transition: none;
+  }
+}
+
+/* Dark mode specific styling for current player */
+:root[data-theme='dark'] .playerInfo.currentPlayer {
+  background: rgba(100, 108, 255, 0.15);
+  box-shadow: 0 0 0 1px rgba(100, 108, 255, 0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .playerInfo.currentPlayer {
+    background: rgba(100, 108, 255, 0.15);
+    box-shadow: 0 0 0 1px rgba(100, 108, 255, 0.4);
+  }
+}
+
+/* Light mode specific styling for current player */
+:root[data-theme='light'] .playerInfo.currentPlayer {
+  background: rgba(100, 108, 255, 0.08);
+  box-shadow: 0 0 0 1px rgba(100, 108, 255, 0.25);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) .playerInfo.currentPlayer {
+    background: rgba(100, 108, 255, 0.08);
+    box-shadow: 0 0 0 1px rgba(100, 108, 255, 0.25);
+  }
+}
+
+/* Dark mode glow animation */
+:root[data-theme='dark'] .currentPlayerGlow {
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.7);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .currentPlayerGlow {
+    box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.7);
+  }
+}
+
+/* Light mode glow animation */
+:root[data-theme='light'] .currentPlayerGlow {
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.5);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) .currentPlayerGlow {
+    box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.5);
   }
 }
 
