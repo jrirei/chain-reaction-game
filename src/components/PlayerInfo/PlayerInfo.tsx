@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Player } from '../../types';
 import { STRATEGY_DISPLAY } from '../../ai/constants';
+import { useGameState } from '../../hooks/useGameState';
 import styles from './PlayerInfo.module.css';
 
 interface PlayerInfoProps {
   player: Player;
   isCurrentPlayer: boolean;
+  playerNumber: number;
   rank?: number;
   showStats?: boolean;
   compact?: boolean;
@@ -20,11 +22,59 @@ interface PlayerInfoProps {
 const PlayerInfo: React.FC<PlayerInfoProps> = ({
   player,
   isCurrentPlayer,
-  rank,
-  showStats = false,
+  playerNumber,
   compact = false,
   chainReactionInfo,
 }) => {
+  const { gameInfo } = useGameState();
+  const [playerPlayTime, setPlayerPlayTime] = useState(0);
+
+  // Update player's individual play time every second if they're the current player
+  useEffect(() => {
+    if (!isCurrentPlayer || gameInfo.status !== 'playing') {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const playerStats = gameInfo.gameStats?.playerStats[player.id];
+      let totalTime = playerStats?.totalThinkingTimeMs || 0;
+
+      // Add current active time if this player is currently thinking
+      if (playerStats?.turnStartTime) {
+        totalTime += Date.now() - playerStats.turnStartTime;
+      }
+
+      setPlayerPlayTime(totalTime);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isCurrentPlayer, gameInfo.status, gameInfo.gameStats, player.id]);
+
+  // Update static play time for non-current players
+  useEffect(() => {
+    if (!isCurrentPlayer) {
+      const playerStats = gameInfo.gameStats?.playerStats[player.id];
+      setPlayerPlayTime(playerStats?.totalThinkingTimeMs || 0);
+    }
+  }, [isCurrentPlayer, gameInfo.gameStats, player.id]);
+
+  const formatTime = (milliseconds: number): string => {
+    const seconds = Math.floor(milliseconds / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    const remainingSeconds = seconds % 60;
+
+    if (hours > 0) {
+      return `${hours}:${remainingMinutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  const getMaxChainReaction = (): number => {
+    const playerStats = gameInfo.gameStats?.playerStats[player.id];
+    return playerStats?.longestChainReaction || 0;
+  };
   const playerClasses = [
     styles.playerInfo,
     isCurrentPlayer ? styles.currentPlayer : '',
@@ -63,19 +113,6 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
     return <span className={styles.statusWaiting}>Waiting</span>;
   };
 
-  const renderPlayerStats = () => {
-    if (!showStats) return null;
-
-    return (
-      <div className={styles.playerStats}>
-        <div className={styles.statItem}>
-          <span className={styles.statLabel}>Moves:</span>
-          <span className={styles.statValue}>{player.totalMoves}</span>
-        </div>
-      </div>
-    );
-  };
-
   const renderChainReaction = () => {
     if (!chainReactionInfo?.isActive || !isCurrentPlayer) return null;
 
@@ -110,22 +147,23 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
       aria-labelledby={`player-name-${player.id}`}
       aria-describedby={`player-status-${player.id} player-stats-${player.id}`}
     >
+      {/* Player Header with Color Orb and Number */}
       <div className={styles.playerHeader}>
-        <div
-          className={styles.playerColorIndicator}
-          style={{ backgroundColor: player.color }}
-          aria-label={`Player color: ${player.color}`}
-          role="img"
-        />
+        <div className={styles.playerColorSection}>
+          <div
+            className={styles.playerColorOrb}
+            style={{ backgroundColor: player.color }}
+            aria-label={`Player ${playerNumber} color: ${player.color}`}
+            role="img"
+          />
+          <span className={styles.playerNumber}>#{playerNumber}</span>
+        </div>
 
         <div className={styles.playerDetails}>
           <div id={`player-name-${player.id}`} className={styles.playerName}>
-            {rank && (
-              <span className={styles.playerRank} aria-label={`Rank ${rank}`}>
-                #{rank}
-              </span>
-            )}
-            <span className={styles.playerNameText}>{player.name}</span>
+            <span className={styles.playerNameText}>
+              {player.type === 'human' ? player.name : player.name}
+            </span>
             {renderBotIndicator()}
           </div>
 
@@ -142,19 +180,40 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
         </div>
       </div>
 
-      {/* Orb Counter Second Line */}
+      {/* Player Stats Grid */}
       {!compact && (
-        <div
-          className={styles.playerOrbCountLine}
-          role="status"
-          aria-live={isCurrentPlayer ? 'polite' : 'off'}
-          aria-label={`${player.orbCount} orbs`}
-        >
-          <span className={styles.orbCountLabel}>Orbs:</span>
-          <span className={styles.orbCountNumber}>{player.orbCount}</span>
+        <div className={styles.playerStatsGrid}>
+          {/* Orbs Count */}
+          <div className={styles.statItem}>
+            <span className={styles.statLabel}>Orbs:</span>
+            <span className={styles.statValue}>{player.orbCount}</span>
+          </div>
+
+          {/* Play Time */}
+          <div className={styles.statItem}>
+            <span className={styles.statLabel}>Play Time:</span>
+            <span
+              className={styles.statValue}
+              title="Total time this player has been active"
+            >
+              {formatTime(playerPlayTime)}
+            </span>
+          </div>
+
+          {/* Max Chain Reaction */}
+          <div className={styles.statItem}>
+            <span className={styles.statLabel}>Max Chain:</span>
+            <span
+              className={styles.statValue}
+              title="Maximum chain reaction triggered by this player"
+            >
+              {getMaxChainReaction()}
+            </span>
+          </div>
         </div>
       )}
 
+      {/* Chain Reaction Status */}
       {chainReactionInfo?.isActive && isCurrentPlayer && (
         <div
           role="status"
@@ -164,8 +223,6 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
           {renderChainReaction()}
         </div>
       )}
-
-      <div id={`player-stats-${player.id}`}>{renderPlayerStats()}</div>
     </div>
   );
 };

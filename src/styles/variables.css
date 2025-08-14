@@ -13,6 +13,30 @@
   --stat-bg-color: rgba(255, 255, 255, 0.95);
   --stat-border-color: rgba(255, 255, 255, 0.3);
 
+  /* Player panel specific colors - using teal to match design showcase */
+  --current-player-bg: rgba(78, 205, 196, 0.1);
+  --current-player-border: rgba(78, 205, 196, 0.3);
+  --current-player-shadow: rgba(78, 205, 196, 0.6);
+  --eliminated-player-bg: rgba(102, 102, 102, 0.1);
+  --player-orb-border: rgba(255, 255, 255, 0.4);
+  --player-orb-shadow: rgba(0, 0, 0, 0.4);
+  --bot-indicator-bg: rgba(78, 205, 196, 0.1);
+  --bot-indicator-border: rgba(78, 205, 196, 0.3);
+  --player-rank-bg: rgba(78, 205, 196, 0.2);
+  --orb-count-bg: rgba(78, 205, 196, 0.05);
+  --orb-count-border: rgba(78, 205, 196, 0.2);
+  --chain-reaction-bg: rgba(78, 205, 196, 0.1);
+  --chain-reaction-border: #4ecdc4;
+  --chain-reaction-color: #4ecdc4;
+  --chain-reaction-pulse-from: rgba(78, 205, 196, 0.1);
+  --chain-reaction-pulse-to: rgba(78, 205, 196, 0.2);
+  --error-color: #ef4444;
+
+  /* Player panel stat number colors (for orb counts, etc.) */
+  --player-stat-bg: rgba(78, 205, 196, 0.1);
+  --player-stat-text: #ffffff;
+  --player-stat-border: rgba(78, 205, 196, 0.3);
+
   /* Spacing */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
@@ -39,7 +63,7 @@
 
 /* Light theme color overrides - automatic based on system preference */
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme='dark']) {
+  :root:not([data-theme='dark']):not([data-theme='light']) {
     /* Light theme colors */
     --primary-bg: #ffffff;
     --secondary-bg: #f8f9fa;
@@ -53,11 +77,36 @@
     --stat-text-color: #ffffff;
     --stat-bg-color: rgba(0, 0, 0, 0.85);
     --stat-border-color: rgba(0, 0, 0, 0.3);
+
+    /* Light theme player panel colors - using teal to match design */
+    --current-player-bg: rgba(78, 205, 196, 0.08);
+    --current-player-border: rgba(78, 205, 196, 0.25);
+    --current-player-shadow: rgba(78, 205, 196, 0.5);
+    --eliminated-player-bg: rgba(102, 102, 102, 0.08);
+    --player-orb-border: rgba(0, 0, 0, 0.3);
+    --player-orb-shadow: rgba(0, 0, 0, 0.2);
+    --bot-indicator-bg: rgba(78, 205, 196, 0.08);
+    --bot-indicator-border: rgba(78, 205, 196, 0.25);
+    --player-rank-bg: rgba(78, 205, 196, 0.15);
+    --orb-count-bg: rgba(78, 205, 196, 0.03);
+    --orb-count-border: rgba(78, 205, 196, 0.15);
+    --chain-reaction-bg: rgba(78, 205, 196, 0.08);
+    --chain-reaction-border: #4ecdc4;
+    --chain-reaction-color: #4ecdc4;
+    --chain-reaction-pulse-from: rgba(78, 205, 196, 0.08);
+    --chain-reaction-pulse-to: rgba(78, 205, 196, 0.15);
+    --error-color: #ef4444;
+
+    /* Light theme player panel stat colors */
+    --player-stat-bg: rgba(78, 205, 196, 0.08);
+    --player-stat-text: #000000;
+    --player-stat-border: rgba(78, 205, 196, 0.25);
   }
 }
 
 /* Manual theme overrides */
-:root[data-theme='light'] {
+:root[data-theme='light'],
+html[data-theme='light'] {
   /* Light theme colors */
   --primary-bg: #ffffff;
   --secondary-bg: #f8f9fa;
@@ -71,20 +120,69 @@
   --stat-text-color: #ffffff;
   --stat-bg-color: rgba(0, 0, 0, 0.85);
   --stat-border-color: rgba(0, 0, 0, 0.3);
+
+  /* Light theme player panel colors - using teal to match design */
+  --current-player-bg: rgba(78, 205, 196, 0.08);
+  --current-player-border: rgba(78, 205, 196, 0.25);
+  --current-player-shadow: rgba(78, 205, 196, 0.5);
+  --eliminated-player-bg: rgba(102, 102, 102, 0.08);
+  --player-orb-border: rgba(0, 0, 0, 0.3);
+  --player-orb-shadow: rgba(0, 0, 0, 0.2);
+  --bot-indicator-bg: rgba(78, 205, 196, 0.08);
+  --bot-indicator-border: rgba(78, 205, 196, 0.25);
+  --player-rank-bg: rgba(78, 205, 196, 0.15);
+  --orb-count-bg: rgba(78, 205, 196, 0.03);
+  --orb-count-border: rgba(78, 205, 196, 0.15);
+  --chain-reaction-bg: rgba(78, 205, 196, 0.08);
+  --chain-reaction-border: #4ecdc4;
+  --chain-reaction-color: #4ecdc4;
+  --chain-reaction-pulse-from: rgba(78, 205, 196, 0.08);
+  --chain-reaction-pulse-to: rgba(78, 205, 196, 0.15);
+  --error-color: #ef4444;
+
+  /* Light theme player panel stat colors */
+  --player-stat-bg: rgba(78, 205, 196, 0.08);
+  --player-stat-text: #000000;
+  --player-stat-border: rgba(78, 205, 196, 0.25);
 }
 
-:root[data-theme='dark'] {
+:root[data-theme='dark'],
+html[data-theme='dark'] {
   /* Force dark theme colors */
-  --primary-bg: #1a1a1a;
-  --secondary-bg: #2d2d2d;
-  --text-primary: #ffffff;
-  --text-secondary: #cccccc;
-  --border-color: #444444;
-  --hover-color: #3d3d3d;
-  --accent-color: #646cff;
+  --primary-bg: #1a1a1a !important;
+  --secondary-bg: #2d2d2d !important;
+  --text-primary: #ffffff !important;
+  --text-secondary: #cccccc !important;
+  --border-color: #444444 !important;
+  --hover-color: #3d3d3d !important;
+  --accent-color: #646cff !important;
 
   /* Dark theme stat colors for high contrast */
-  --stat-text-color: #000000;
-  --stat-bg-color: rgba(255, 255, 255, 0.95);
-  --stat-border-color: rgba(255, 255, 255, 0.3);
+  --stat-text-color: #000000 !important;
+  --stat-bg-color: rgba(255, 255, 255, 0.95) !important;
+  --stat-border-color: rgba(255, 255, 255, 0.3) !important;
+
+  /* Dark theme player panel colors - using teal to match design */
+  --current-player-bg: rgba(78, 205, 196, 0.1) !important;
+  --current-player-border: rgba(78, 205, 196, 0.4) !important;
+  --current-player-shadow: rgba(78, 205, 196, 0.7) !important;
+  --eliminated-player-bg: rgba(102, 102, 102, 0.1) !important;
+  --player-orb-border: rgba(255, 255, 255, 0.4) !important;
+  --player-orb-shadow: rgba(0, 0, 0, 0.4) !important;
+  --bot-indicator-bg: rgba(78, 205, 196, 0.1) !important;
+  --bot-indicator-border: rgba(78, 205, 196, 0.3) !important;
+  --player-rank-bg: rgba(78, 205, 196, 0.2) !important;
+  --orb-count-bg: rgba(78, 205, 196, 0.05) !important;
+  --orb-count-border: rgba(78, 205, 196, 0.2) !important;
+  --chain-reaction-bg: rgba(78, 205, 196, 0.1) !important;
+  --chain-reaction-border: #4ecdc4 !important;
+  --chain-reaction-color: #4ecdc4 !important;
+  --chain-reaction-pulse-from: rgba(78, 205, 196, 0.1) !important;
+  --chain-reaction-pulse-to: rgba(78, 205, 196, 0.2) !important;
+  --error-color: #ef4444 !important;
+
+  /* Dark theme player panel stat colors */
+  --player-stat-bg: rgba(78, 205, 196, 0.1) !important;
+  --player-stat-text: #ffffff !important;
+  --player-stat-border: rgba(78, 205, 196, 0.3) !important;
 }

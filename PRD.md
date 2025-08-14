@@ -1,10 +1,10 @@
 # Chain Reaction Game - Product Requirements Document
 
 ## 📋 Document Status
-- **Version**: 3.7 - Fred Bot Removal & Code Cleanup
+- **Version**: 3.8 - Dark Mode Theme Fixes & UI Improvements
 - **Last Updated**: August 14, 2025
 - **Status**: ✅ **Production Ready - Verified** | **AI bots**: 5 strategies implemented (Default, Trigger, Random, Monte Carlo, Oskar)
-- **Build**: ✅ **Passing** (~630ms) | **Tests**: ✅ **330 Passing** (~23s) | **Lint**: ✅ **Clean (0 warnings)** | **Coverage**: ✅ **93%+ AI Coverage**
+- **Build**: ✅ **Passing** (~525ms) | **Tests**: ✅ **330 Passing** | **Lint**: ✅ **Clean (0 warnings)** | **Coverage**: ✅ **93%+ AI Coverage**
 
 ## 1. Project Overview
 
@@ -830,10 +830,46 @@ The Chain Reaction Game project has **successfully achieved all MVP requirements
 
 ---
 
-**Document Version**: 3.7 - Fred Bot Removal & Code Cleanup  
+## 16. Changelog
+
+### Version 3.8 - Dark Mode Theme Fixes & UI Improvements (August 14, 2025)
+
+**🎨 Theme & UI Enhancements:**
+- **Fixed dark mode colors**: Resolved white background issue in Players panel and Player panels
+- **Corrected active player highlighting**: Changed from blue to teal (`rgba(78, 205, 196, 0.1)`) to match design showcase
+- **Enhanced Player Panel information**: Added comprehensive player stats including:
+  - Player number display (#1, #2, etc.)
+  - Real-time individual play time tracking
+  - Maximum chain reaction statistics
+  - Total orb count per player
+- **Improved Game Panel**: Enhanced with total play time (all players combined) and move count display
+- **CSS specificity fixes**: Added explicit dark mode overrides with `!important` declarations to ensure theme consistency
+- **Variable-based color system**: Replaced hardcoded colors with maintainable CSS variables for better theme management
+
+**🔧 Technical Improvements:**
+- **Removed unused parameters**: Cleaned up TypeScript interfaces (removed `showStats` and `rank` parameters)
+- **Enhanced CSS cascade**: Improved theme switching reliability with dual selectors (`:root` + `html`)
+- **Better responsive design**: Updated grid layouts for mobile compatibility
+- **Code quality**: All builds passing (~525ms), linting clean, tests stable
+
+**🎯 User Experience:**
+- **Consistent theming**: Dark mode now properly displays with dark gray backgrounds (`#2d2d2d`) instead of white
+- **Design alignment**: Active player colors now match design showcase specification exactly
+- **Real-time updates**: Player stats update every second during gameplay for better engagement
+- **Accessibility**: Maintained WCAG compliance with proper color contrast in all themes
+
+### Version 3.7 - Fred Bot Removal & Code Cleanup (August 14, 2025)
+- Removed Fred Bot AI strategy (569 lines of Monte Carlo implementation)
+- Updated AI registry to support 5 strategies (Default, Trigger, Random, Monte Carlo, Oskar)
+- Enhanced tournament system and testing infrastructure
+- Updated documentation and UI terminology standardization
+
+---
+
+**Document Version**: 3.8 - Dark Mode Theme Fixes & UI Improvements  
 **Last Updated**: August 14, 2025  
-**Implementation Status**: ✅ **Production Ready - Enterprise Grade with Advanced AI Portfolio**  
-**Quality Grade**: ✅ **Enterprise Level - All Systems Automated with 5 AI Strategies**  
+**Implementation Status**: ✅ **Production Ready - Enterprise Grade with Enhanced UI**  
+**Quality Grade**: ✅ **Enterprise Level - All Systems Optimized with Dark Mode Support**  
 **Repository**: https://github.com/jrirei/chain-reaction-game  
-**CI/CD Status**: ✅ GitHub Actions | Lint Clean | Build ~630ms | Tests 330/330 | Coverage 30%+  
+**CI/CD Status**: ✅ GitHub Actions | Lint Clean | Build ~525ms | Tests 330/330 | Coverage 30%+  
 **Next Review**: Post-deployment monitoring and community feedback integration

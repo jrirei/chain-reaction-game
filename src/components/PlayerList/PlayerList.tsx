@@ -84,7 +84,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
           Current player is highlighted.
         </div>
 
-        {sortedPlayers.map((player) => {
+        {sortedPlayers.map((player, index) => {
           const isCurrentPlayer = currentPlayer?.id === player.id;
           const rank = gameInfo.isGameStarted
             ? sortedPlayers.filter(
@@ -97,6 +97,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
               key={player.id}
               player={player}
               isCurrentPlayer={isCurrentPlayer}
+              playerNumber={index + 1}
               rank={rank}
               showStats={showStats}
               compact={compact}

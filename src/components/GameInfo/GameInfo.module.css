@@ -1,12 +1,17 @@
-.gameInfo {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--spacing-md);
+/* Game Panel - Top section with game status */
+.gamePanel {
   background: var(--secondary-bg);
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
   border-radius: var(--cell-border-radius);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.gamePanelGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--spacing-lg);
+  align-items: center;
 }
 
 .infoSection {
@@ -36,13 +41,13 @@
   color: var(--text-primary);
 }
 
-.playerTime {
+.playTime {
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--accent-color);
   font-family: 'Courier New', monospace;
   background: rgba(100, 108, 255, 0.1);
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: 4px;
   border: 1px solid rgba(100, 108, 255, 0.2);
 }
@@ -62,8 +67,12 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .gameInfo {
+  .gamePanelGrid {
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-md);
+  }
+
+  .gamePanel {
     padding: var(--spacing-sm);
   }
 
@@ -71,9 +80,9 @@
     font-size: 0.75rem;
   }
 
-  .current-player,
+  .currentPlayer,
   .moveCount,
-  .playerTime {
+  .playTime {
     font-size: 1rem;
   }
 
@@ -83,16 +92,15 @@
 }
 
 @media (max-width: 480px) {
-  .gameInfo {
-    flex-direction: column;
+  .gamePanelGrid {
+    grid-template-columns: 1fr;
     gap: var(--spacing-sm);
-    text-align: center;
   }
 
   .infoSection {
     flex-direction: row;
     justify-content: space-between;
-    width: 100%;
+    align-items: center;
   }
 
   .infoLabel {

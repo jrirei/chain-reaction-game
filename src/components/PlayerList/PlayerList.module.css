@@ -8,6 +8,13 @@
   border-radius: var(--cell-border-radius);
 }
 
+/* Force dark mode background - explicit override */
+:root[data-theme='dark'] .playerListContainer,
+html[data-theme='dark'] .playerListContainer {
+  background: #2d2d2d !important;
+  border-color: #444444 !important;
+}
+
 .playerListHeader {
   display: flex;
   justify-content: space-between;

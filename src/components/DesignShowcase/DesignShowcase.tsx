@@ -256,6 +256,134 @@ const DesignShowcase: React.FC = () => {
             </div>
           </div>
         </section>
+
+        {/* UI Layout Terminology Section */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>UI Layout Terminology</h2>
+          <div className={styles.terminologySection}>
+            <p>
+              This section defines the standard terminology used throughout the
+              codebase for UI components and layout areas.
+            </p>
+
+            <div className={styles.terminologyGrid}>
+              <div className={styles.terminologyItem}>
+                <h3>🎮 Game Panel</h3>
+                <p>
+                  <strong>Location:</strong> Top section of the game interface
+                </p>
+                <p>
+                  <strong>Description:</strong> The upper panel containing game
+                  status information, including the "Current player:" label,
+                  game timer, move counter, and current game state indicators.
+                </p>
+                <p>
+                  <strong>Component:</strong> GameInfo component
+                </p>
+              </div>
+
+              <div className={styles.terminologyItem}>
+                <h3>👥 Players Panel</h3>
+                <p>
+                  <strong>Location:</strong> Left side of the game interface
+                </p>
+                <p>
+                  <strong>Description:</strong> The container panel that holds
+                  all individual player panels. This is the collective area
+                  displaying all players' information in a vertical list or grid
+                  layout.
+                </p>
+                <p>
+                  <strong>Component:</strong> PlayersList or Players container
+                </p>
+              </div>
+
+              <div className={styles.terminologyItem}>
+                <h3>👤 Player Panel</h3>
+                <p>
+                  <strong>Location:</strong> Individual sections within the
+                  Players Panel
+                </p>
+                <p>
+                  <strong>Description:</strong> Each individual player's
+                  information box/card displaying player name, color indicator,
+                  orb count, move count, status (current/waiting/eliminated),
+                  and AI strategy if applicable.
+                </p>
+                <p>
+                  <strong>Component:</strong> PlayerInfo component
+                </p>
+              </div>
+
+              <div className={styles.terminologyItem}>
+                <h3>🗺️ Map</h3>
+                <p>
+                  <strong>Location:</strong> Central/right area of the game
+                  interface
+                </p>
+                <p>
+                  <strong>Description:</strong> The interactive game board grid
+                  containing all clickable cells where players place orbs. This
+                  is the main playing area with the 6×9 grid of cells.
+                </p>
+                <p>
+                  <strong>Components:</strong> GameBoard component containing
+                  Cell components
+                </p>
+              </div>
+            </div>
+
+            <div className={styles.layoutDiagram}>
+              <h3>Layout Overview</h3>
+              <pre className={styles.asciiDiagram}>
+                {`┌─────────────────────────────────────────┐
+│             Game Panel                  │
+│    (Current player, status, etc.)      │
+├─────────────────┬───────────────────────┤
+│   Players       │                       │
+│   Panel         │         Map           │
+│                 │   (Game Board Grid)   │
+│ ┌─────────────┐ │                       │
+│ │Player Panel │ │    ┌─┬─┬─┬─┬─┬─┬─┬─┬─┐│
+│ │   (P1)      │ │    │ │ │ │ │ │ │ │ │ ││
+│ └─────────────┘ │    ├─┼─┼─┼─┼─┼─┼─┼─┼─┤│
+│ ┌─────────────┐ │    │ │ │ │ │ │ │ │ │ ││
+│ │Player Panel │ │    ├─┼─┼─┼─┼─┼─┼─┼─┼─┤│
+│ │   (P2)      │ │    │ │ │ │ │ │ │ │ │ ││
+│ └─────────────┘ │    ├─┼─┼─┼─┼─┼─┼─┼─┼─┤│
+│ ┌─────────────┐ │    │ │ │ │ │ │ │ │ │ ││
+│ │Player Panel │ │    ├─┼─┼─┼─┼─┼─┼─┼─┼─┤│
+│ │   (P3)      │ │    │ │ │ │ │ │ │ │ │ ││
+│ └─────────────┘ │    └─┴─┴─┴─┴─┴─┴─┴─┴─┘│
+│                 │                       │
+└─────────────────┴───────────────────────┘`}
+              </pre>
+              <p className={styles.diagramNote}>
+                * The exact layout may vary based on screen size and responsive
+                design
+              </p>
+            </div>
+
+            <div className={styles.usageNote}>
+              <h4>📝 Usage Guidelines</h4>
+              <ul>
+                <li>
+                  Always use these standard terms in code comments,
+                  documentation, and PR descriptions
+                </li>
+                <li>
+                  Component names should reflect their role (e.g., GameInfo for
+                  Game Panel)
+                </li>
+                <li>
+                  CSS classes should use consistent naming (e.g., .gamePanel,
+                  .playersPanel, .playerPanel)
+                </li>
+                <li>Test files should reference these terms for clarity</li>
+              </ul>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   );

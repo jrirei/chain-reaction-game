@@ -9,17 +9,30 @@
   min-width: 200px;
 }
 
+/* Force dark mode backgrounds - explicit overrides */
+:root[data-theme='dark'] .playerInfo,
+html[data-theme='dark'] .playerInfo {
+  background: #2d2d2d !important;
+  border-color: #444444 !important;
+}
+
+:root[data-theme='dark'] .playerInfo.currentPlayer,
+html[data-theme='dark'] .playerInfo.currentPlayer {
+  background: rgba(78, 205, 196, 0.1) !important;
+  border-color: #646cff !important;
+}
+
 .playerInfo.currentPlayer {
   border-color: var(--accent-color);
-  background: rgba(100, 108, 255, 0.1);
-  box-shadow: 0 0 0 1px rgba(100, 108, 255, 0.3);
+  background: var(--current-player-bg);
+  box-shadow: 0 0 0 1px var(--current-player-border);
   animation: currentPlayerGlow 2s ease-in-out infinite alternate;
 }
 
 .playerInfo.eliminated {
   opacity: 0.6;
   border-color: var(--border-color);
-  background: rgba(102, 102, 102, 0.1);
+  background: var(--eliminated-player-bg);
 }
 
 .playerInfo.compact {
@@ -33,12 +46,48 @@
   gap: var(--spacing-sm);
 }
 
+/* New Player Color Section with Big Orb */
+.playerColorSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+}
+
+.playerColorOrb {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid var(--player-orb-border);
+  box-shadow: 0 3px 8px var(--player-orb-shadow);
+  flex-shrink: 0;
+}
+
+.playerNumber {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.compact .playerColorOrb {
+  width: 24px;
+  height: 24px;
+  border-width: 2px;
+}
+
+.compact .playerNumber {
+  font-size: 0.65rem;
+}
+
+/* Legacy support for old color indicator */
 .playerColorIndicator {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  border: 2px solid var(--player-orb-border);
+  box-shadow: 0 2px 4px var(--player-orb-shadow);
   flex-shrink: 0;
 }
 
@@ -75,8 +124,8 @@
   display: flex;
   align-items: center;
   gap: 3px;
-  background: rgba(100, 108, 255, 0.1);
-  border: 1px solid rgba(100, 108, 255, 0.3);
+  background: var(--bot-indicator-bg);
+  border: 1px solid var(--bot-indicator-border);
   border-radius: 12px;
   padding: 2px 6px;
   font-size: 0.7rem;
@@ -112,7 +161,7 @@
 .playerRank {
   font-size: 0.8rem;
   color: var(--text-secondary);
-  background: rgba(100, 108, 255, 0.2);
+  background: var(--player-rank-bg);
   padding: 2px 6px;
   border-radius: 10px;
   font-weight: 700;
@@ -133,7 +182,7 @@
 }
 
 .statusEliminated {
-  color: #ef4444;
+  color: var(--error-color);
   font-weight: 600;
 }
 
@@ -151,8 +200,8 @@
   align-items: center;
   padding: var(--spacing-xs) var(--spacing-sm);
   margin-top: var(--spacing-xs);
-  background: rgba(100, 108, 255, 0.05);
-  border: 1px solid rgba(100, 108, 255, 0.2);
+  background: var(--orb-count-bg);
+  border: 1px solid var(--orb-count-border);
   border-radius: var(--cell-border-radius);
   transition: var(--transition-fast);
 }
@@ -160,12 +209,12 @@
 .orbCountNumber {
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--stat-text-color);
-  background-color: var(--stat-bg-color);
+  color: var(--player-stat-text);
+  background-color: var(--player-stat-bg);
   line-height: 1;
   padding: 2px 6px;
   border-radius: 3px;
-  border: 1px solid var(--stat-border-color);
+  border: 1px solid var(--player-stat-border);
   min-width: 28px;
   text-align: center;
 }
@@ -203,21 +252,21 @@
 .statValue {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--stat-text-color);
-  background-color: var(--stat-bg-color);
+  color: var(--player-stat-text);
+  background-color: var(--player-stat-bg);
   margin-top: 2px;
   padding: 2px 4px;
   border-radius: 3px;
-  border: 1px solid var(--stat-border-color);
+  border: 1px solid var(--player-stat-border);
 }
 
 /* Animations */
 @keyframes currentPlayerGlow {
   0% {
-    box-shadow: 0 0 0 1px rgba(100, 108, 255, 0.3);
+    box-shadow: 0 0 0 1px var(--current-player-border);
   }
   100% {
-    box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.6);
+    box-shadow: 0 0 0 3px var(--current-player-shadow);
   }
 }
 
@@ -245,6 +294,21 @@
     flex-direction: row;
     justify-content: space-between;
   }
+
+  .playerStatsGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xs);
+  }
+}
+
+/* Player Stats Grid - New layout for individual player statistics */
+.playerStatsGrid {
+  margin-top: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--border-color);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-sm);
 }
 
 @media (max-width: 480px) {
@@ -276,53 +340,7 @@
   }
 }
 
-/* Dark mode specific styling for current player */
-:root[data-theme='dark'] .playerInfo.currentPlayer {
-  background: rgba(100, 108, 255, 0.15);
-  box-shadow: 0 0 0 1px rgba(100, 108, 255, 0.4);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .playerInfo.currentPlayer {
-    background: rgba(100, 108, 255, 0.15);
-    box-shadow: 0 0 0 1px rgba(100, 108, 255, 0.4);
-  }
-}
-
-/* Light mode specific styling for current player */
-:root[data-theme='light'] .playerInfo.currentPlayer {
-  background: rgba(100, 108, 255, 0.08);
-  box-shadow: 0 0 0 1px rgba(100, 108, 255, 0.25);
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme='dark']) .playerInfo.currentPlayer {
-    background: rgba(100, 108, 255, 0.08);
-    box-shadow: 0 0 0 1px rgba(100, 108, 255, 0.25);
-  }
-}
-
-/* Dark mode glow animation */
-:root[data-theme='dark'] .currentPlayerGlow {
-  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.7);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .currentPlayerGlow {
-    box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.7);
-  }
-}
-
-/* Light mode glow animation */
-:root[data-theme='light'] .currentPlayerGlow {
-  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.5);
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme='dark']) .currentPlayerGlow {
-    box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.5);
-  }
-}
+/* Theme-specific styling is now handled via CSS variables that automatically adapt */
 
 /* PlayerInfo now uses CSS variables that automatically adapt to the theme */
 
@@ -330,8 +348,8 @@
 .chainReactionInfo {
   margin-top: var(--spacing-sm);
   padding: var(--spacing-sm);
-  background: rgba(100, 108, 255, 0.1);
-  border: 2px solid #646cff;
+  background: var(--chain-reaction-bg);
+  border: 2px solid var(--chain-reaction-border);
   border-radius: 8px;
   text-align: center;
   animation: chainReactionPulse 1s ease-in-out infinite alternate;
@@ -340,7 +358,7 @@
 .chainReactionTitle {
   font-size: 0.8rem;
   font-weight: 700;
-  color: #646cff;
+  color: var(--chain-reaction-color);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 4px;
@@ -349,7 +367,7 @@
 .chainReactionCounter {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #646cff;
+  color: var(--chain-reaction-color);
   line-height: 1;
   margin-bottom: 4px;
 }
@@ -363,18 +381,18 @@
 
 .chainReactionProgress {
   font-size: 0.7rem;
-  color: #646cff;
+  color: var(--chain-reaction-color);
   opacity: 0.8;
 }
 
 @keyframes chainReactionPulse {
   from {
-    background: rgba(100, 108, 255, 0.1);
-    border-color: #646cff;
+    background: var(--chain-reaction-pulse-from);
+    border-color: var(--chain-reaction-border);
   }
   to {
-    background: rgba(100, 108, 255, 0.2);
-    border-color: #5a67e8;
+    background: var(--chain-reaction-pulse-to);
+    border-color: var(--accent-color);
   }
 }
 

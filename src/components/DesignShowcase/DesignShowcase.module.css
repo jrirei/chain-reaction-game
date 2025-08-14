@@ -339,6 +339,119 @@
   background: var(--secondary-bg);
 }
 
+/* UI Layout Terminology */
+.terminologySection {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.terminologySection > p {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  font-style: italic;
+}
+
+.terminologyGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.terminologyItem {
+  background: var(--primary-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.terminologyItem:hover {
+  border-color: var(--accent-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.terminologyItem h3 {
+  color: var(--accent-color);
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.terminologyItem p {
+  margin: 0.75rem 0;
+  color: var(--text-primary);
+}
+
+.terminologyItem strong {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.layoutDiagram {
+  background: var(--primary-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.layoutDiagram h3 {
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.asciiDiagram {
+  background: var(--secondary-bg);
+  color: var(--text-primary);
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  overflow-x: auto;
+  white-space: pre;
+  margin: 1rem 0;
+}
+
+.diagramNote {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.usageNote {
+  background: var(--primary-bg);
+  border: 2px solid var(--accent-color);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.usageNote h4 {
+  color: var(--accent-color);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.usageNote ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: var(--text-primary);
+}
+
+.usageNote li {
+  margin: 0.5rem 0;
+  color: var(--text-primary);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .showcase {
@@ -356,7 +469,8 @@
   .colorGrid,
   .playerColorGrid,
   .typographyGrid,
-  .cardGrid {
+  .cardGrid,
+  .terminologyGrid {
     grid-template-columns: 1fr;
   }
 
