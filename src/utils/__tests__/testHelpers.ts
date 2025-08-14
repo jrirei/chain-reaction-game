@@ -1,18 +1,35 @@
 /**
  * Test Helper Utilities
- * 
+ *
  * Common utilities for creating test game states, mock data, and test scenarios.
  */
 
 import type { GameState, GameBoard } from '../../types/game';
 import type { PlayerConfig } from '../../types/player';
+import type { Move } from '../../core/types';
 import { GameStatus } from '../../types/game';
 import { createEmptyBoard } from '../boardOperations';
+
+/**
+ * Creates a test move
+ */
+export function createTestMove(
+  playerId: string,
+  row: number,
+  col: number
+): Move {
+  return { row, col, playerId };
+}
 
 /**
  * Creates a test game state with default or custom board dimensions
  */
 export function createTestGameState(options?: {
+  currentPlayerId?: string;
+  boardSize?: { rows: number; cols: number };
+  customBoard?: Array<
+    Array<{ orbCount: number; playerId: string | null } | null>
+  >;
   rows?: number;
   cols?: number;
   playerConfigs?: PlayerConfig[];
@@ -20,8 +37,10 @@ export function createTestGameState(options?: {
   currentPlayerIndex?: number;
 }): GameState {
   const {
-    rows = 6,
-    cols = 9,
+    boardSize,
+    customBoard,
+    rows = boardSize?.rows || 6,
+    cols = boardSize?.cols || 9,
     playerConfigs = [
       { name: 'Player 1', type: 'human' },
       { name: 'Player 2', type: 'human' },
@@ -31,6 +50,25 @@ export function createTestGameState(options?: {
   } = options || {};
 
   const board = createEmptyBoard(rows, cols);
+
+  // Apply custom board if provided
+  if (customBoard) {
+    for (let row = 0; row < Math.min(customBoard.length, board.rows); row++) {
+      for (
+        let col = 0;
+        col < Math.min(customBoard[row].length, board.cols);
+        col++
+      ) {
+        const customCell = customBoard[row][col];
+        if (customCell) {
+          const cell = board.cells[row][col];
+          cell.orbCount = customCell.orbCount;
+          cell.playerId = customCell.playerId;
+        }
+      }
+    }
+  }
+
   const players = playerConfigs.map((config, index) => `player${index + 1}`);
 
   return {
@@ -66,7 +104,7 @@ export function placeTestOrb(
 ): GameBoard {
   const newBoard: GameBoard = {
     ...board,
-    cells: board.cells.map(cellRow => cellRow.map(cell => ({ ...cell }))),
+    cells: board.cells.map((cellRow) => cellRow.map((cell) => ({ ...cell }))),
   };
 
   if (row >= 0 && row < board.rows && col >= 0 && col < board.cols) {
@@ -140,13 +178,13 @@ export function createTestPlayerConfigs(count: number): PlayerConfig[] {
  */
 export function createTestAiPlayerConfigs(count: number): PlayerConfig[] {
   const strategies = ['default', 'random', 'trigger', 'monteCarlo'] as const;
-  
+
   return Array.from({ length: count }, (_, index) => ({
     name: `AI Player ${index + 1}`,
     type: 'ai' as const,
     aiConfig: {
       strategy: strategies[index % strategies.length],
-      maxThinkingMs: 1000 + (index * 500),
+      maxThinkingMs: 1000 + index * 500,
     },
   }));
 }
@@ -156,7 +194,7 @@ export function createTestAiPlayerConfigs(count: number): PlayerConfig[] {
  */
 export function createLateGameState(): GameState {
   const gameState = createTestGameState();
-  
+
   // Fill most of the board with various players
   for (let row = 0; row < gameState.board.rows; row++) {
     for (let col = 0; col < gameState.board.cols; col++) {
@@ -177,7 +215,7 @@ export function createLateGameState(): GameState {
  */
 export function createNearCriticalGameState(): GameState {
   const gameState = createTestGameState();
-  
+
   // Create cells near critical mass
   const criticalSetups = [
     { row: 0, col: 0, player: 'player1' }, // Corner
@@ -185,7 +223,7 @@ export function createNearCriticalGameState(): GameState {
     { row: 2, col: 3, player: 'player1' }, // Center
   ];
 
-  criticalSetups.forEach(setup => {
+  criticalSetups.forEach((setup) => {
     const cell = gameState.board.cells[setup.row][setup.col];
     cell.orbCount = cell.criticalMass - 1;
     cell.playerId = setup.player;
