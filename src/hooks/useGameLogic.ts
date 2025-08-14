@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useGameContext } from '../context/useGameContext';
+import { useGameState, usePlayer } from '../context';
 import {
   isValidMove,
   placeOrb,
@@ -10,7 +10,8 @@ import {
 import type { PlayerId } from '../types';
 
 export const useGameLogic = () => {
-  const { gameState, dispatch, currentPlayer, isGameActive } = useGameContext();
+  const { gameState, dispatch, isGameActive } = useGameState();
+  const { currentPlayer } = usePlayer();
 
   // Place an orb and handle chain reactions
   const makeMove = useCallback(

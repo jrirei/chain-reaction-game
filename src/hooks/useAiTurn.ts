@@ -6,14 +6,15 @@
  */
 
 import { useEffect, useCallback, useState, useMemo } from 'react';
-import { useGameContext } from '../context/useGameContext';
+import { useGameState, usePlayer } from '../context';
 import { BotRunner } from '../ai/botRunner';
 import type { Player } from '../types/player';
 import { GameEngine } from '../core/engineSimple';
 import { GameStatus } from '../types/game';
 
 export const useAiTurn = () => {
-  const { gameState, currentPlayer, dispatch } = useGameContext();
+  const { gameState, dispatch } = useGameState();
+  const { currentPlayer } = usePlayer();
 
   const engine = useMemo(() => new GameEngine(), []);
   const botRunner = useMemo(
