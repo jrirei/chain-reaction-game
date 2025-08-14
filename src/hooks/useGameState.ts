@@ -1,23 +1,27 @@
 import { useMemo } from 'react';
-import { useGameContext } from '../context/useGameContext';
-import { countPlayerOrbs } from '../utils/gameLogic';
+import {
+  useGameState as useNewGameState,
+  usePlayer,
+  useBoard,
+} from '../context';
+import { countPlayerOrbs } from '../utils/boardAnalysis';
 import type { Player } from '../types';
 
 export const useGameState = () => {
   const {
     gameState,
     dispatch,
-    currentPlayer,
-    players,
-    activePlayers,
     isGameActive,
-    canMakeMove,
     initializeGame,
     startGame,
     resetGame,
     pauseGame,
     resumeGame,
-  } = useGameContext();
+  } = useNewGameState();
+
+  const { currentPlayer, players, activePlayers } = usePlayer();
+
+  const { canMakeMove } = useBoard();
 
   // Enhanced player data with orb counts
   const playersWithStats = useMemo(() => {

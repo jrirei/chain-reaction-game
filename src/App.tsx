@@ -1,5 +1,4 @@
-import { GameProvider } from './context';
-import { useGameState } from './hooks/useGameState';
+import { GameProvider, useGameState } from './context';
 import { useAiTurn } from './hooks/useAiTurn';
 import { useTheme } from './hooks/useTheme';
 import { ErrorBoundary, GameErrorBoundary } from './components/ErrorBoundary';
