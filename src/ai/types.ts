@@ -10,7 +10,6 @@ export type AiStrategyName =
   | 'trigger'
   | 'random'
   | 'monteCarlo'
-  | 'fred'
   | 'oskar';
 
 export interface AiContext {

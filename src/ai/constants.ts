@@ -160,12 +160,6 @@ export const STRATEGY_DISPLAY = {
     icon: '🧠',
     color: '#8B5CF6', // Purple
   },
-  fred: {
-    name: 'Fred Bot',
-    shortName: 'Fred',
-    icon: '🎭',
-    color: '#10B981', // Emerald
-  },
   oskar: {
     name: 'Oskar Bot',
     shortName: 'Oskar',

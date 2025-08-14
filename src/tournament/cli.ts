@@ -85,7 +85,7 @@ USAGE:
 
 OPTIONS:
   -b, --bots <strategies>     Comma-separated list of AI strategies to include
-                              Available: default,trigger,random,monteCarlo,fred,oskar
+                              Available: default,trigger,random,monteCarlo,oskar
   -r, --rounds <number>       Number of times each combination plays (default: 1)
   -c, --player-counts <list>  Comma-separated player counts (e.g., "2,3,4" for 2v2, 3-way, 4-way games)
                               Available: 2, 3, 4 (default: "2")
@@ -119,7 +119,7 @@ AI STRATEGIES:
   • trigger    - Aggressive explosive strategy (hard difficulty)  
   • random     - Random move selection (easy difficulty)
   • monteCarlo - Tree search AI with configurable time (hard difficulty)
-  • fred       - Specialized Monte Carlo AI assuming TriggerBot opponents (hard difficulty)
+  • oskar      - Advanced heuristic AI with minimax search (hard difficulty)
 `);
 }
 
@@ -168,7 +168,6 @@ function validateOptions(options: CliOptions): string[] {
       'trigger',
       'random',
       'monteCarlo',
-      'fred',
       'oskar',
     ];
     const invalidStrategies = strategies.filter(
