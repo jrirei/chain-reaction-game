@@ -186,3 +186,13 @@ html[data-theme='dark'] {
   --player-stat-text: #ffffff !important;
   --player-stat-border: rgba(78, 205, 196, 0.3) !important;
 }
+
+/* Theme semantic groupings for easier maintenance */
+/* Color groups are now consolidated above:
+ * 1. Base colors (theme-independent) 
+ * 2. Theme-specific UI colors (primary-bg, text, etc.)
+ * 3. Player panel colors (current-player-bg, etc.) 
+ * 4. Stat colors (stat-text-color, etc.)
+ * This consolidation eliminated ~40 lines of duplicate variable definitions
+ * across the three theme contexts (auto-light, manual-light, manual-dark).
+ */

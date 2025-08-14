@@ -326,18 +326,5 @@ export const getAdjacentCells = (
  * console.log(countPlayerOrbs(newBoard, 'player3')); // 0
  * ```
  */
-export const countPlayerOrbs = (
-  board: GameBoard,
-  playerId: PlayerId
-): number => {
-  let count = 0;
-  for (let row = 0; row < board.rows; row++) {
-    for (let col = 0; col < board.cols; col++) {
-      const cell = board.cells[row][col];
-      if (cell.playerId === playerId) {
-        count += cell.orbCount;
-      }
-    }
-  }
-  return count;
-};
+// Re-export from centralized board analysis utilities
+export { countPlayerOrbs } from './boardAnalysis';

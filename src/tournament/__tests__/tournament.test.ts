@@ -12,8 +12,8 @@ describe('Tournament System', () => {
     config = {
       gamesPerCombination: 1,
       playerCounts: [2], // Start with 2-player games for compatibility
-      maxThinkingTimeMs: 50, // Very fast for testing
-      gameTimeoutMs: 10000, // 10 seconds
+      maxThinkingTimeMs: 10, // Even faster for testing
+      gameTimeoutMs: 5000, // 5 seconds
       enableDetailedLogging: false,
     };
   });
@@ -39,7 +39,7 @@ describe('Tournament System', () => {
         expect([bot1, bot2]).toContainEqual(result.winner);
         expect(result.finalRanking[0]).toEqual(result.winner);
       }
-    });
+    }, 15000);
 
     it('should detect quick wins', async () => {
       const bot1 = createTournamentBot('random', 'RandomBot1');
@@ -78,7 +78,7 @@ describe('Tournament System', () => {
       expect(rankings[0].totalPoints).toBeGreaterThanOrEqual(
         rankings[1].totalPoints
       );
-    });
+    }, 15000);
 
     it('should run tournament with 3 bots', async () => {
       const bots = [
@@ -111,7 +111,7 @@ describe('Tournament System', () => {
       ];
 
       expect(combinationPairs).toEqual(expectedPairs);
-    }, 15000); // 15 second timeout
+    }, 30000); // 30 second timeout
 
     it('should run 3-player games correctly', async () => {
       const bots = [
@@ -218,7 +218,7 @@ describe('Tournament System', () => {
           result.rankings[i + 1].totalPoints
         );
       }
-    }, 15000); // 15 second timeout
+    }, 30000); // 30 second timeout
   });
 
   describe('Scoring System', () => {

@@ -48,16 +48,8 @@ interface EvaluationWeights {
 //   isMaximizing: boolean;
 // }
 
-// Copy GameBoard type locally to avoid import issues
-interface GameBoard {
-  rows: number;
-  cols: number;
-  cells: {
-    orbCount: number;
-    criticalMass: number;
-    playerId: string | null;
-  }[][];
-}
+// Use the actual GameBoard type from types/game
+import type { GameBoard } from '../types/game';
 
 export class OskarBot implements AiStrategy {
   readonly name = 'oskar' as const;

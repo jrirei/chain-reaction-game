@@ -5,14 +5,8 @@
   padding: 2rem;
 }
 
-.showcase[data-theme='light'] {
-  --primary-bg: #ffffff;
-  --secondary-bg: #f5f5f5;
-  --text-primary: #000000;
-  --text-secondary: #666666;
-  --border-color: #dddddd;
-  --accent-color: #646cff;
-}
+/* Theme variables are inherited from global variables.css */
+/* No local overrides needed - uses centralized theme system */
 
 .showcaseHeader {
   text-align: center;

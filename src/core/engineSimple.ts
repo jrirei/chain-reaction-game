@@ -9,6 +9,7 @@ import type { GameState, GameBoard } from '../types/game';
 import type { PlayerId } from '../types/player';
 import { GameStatus } from '../types/game';
 import type { Move, ChainSimulationResult } from './types';
+import { findCellsWithPosition } from '../utils/boardIterators';
 
 export class GameEngine {
   /**
@@ -18,19 +19,13 @@ export class GameEngine {
     board: GameBoard,
     playerId: PlayerId
   ): Array<{ row: number; col: number }> {
-    const validMoves: Array<{ row: number; col: number }> = [];
+    // Use centralized board iteration utility
+    const validPositions = findCellsWithPosition(
+      board,
+      (cell) => cell.playerId === null || cell.playerId === playerId
+    );
 
-    for (let row = 0; row < board.rows; row++) {
-      for (let col = 0; col < board.cols; col++) {
-        const cell = board.cells[row][col];
-        // Can place on empty cells or own cells
-        if (cell.playerId === null || cell.playerId === playerId) {
-          validMoves.push({ row, col });
-        }
-      }
-    }
-
-    return validMoves;
+    return validPositions.map(({ row, col }) => ({ row, col }));
   }
 
   /**

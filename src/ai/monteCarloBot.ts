@@ -11,9 +11,9 @@
 
 import type { GameState } from '../types/game';
 import type { Move } from '../core/types';
-import { GameEngine } from '../core/engineSimple';
 import type { AiStrategy, AiContext } from './types';
 import { AI_PERFORMANCE } from './constants';
+import { sharedEvaluator, AGGRESSIVE_EVALUATION } from './sharedEvaluation';
 
 interface MCTSNode {
   move: Move | null; // null for root node
@@ -27,7 +27,6 @@ interface MCTSNode {
 export class MonteCarloBot implements AiStrategy {
   readonly name = 'monteCarlo' as const;
 
-  private engine = new GameEngine();
   private defaultMaxThinkingMs = 5000; // 5 seconds default
 
   async decideMove(
@@ -143,8 +142,12 @@ export class MonteCarloBot implements AiStrategy {
     }
 
     // Simple heuristic evaluation instead of full simulation for performance
-    // This evaluates the position after making the move
-    const boardAdvantage = this.evaluateMove(originalState, node.move);
+    // This evaluates the position after making the move using shared evaluator
+    const boardAdvantage = sharedEvaluator.evaluateMove(
+      originalState,
+      node.move,
+      AGGRESSIVE_EVALUATION
+    );
 
     // Convert advantage to win probability (0-1)
     // Higher advantage = higher win probability
@@ -222,43 +225,9 @@ export class MonteCarloBot implements AiStrategy {
     return bestChild.move;
   }
 
-  /**
-   * Evaluate a move using heuristics (similar to DefaultBot but more focused)
+  /* Evaluation logic moved to shared sharedEvaluation.ts
+   * MonteCarloBot now uses AGGRESSIVE_EVALUATION configuration
+   * which emphasizes chain reactions and explosions over position safety.
+   * This eliminates ~35 lines of duplicated evaluation code.
    */
-  private evaluateMove(state: GameState, move: Move): number {
-    const targetCell = state.board.cells[move.row][move.col];
-    let score = 0;
-
-    // Critical mass progress (heavily weighted)
-    const orbsAfterMove = targetCell.orbCount + 1;
-    const criticalMassRatio = orbsAfterMove / targetCell.criticalMass;
-    score += criticalMassRatio * 40;
-
-    // Explosion bonus
-    if (orbsAfterMove >= targetCell.criticalMass) {
-      const simulation = this.engine.simulateChain(state, move);
-      score += simulation.stepsCount * 30; // Big bonus for chain reactions
-    }
-
-    // Position value (corners are valuable)
-    if (targetCell.criticalMass === 2)
-      score += 25; // Corner
-    else if (targetCell.criticalMass === 3)
-      score += 15; // Edge
-    else score += 5; // Center
-
-    // Building on own cells bonus
-    if (targetCell.playerId === move.playerId) {
-      score += 10;
-    }
-
-    // Board control evaluation
-    const boardAdvantage = this.engine.calculateBoardAdvantage(
-      state.board,
-      move.playerId
-    );
-    score += boardAdvantage * 0.5;
-
-    return score;
-  }
 }

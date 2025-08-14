@@ -10,6 +10,7 @@ import { DefaultBot } from './defaultBot';
 import { TriggerBot } from './triggerBot';
 import { RandomBot } from './randomBot';
 import { MonteCarloBot } from './monteCarloBot';
+import { OptimizedMonteCarloBot } from './optimizedMonteCarloBot';
 import { OskarBot } from './oskarBot';
 import { STRATEGY_DISPLAY } from './constants';
 
@@ -45,6 +46,13 @@ export const AI_STRATEGIES: Record<AiStrategyName, StrategyFactory> = {
     create: () => new MonteCarloBot(),
     description:
       'Advanced tree search AI with configurable thinking time for maximum strategic depth',
+    difficulty: 'hard',
+  },
+
+  optimizedMonteCarlo: {
+    create: () => new OptimizedMonteCarloBot(),
+    description:
+      'Enhanced MCTS with transposition tables, move ordering, and performance optimizations for superior play',
     difficulty: 'hard',
   },
 

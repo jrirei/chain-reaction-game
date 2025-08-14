@@ -160,6 +160,12 @@ export const STRATEGY_DISPLAY = {
     icon: '🧠',
     color: '#8B5CF6', // Purple
   },
+  optimizedMonteCarlo: {
+    name: 'Optimized Monte Carlo',
+    shortName: 'Master',
+    icon: '⚡',
+    color: '#10B981', // Emerald
+  },
   oskar: {
     name: 'Oskar Bot',
     shortName: 'Oskar',

@@ -7,35 +7,31 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { DefaultBot } from '../defaultBot';
-import { GameEngine } from '../../core/engineSimple';
 import { createTestGameState } from '../../utils/__tests__/testHelpers';
 import type { GameState } from '../../types/game';
 import type { Move, AiContext } from '../types';
 
 describe('DefaultBot - Comprehensive Tests', () => {
   let bot: DefaultBot;
-  let engine: GameEngine;
   let gameState: GameState;
   let context: AiContext;
 
   beforeEach(() => {
-    engine = new GameEngine();
-    bot = new DefaultBot(engine);
+    bot = new DefaultBot();
     gameState = createTestGameState();
     context = { rng: Math.random };
   });
 
   describe('Constructor and Initialization', () => {
-    it('should create DefaultBot with correct name and engine', () => {
+    it('should create DefaultBot with correct name', () => {
       expect(bot.name).toBe('default');
-      expect(bot).toHaveProperty('engine');
+      expect(bot).toBeInstanceOf(DefaultBot);
     });
 
-    it('should work with custom engine', () => {
-      const customEngine = new GameEngine();
-      const customBot = new DefaultBot(customEngine);
-
-      expect(customBot).toBeInstanceOf(DefaultBot);
+    it('should create multiple instances correctly', () => {
+      const anotherBot = new DefaultBot();
+      expect(anotherBot).toBeInstanceOf(DefaultBot);
+      expect(anotherBot.name).toBe('default');
     });
   });
 

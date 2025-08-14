@@ -4,6 +4,7 @@ import type { GameState, GameAction, Player, PlayerId } from '../types';
 import type { PlayerConfig } from '../types/player';
 import { gameReducer, createInitialGameState } from '../utils/gameReducer';
 import { PLAYER_COLORS } from '../utils/constants';
+import { countPlayerOrbs } from '../utils/boardAnalysis';
 export interface GameContextType {
   gameState: GameState;
   dispatch: React.Dispatch<GameAction>;
@@ -34,19 +35,9 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     createInitialGameState()
   );
 
-  // Helper function to calculate orb count for a player
+  // Use centralized board analysis for orb counting
   const calculateOrbCount = (playerId: string): number => {
-    let orbCount = 0;
-    for (let row = 0; row < gameState.board.rows; row++) {
-      for (let col = 0; col < gameState.board.cols; col++) {
-        const cell = gameState.board.cells[row][col];
-        if (cell.playerId === playerId) {
-          orbCount += cell.orbCount;
-        }
-      }
-    }
-
-    return orbCount;
+    return countPlayerOrbs(gameState.board, playerId);
   };
 
   // Create player objects from player IDs
@@ -92,16 +83,8 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
 
   // Get active players (those with orbs on the board)
   const activePlayers = players.filter((player) => {
-    // Count orbs for this player on the board
-    let orbCount = 0;
-    for (let row = 0; row < gameState.board.rows; row++) {
-      for (let col = 0; col < gameState.board.cols; col++) {
-        const cell = gameState.board.cells[row][col];
-        if (cell.playerId === player.id) {
-          orbCount += cell.orbCount;
-        }
-      }
-    }
+    // Use centralized orb counting utility
+    const orbCount = calculateOrbCount(player.id);
     return orbCount > 0 || gameState.moveCount === 0;
   });
 
