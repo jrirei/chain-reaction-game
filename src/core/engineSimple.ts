@@ -10,6 +10,7 @@ import type { PlayerId } from '../types/player';
 import { GameStatus } from '../types/game';
 import type { Move, ChainSimulationResult } from './types';
 import { findCellsWithPosition } from '../utils/boardIterators';
+import { safeGetCell } from '../utils/safeBoardAccess';
 
 export class GameEngine {
   /**
@@ -186,8 +187,17 @@ export class GameEngine {
       newPlayerId: string | null;
     }> = [];
 
-    // Track the initial move
-    const initialCell = state.board.cells[move.row][move.col];
+    // Track the initial move (with bounds checking)
+    const initialCell = safeGetCell(state.board, move.row, move.col);
+    if (!initialCell) {
+      console.error(`Invalid move coordinates: (${move.row}, ${move.col})`);
+      return {
+        finalBoard: state.board,
+        stepsCount: 0,
+        totalExplosions: 0,
+        affectedCells: [],
+      };
+    }
     affectedCells.push({
       row: move.row,
       col: move.col,

@@ -14,6 +14,7 @@ import type { Move } from '../core/types';
 import type { AiStrategy, AiContext } from './types';
 import { AI_PERFORMANCE } from './constants';
 import { sharedEvaluator, AGGRESSIVE_EVALUATION } from './sharedEvaluation';
+import { getTimingProvider } from '../utils/environmentUtils';
 
 interface MCTSNode {
   move: Move | null; // null for root node
@@ -58,7 +59,8 @@ export class MonteCarloBot implements AiStrategy {
     maxThinkingMs: number,
     rng: () => number
   ): Move {
-    const startTime = performance.now();
+    const timer = getTimingProvider();
+    const startTime = timer.now();
     const endTime = startTime + maxThinkingMs;
 
     // Create root node
@@ -75,7 +77,7 @@ export class MonteCarloBot implements AiStrategy {
 
     // Run MCTS iterations until time limit (shared limit across all MCTS bots)
     while (
-      performance.now() < endTime &&
+      timer.now() < endTime &&
       iterations < AI_PERFORMANCE.MAX_MCTS_ITERATIONS
     ) {
       // Very high safety limit - rely on time limit instead

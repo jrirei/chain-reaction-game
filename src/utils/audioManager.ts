@@ -1,6 +1,8 @@
 // Audio Manager for game sounds
 // Uses Web Audio API with fallback to HTML Audio
 
+import { createWAVBuffer } from './audioUtils';
+
 export interface AudioConfig {
   volume: number;
   enabled: boolean;
@@ -166,50 +168,6 @@ function generateSoundEffects(): Record<string, string> {
   }
 
   return sounds;
-}
-
-// Utility function to create WAV audio buffer
-function createWAVBuffer(
-  samples: Float32Array,
-  sampleRate: number = 44100
-): string {
-  try {
-    const buffer = new ArrayBuffer(44 + samples.length * 2);
-    const view = new DataView(buffer);
-
-    // WAV header
-    const writeString = (offset: number, string: string) => {
-      for (let i = 0; i < string.length; i++) {
-        view.setUint8(offset + i, string.charCodeAt(i));
-      }
-    };
-
-    writeString(0, 'RIFF');
-    view.setUint32(4, 36 + samples.length * 2, true);
-    writeString(8, 'WAVE');
-    writeString(12, 'fmt ');
-    view.setUint32(16, 16, true);
-    view.setUint16(20, 1, true);
-    view.setUint16(22, 1, true);
-    view.setUint32(24, sampleRate, true);
-    view.setUint32(28, sampleRate * 2, true);
-    view.setUint16(32, 2, true);
-    view.setUint16(34, 16, true);
-    writeString(36, 'data');
-    view.setUint32(40, samples.length * 2, true);
-
-    // Convert float samples to 16-bit PCM
-    for (let i = 0; i < samples.length; i++) {
-      const sample = Math.max(-1, Math.min(1, samples[i]));
-      view.setInt16(44 + i * 2, sample * 32767, true);
-    }
-
-    const blob = new Blob([buffer], { type: 'audio/wav' });
-    return URL.createObjectURL(blob);
-  } catch (error) {
-    console.warn('Failed to create WAV buffer:', error);
-    return '';
-  }
 }
 
 // Generate realistic explosion sound with multiple frequency components and noise

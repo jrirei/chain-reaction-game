@@ -129,7 +129,45 @@ export const useAiTurn = () => {
         if (error instanceof Error) {
           console.error('Stack trace:', error.stack);
         }
-        // TODO: Handle AI failure gracefully - maybe skip turn or fall back to random move
+
+        // Fallback to random move to prevent game from breaking
+        try {
+          const legalMoves = engine.getLegalMoves(gameState);
+          if (legalMoves.length > 0) {
+            const randomMove =
+              legalMoves[Math.floor(Math.random() * legalMoves.length)];
+            console.warn('🎲 Falling back to random move:', randomMove);
+
+            dispatch({
+              type: 'PLACE_ORB',
+              payload: {
+                row: randomMove.row,
+                col: randomMove.col,
+                playerId: randomMove.playerId,
+              },
+            });
+          } else {
+            console.error('💥 No legal moves available for fallback');
+            // If no legal moves, end the turn without a move
+            dispatch({
+              type: 'END_PLAYER_TURN',
+              payload: {
+                playerId: aiPlayer.id,
+                turnEndTime: Date.now(),
+              },
+            });
+          }
+        } catch (fallbackError) {
+          console.error('💥 Fallback logic also failed:', fallbackError);
+          // Last resort: just end the turn
+          dispatch({
+            type: 'END_PLAYER_TURN',
+            payload: {
+              playerId: aiPlayer.id,
+              turnEndTime: Date.now(),
+            },
+          });
+        }
       } finally {
         // Always clear the execution flag
         setIsExecutingAiTurn(false);
