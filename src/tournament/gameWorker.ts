@@ -4,7 +4,7 @@
  */
 
 import { parentPort } from 'worker_threads';
-import { TournamentRunner } from './TournamentRunner.js';
+import { TournamentRunner } from './TournamentRunner';
 import type { TournamentBot, TournamentConfig, GameResult } from './types';
 
 interface WorkerTask {

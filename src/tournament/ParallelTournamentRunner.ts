@@ -1,9 +1,12 @@
 /**
- * Parallel tournament runner using Node.js Worker Threads
- * Distributes games across multiple worker processes for performance
+ * Parallel tournament runner using Node.js Child Processes
+ * Distributes games across multiple child processes for true parallelism
  */
 
 import { cpus } from 'os';
+import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import type {
   TournamentBot,
   TournamentConfig,
@@ -21,11 +24,14 @@ interface ParallelConfig extends TournamentConfig {
   enableParallel?: boolean;
 }
 
-// Removed worker-specific interfaces - using promise-based concurrency instead
-
 export class ParallelTournamentRunner implements ITournamentRunner {
+  private runnerPath: string;
+
   constructor() {
-    // Promise-based parallel execution using Node.js async capabilities
+    // Get the single game runner file path
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    this.runnerPath = join(__dirname, 'singleGameRunner.ts');
   }
 
   public async runTournament(
@@ -93,13 +99,29 @@ export class ParallelTournamentRunner implements ITournamentRunner {
       `📊 Running ${gameTasks.length} games with ${maxConcurrentGames} concurrent executions`
     );
 
-    // Execute all games with limited concurrency (promise-based parallelism)
+    // Execute all games with child processes
     const gameResults = await this.executeGamesWithConcurrencyLimit(
       gameTasks,
       config,
       maxConcurrentGames
     );
 
+    return this.finalizeTournamentResults(
+      shuffledBots,
+      config,
+      gameResults,
+      startTime,
+      bots
+    );
+  }
+
+  private async finalizeTournamentResults(
+    shuffledBots: TournamentBot[],
+    config: TournamentConfig,
+    gameResults: GameResult[],
+    startTime: number,
+    bots: TournamentBot[]
+  ): Promise<TournamentResult> {
     // Organize results by combination
     const combinations = this.organizeResultsByCombination(
       shuffledBots,
@@ -124,6 +146,9 @@ export class ParallelTournamentRunner implements ITournamentRunner {
       endTime,
     };
 
+    // Get maxConcurrentGames from the config
+    const maxConcurrentGames =
+      (config as ParallelConfig).maxParallelGames || cpus().length;
     this.printFinalResults(result, maxConcurrentGames);
     return result;
   }
@@ -138,7 +163,59 @@ export class ParallelTournamentRunner implements ITournamentRunner {
     return sequentialRunner.runSingleGame(players, config);
   }
 
-  // Removed worker-specific initialization methods - using promise-based approach
+  private async runGameInChildProcess(
+    players: TournamentBot[],
+    config: TournamentConfig,
+    gameNumber: number
+  ): Promise<GameResult> {
+    return new Promise((resolve, reject) => {
+      const args = [
+        JSON.stringify(players),
+        JSON.stringify(config),
+        gameNumber.toString(),
+      ];
+
+      const child = spawn('tsx', [this.runnerPath, ...args], {
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+
+      let stdout = '';
+      let stderr = '';
+
+      child.stdout.on('data', (data) => {
+        stdout += data.toString();
+      });
+
+      child.stderr.on('data', (data) => {
+        stderr += data.toString();
+      });
+
+      child.on('close', (code) => {
+        if (code === 0) {
+          try {
+            const response = JSON.parse(stdout.trim());
+            if (response.success) {
+              resolve(response.result);
+            } else {
+              reject(
+                new Error(response.error || 'Unknown error from child process')
+              );
+            }
+          } catch (error) {
+            reject(new Error(`Failed to parse child process output: ${error}`));
+          }
+        } else {
+          reject(
+            new Error(`Child process exited with code ${code}: ${stderr}`)
+          );
+        }
+      });
+
+      child.on('error', (error) => {
+        reject(new Error(`Failed to spawn child process: ${error.message}`));
+      });
+    });
+  }
 
   private async executeGamesWithConcurrencyLimit(
     gameTasks: { players: TournamentBot[]; gameNumber: number }[],
@@ -146,84 +223,61 @@ export class ParallelTournamentRunner implements ITournamentRunner {
     maxConcurrentGames: number
   ): Promise<GameResult[]> {
     const results: GameResult[] = [];
-    const sequentialRunner = new (
-      await import('./TournamentRunner')
-    ).TournamentRunner();
-
-    // Create a semaphore to limit concurrent executions
-    let runningGames = 0;
-    const pendingTasks: (() => Promise<void>)[] = [];
-
-    const executeTask = async (gameTask: {
-      players: TournamentBot[];
-      gameNumber: number;
-    }) => {
-      try {
-        const result = await sequentialRunner.runSingleGame(
-          gameTask.players,
-          config
-        );
-
-        // Show progress
-        const startingPlayer = gameTask.players[0];
-        const quickWinStr = result.isQuickWin ? ' (Quick Win!)' : '';
-        const opponents = gameTask.players
-          .filter((bot) => bot.id !== result.winner?.id)
-          .map((bot) => bot.name)
-          .join(', ');
-
-        if (result.winner) {
-          console.log(
-            `   Game ${gameTask.gameNumber}: ${result.winner.name} wins against ${opponents} with ${result.totalOrbsAtEnd} orbs on board${quickWinStr} (${startingPlayer.name} started) [Parallel]`
-          );
-        }
-
-        results.push(result);
-      } catch (error) {
-        console.error(`Game ${gameTask.gameNumber} failed:`, error);
-        throw error;
-      } finally {
-        runningGames--;
-        // Start next pending task if any
-        if (pendingTasks.length > 0) {
-          const nextTask = pendingTasks.shift()!;
-          nextTask();
-        }
-      }
-    };
+    const taskQueue = [...gameTasks]; // Copy the tasks to process
+    let runningProcesses = 0;
+    let completedGames = 0;
+    const totalGames = gameTasks.length;
 
     return new Promise((resolve, reject) => {
-      let completedGames = 0;
-      const totalGames = gameTasks.length;
+      const startNextGame = () => {
+        // Start new games up to the concurrency limit
+        while (runningProcesses < maxConcurrentGames && taskQueue.length > 0) {
+          const gameTask = taskQueue.shift()!;
+          runningProcesses++;
 
-      const processTask = (gameTask: {
-        players: TournamentBot[];
-        gameNumber: number;
-      }) => {
-        if (runningGames < maxConcurrentGames) {
-          runningGames++;
-          executeTask(gameTask)
-            .then(() => {
+          this.runGameInChildProcess(
+            gameTask.players,
+            config,
+            gameTask.gameNumber
+          )
+            .then((result) => {
+              // Show progress
+              const startingPlayer = gameTask.players[0];
+              const quickWinStr = result.isQuickWin ? ' (Quick Win!)' : '';
+              const opponents = gameTask.players
+                .filter((bot) => bot.id !== result.winner?.id)
+                .map((bot) => bot.name)
+                .join(', ');
+
+              if (result.winner) {
+                console.log(
+                  `   Game ${gameTask.gameNumber}: ${result.winner.name} wins against ${opponents} with ${result.totalOrbsAtEnd} orbs on board${quickWinStr} (${startingPlayer.name} started) [Process-${runningProcesses}]`
+                );
+              }
+
+              results.push(result);
+              runningProcesses--;
               completedGames++;
+
+              // Check if we're done
               if (completedGames === totalGames) {
                 resolve(results);
+              } else {
+                // Start the next game immediately
+                startNextGame();
               }
             })
-            .catch(reject);
-        } else {
-          // Queue the task for later
-          pendingTasks.push(() => processTask(gameTask));
+            .catch((error) => {
+              runningProcesses--;
+              reject(error);
+            });
         }
       };
 
-      // Start processing all tasks
-      for (const gameTask of gameTasks) {
-        processTask(gameTask);
-      }
+      // Start initial batch of games
+      startNextGame();
     });
   }
-
-  // Removed worker message handling - using direct promise execution
 
   private generateCombinations(
     bots: TournamentBot[],
@@ -465,7 +519,7 @@ export class ParallelTournamentRunner implements ITournamentRunner {
 
     // Summary stats
     console.log(
-      `📊 Tournament completed in ${(result.totalDurationMs / 1000).toFixed(1)}s using ${concurrencyLimit} concurrent games`
+      `📊 Tournament completed in ${(result.totalDurationMs / 1000).toFixed(1)}s using ${concurrencyLimit} concurrent processes`
     );
     console.log(`🎮 Total games played: ${result.totalGames}`);
     console.log(
@@ -568,7 +622,7 @@ export class ParallelTournamentRunner implements ITournamentRunner {
     console.log('• Average Position: Lower is better (1.0 = always won)');
     console.log('• Rankings sorted by: Points → Average Position → Win Rate');
     console.log(
-      `• Parallel Execution: ${concurrencyLimit} concurrent games for ${Math.min(concurrencyLimit, result.totalGames)}x performance`
+      `• Parallel Execution: ${concurrencyLimit} concurrent processes for ${Math.min(concurrencyLimit, result.totalGames)}x performance`
     );
     console.log();
   }
