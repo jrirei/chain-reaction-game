@@ -6,6 +6,7 @@
  */
 
 import { TournamentRunner } from './TournamentRunner';
+import { ParallelTournamentRunner } from './ParallelTournamentRunner';
 import {
   TOURNAMENT_PRESETS,
   createTournamentBot,
@@ -23,6 +24,8 @@ interface CliOptions {
   verbose?: boolean;
   preset?: string;
   help?: boolean;
+  parallel?: boolean;
+  workers?: number;
 }
 
 function parseCliArgs(args: string[]): CliOptions {
@@ -70,6 +73,14 @@ function parseCliArgs(args: string[]): CliOptions {
       case '-h':
         options.help = true;
         break;
+      case '--parallel':
+        options.parallel = true;
+        break;
+      case '--workers':
+      case '-w':
+        options.workers = parseInt(nextArg, 10);
+        i++;
+        break;
     }
   }
 
@@ -94,6 +105,8 @@ OPTIONS:
   -v, --verbose               Enable detailed logging during games
   -p, --preset <name>         Use predefined bot selection
                               Available: all, easy, hard, mixed, smart
+  --parallel                  Enable parallel tournament execution using worker threads
+  -w, --workers <number>      Number of worker threads (default: CPU count)
   -h, --help                  Show this help message
 
 EXAMPLES:
@@ -102,6 +115,7 @@ EXAMPLES:
   npm run tournament -p smart -c "3,4" -v             # Smart bots, 3-way and 4-way games, verbose
   npm run tournament -b "default,trigger,random" -c "3" # 3 specific bots, 3-way games only
   npm run tournament -r 3 -t 2000                     # All bots, 2-player games, 3 rounds, 2s thinking
+  npm run tournament --parallel -w 8 -r 5             # Parallel execution with 8 workers, 5 rounds each
 
 GAME MODES:
   • 2-player: Classic head-to-head battles
@@ -152,6 +166,13 @@ function validateOptions(options: CliOptions): string[] {
 
   if (options.timeout !== undefined && options.timeout < 1000) {
     errors.push('Game timeout must be at least 1000ms');
+  }
+
+  if (
+    options.workers !== undefined &&
+    (options.workers < 1 || options.workers > 16)
+  ) {
+    errors.push('Number of workers must be between 1 and 16');
   }
 
   if (
@@ -247,10 +268,14 @@ async function runTournament(): Promise<void> {
     maxThinkingTimeMs: options.thinkingTime ?? 1000,
     gameTimeoutMs: options.timeout ?? 300000, // 5 minutes default
     enableDetailedLogging: options.verbose ?? false,
+    enableParallel: options.parallel ?? false,
+    maxParallelGames: options.workers,
   };
 
   try {
-    const runner = new TournamentRunner();
+    const runner = options.parallel
+      ? new ParallelTournamentRunner()
+      : new TournamentRunner();
     await runner.runTournament([...tournamentBots], config);
 
     // Exit with success

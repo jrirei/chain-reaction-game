@@ -11,6 +11,7 @@ export {
 export {
   getExplodingCells,
   processExplosion,
+  processSimultaneousExplosions,
   processChainReactions,
   processChainReactionsSequential,
   calculateOrbMovements,

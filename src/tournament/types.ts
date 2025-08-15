@@ -23,6 +23,10 @@ export interface TournamentConfig {
   gameTimeoutMs: number;
   /** Enable detailed logging during matches */
   enableDetailedLogging: boolean;
+  /** Maximum number of games to run in parallel (default: CPU count) */
+  maxParallelGames?: number;
+  /** Enable parallel execution (default: true) */
+  enableParallel?: boolean;
 }
 
 export interface GameResult {
