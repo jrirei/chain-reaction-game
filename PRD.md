@@ -1,7 +1,7 @@
 # Chain Reaction Game - Product Requirements Document
 
 ## 📋 Document Status
-- **Version**: 3.9 - AI Test Coverage Enhancement & Quality Assurance
+- **Version**: 4.0 - Orb Conservation Physics Implementation
 - **Last Updated**: August 15, 2025
 - **Status**: ✅ **Production Ready - Verified** | **AI bots**: 5 strategies implemented (Default, Trigger, Random, Monte Carlo, Oskar)
 - **Build**: ✅ **Passing** (~525ms) | **Tests**: ✅ **408 Passing** | **Lint**: ✅ **Clean (0 warnings)** | **Coverage**: ✅ **70%+ AI Coverage**
@@ -39,10 +39,12 @@ A fully-featured web-based implementation of the classic "Chain Reaction" game u
    - Corner cells: 2 orbs
    - Edge cells: 3 orbs  
    - Interior cells: 4 orbs
-5. **Explosion**: When critical mass is reached, cell explodes:
-   - All orbs disappear from the cell
-   - Adjacent cells (up/down/left/right) each receive one orb
-   - Orbs change to the current player's color
+5. **Explosion** (Orb Conservation Physics): When critical mass is reached, cell explodes:
+   - Cell distributes its critical mass evenly to adjacent cells (up/down/left/right)
+   - Excess orbs (orbCount - criticalMass) remain in the exploding cell
+   - All distributed orbs change to the current player's color
+   - **Conservation Law**: Total orbs in the game remain constant during all explosions
+   - **Invariant**: Number of orbs on board equals total moves made in the game
 6. **Chain Reactions**: Complex multi-step chain reactions fully supported with complete animation
 7. **Victory**: Last player with orbs on the board wins
 8. **Elimination**: Automatic player elimination with proper turn progression and identity preservation
@@ -566,9 +568,29 @@ For each task to be considered complete:
 
 **Status**: 🎯 **Production Ready - Enterprise-Grade Quality with CI/CD - Choose Next Direction!**
 
-## 10. Recent Updates & Improvements *(August 11, 2025)*
+## 10. Recent Updates & Improvements
 
-### 10.1 Latest Session Achievements ✅ **COMPLETED**
+### 10.0 Orb Conservation Physics *(August 15, 2025)* ✅ **MAJOR UPDATE**
+
+#### **Critical Physics Model Change**
+- **✅ Orb Conservation Implementation**: Revolutionized explosion mechanics to preserve orbs
+- **✅ New Physics Rules**: Exploding cells now distribute only their critical mass to adjacent cells
+- **✅ Excess Orb Retention**: Remaining orbs (orbCount - criticalMass) stay in the exploding cell
+- **✅ Conservation Law**: Total orbs in the game remain constant throughout all chain reactions
+- **✅ Invariant Enforcement**: Number of orbs on board always equals total moves made
+
+#### **Technical Implementation**
+- **✅ Simultaneous Explosion Fix**: Completely rewrote `processSimultaneousExplosions` function
+- **✅ Single Explosion Update**: Updated `processExplosion` to use consistent physics model
+- **✅ Comprehensive Testing**: Added orb conservation test suite with 4 comprehensive tests
+- **✅ User Bug Resolution**: Fixed reported "12/23" scenario where orbs were incorrectly lost
+
+#### **User Impact**
+- **✅ Predictable Gameplay**: Orbs are never lost during explosions, making strategy more reliable
+- **✅ Enhanced Chain Reactions**: More complex and longer chain reactions possible due to orb retention
+- **✅ Consistent Game State**: Move count directly correlates with total orbs on board
+
+### 10.1 Previous Improvements *(August 11, 2025)* ✅ **COMPLETED**
 Based on AI coach feedback and comprehensive code review, implemented the following critical improvements:
 
 #### **Build System & Test Suite Fixes**

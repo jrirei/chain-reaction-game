@@ -5,8 +5,8 @@ import type {
   ExplosionStep,
   OrbMovementAnimation,
 } from '../types';
+import { produce } from 'immer';
 import { deepCloneBoard, getAdjacentCells } from './boardOperations';
-import { processExplosionImmutable } from './immutableUtils';
 import { PLAYER_COLORS, GAME_CONFIG } from './constants';
 import { getActivePlayers } from './gameValidation';
 
@@ -53,13 +53,98 @@ export const getExplodingCells = (board: GameBoard): Cell[] => {
 };
 
 /**
+ * Processes multiple cell explosions simultaneously with orb conservation physics.
+ *
+ * NEW PHYSICS MODEL (Orb Conservation):
+ * - Each exploding cell sends exactly `criticalMass` orbs to adjacent cells
+ * - Remaining orbs (orbCount - criticalMass) stay in the exploding cell
+ * - Total orbs in the game remain constant (conservation law)
+ * - This ensures excess orbs are never lost during explosions
+ *
+ * CRITICAL: Exploding cells first send out their critical mass orbs, then receive orbs
+ * from other explosions. Excess orbs remain in the exploding cell.
+ *
+ * @param board - The current game board state
+ * @param explodingCells - Array of cells that are exploding simultaneously
+ * @returns New GameBoard with all explosions processed simultaneously
+ */
+export const processSimultaneousExplosions = (
+  board: GameBoard,
+  explodingCells: Cell[]
+): GameBoard => {
+  if (explodingCells.length === 0) {
+    return board;
+  }
+
+  // Track orb additions for each cell to handle simultaneous explosions correctly
+  const orbAdditions = new Map<string, { count: number; playerId: string }>();
+
+  // First pass: calculate all orb movements from all exploding cells
+  // NEW PHYSICS: Each cell distributes only its critical mass, not all orbs
+  explodingCells.forEach((cell) => {
+    const { row, col, playerId, criticalMass } = cell;
+    const adjacentCells = getAdjacentCells(board, row, col);
+
+    // Calculate orbs per adjacent cell (critical mass divided evenly)
+    const orbsPerAdjacentCell = Math.floor(criticalMass / adjacentCells.length);
+    const remainderOrbs = criticalMass % adjacentCells.length;
+
+    adjacentCells.forEach(({ row: adjRow, col: adjCol }, index) => {
+      const cellKey = `${adjRow}-${adjCol}`;
+
+      // First cells get the remainder orbs if critical mass doesn't divide evenly
+      const orbsToSend = orbsPerAdjacentCell + (index < remainderOrbs ? 1 : 0);
+
+      const existing = orbAdditions.get(cellKey);
+      if (existing) {
+        // Multiple explosions affecting same cell - accumulate orbs
+        existing.count += orbsToSend;
+        // Last exploding player takes ownership
+        existing.playerId = playerId!;
+      } else {
+        orbAdditions.set(cellKey, { count: orbsToSend, playerId: playerId! });
+      }
+    });
+  });
+
+  // Second pass: apply all changes simultaneously
+  return produce(board, (draft) => {
+    // First, update exploding cells to keep only excess orbs (NEW PHYSICS)
+    explodingCells.forEach(({ row, col, orbCount, criticalMass, playerId }) => {
+      const cell = draft.cells[row][col];
+      // Keep excess orbs: orbCount - criticalMass (minimum 0)
+      cell.orbCount = Math.max(0, orbCount - criticalMass);
+      // If no orbs remain, cell becomes neutral
+      if (cell.orbCount === 0) {
+        cell.playerId = null;
+      } else {
+        cell.playerId = playerId; // Keep same owner if orbs remain
+      }
+    });
+
+    // Then, apply orb additions to all target cells (including exploding cells that receive orbs)
+    orbAdditions.forEach(({ count, playerId }, cellKey) => {
+      const [rowStr, colStr] = cellKey.split('-');
+      const row = parseInt(rowStr);
+      const col = parseInt(colStr);
+      const targetCell = draft.cells[row][col];
+
+      // Add the received orbs to whatever is already in the cell
+      targetCell.orbCount += count;
+      targetCell.playerId = playerId;
+    });
+  });
+};
+
+/**
  * Processes a single cell explosion and returns the updated board state.
  *
- * When a cell explodes:
- * 1. The exploding cell is emptied (orbs = 0, owner = null)
- * 2. Each adjacent cell receives one orb
- * 3. All affected adjacent cells become owned by the exploding player
- * 4. Uses immutable updates for performance and safety
+ * When a cell explodes (NEW PHYSICS - Orb Conservation):
+ * 1. The exploding cell distributes its critical mass to adjacent cells
+ * 2. Excess orbs (orbCount - criticalMass) remain in the exploding cell
+ * 3. Each adjacent cell receives orbs equally distributed from critical mass
+ * 4. All affected adjacent cells become owned by the exploding player
+ * 5. Uses immutable updates for performance and safety
  *
  * If the cell has not reached critical mass, the board is returned unchanged.
  *
@@ -97,11 +182,8 @@ export const processExplosion = (
     return board; // No changes needed
   }
 
-  // Get adjacent cells
-  const adjacentCells = getAdjacentCells(board, row, col);
-
-  // Process explosion using immutable updates
-  return processExplosionImmutable(board, row, col, adjacentCells);
+  // Use the simultaneous explosion logic for consistency with new physics
+  return processSimultaneousExplosions(board, [cell]);
 };
 
 /**
@@ -124,11 +206,11 @@ export const processChainReactions = (
       break; // No more explosions
     }
 
-    // Process all explosions simultaneously
-    let newBoard = currentBoard;
-    for (const cell of explodingCells) {
-      newBoard = processExplosion(newBoard, cell.row, cell.col);
-    }
+    // Process all explosions simultaneously to handle multiple orbs correctly
+    const newBoard = processSimultaneousExplosions(
+      currentBoard,
+      explodingCells
+    );
 
     explosionSteps.push(deepCloneBoard(newBoard));
     currentBoard = newBoard;
@@ -142,8 +224,22 @@ export const processChainReactions = (
 };
 
 /**
- * Processes chain reactions sequentially with animation data
+ * Processes chain reactions sequentially with animation data and orb conservation physics
  * Returns step-by-step explosion data with orb movement animations
+ *
+ * NEW PHYSICS - ORB CONSERVATION:
+ * - Each exploding cell distributes only its critical mass to adjacent cells
+ * - Excess orbs (orbCount - criticalMass) remain in the exploding cell
+ * - Total orbs in the game remain constant throughout all chain reactions
+ * - Number of orbs equals number of moves made in the game (invariant)
+ *
+ * CRITICAL FIXES:
+ * 1. Early Termination: Chain reactions stop immediately when only one player remains
+ *    in MULTIPLAYER games to prevent endless loops in late-game scenarios
+ * 2. Single-Player Mode: Chain reactions continue naturally in single-player scenarios
+ *    without premature termination
+ * 3. Simultaneous Explosions: Multiple cells exploding at the same time correctly
+ *    accumulate orbs in target cells with proper orb conservation
  */
 export const processChainReactionsSequential = (
   board: GameBoard,
@@ -176,11 +272,11 @@ export const processChainReactionsSequential = (
       playerColor
     );
 
-    // Process the explosion step
-    let newBoard = currentBoard;
-    for (const cell of explodingCells) {
-      newBoard = processExplosion(newBoard, cell.row, cell.col);
-    }
+    // Process all explosions simultaneously to handle multiple orbs correctly
+    const newBoard = processSimultaneousExplosions(
+      currentBoard,
+      explodingCells
+    );
 
     // Create explosion step data
     const explosionStep: ExplosionStep = {
@@ -197,11 +293,20 @@ export const processChainReactionsSequential = (
     currentBoard = newBoard;
     stepCount++;
 
-    // Check for early victory condition - but continue animations until no more explosions
+    // Check for early victory condition and stop immediately if only one player remains
+    // BUT only in multiplayer scenarios - in single player mode, let the chain continue
     const activePlayers = getActivePlayers(currentBoard);
     if (activePlayers.length <= 1 && !gameWonEarly) {
-      // Game won early - logging disabled for performance in headless mode
-      gameWonEarly = true; // Mark as won early but continue the chain reaction
+      gameWonEarly = true;
+
+      // Only stop early if this was originally a multiplayer game
+      // Check if the initial board had multiple players by looking at the board state
+      const initialActivePlayers = getActivePlayers(board);
+      if (initialActivePlayers.length > 1) {
+        // This was a multiplayer game where one player won - stop immediately
+        break; // Stop immediately when only one player remains
+      }
+      // Otherwise, this is single-player mode - continue the chain reaction
     }
   }
 
