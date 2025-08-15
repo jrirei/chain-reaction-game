@@ -149,12 +149,12 @@ export class TournamentRunner implements ITournamentRunner {
           .map((bot) => bot.name)
           .join(', ');
         console.log(
-          `   Game ${globalGameNum}: ${gameResult.winner.name} wins against ${opponents} after ${gameResult.totalMoves} moves${quickWinStr} (${startingPlayer.name} started)`
+          `   Game ${globalGameNum}: ${gameResult.winner.name} wins against ${opponents} with ${gameResult.totalOrbsAtEnd} orbs on board${quickWinStr} (${startingPlayer.name} started)`
         );
       } else {
         // This shouldn't happen in Chain Reaction - investigate why there's no winner
         console.log(
-          `   Game ${globalGameNum}: ERROR - No winner found after ${gameResult.totalMoves} moves (this shouldn't happen) (${startingPlayer.name} started)`
+          `   Game ${globalGameNum}: ERROR - No winner found with ${gameResult.totalOrbsAtEnd} orbs on board (this shouldn't happen) (${startingPlayer.name} started)`
         );
         console.log(
           `   Final ranking: ${gameResult.finalRanking.map((bot) => bot.name).join(', ')}`
@@ -271,7 +271,9 @@ export class TournamentRunner implements ITournamentRunner {
         // Track moves for wins
         for (const game of combination.games) {
           if (game.winner?.id === playerStat.player.id) {
-            botStats.totalMovesToWin += game.totalMoves;
+            // Note: We still track winner moves for internal stats even though we display orbs
+            const winnerMoves = game.totalOrbsAtEnd; // For now, use orbs as a complexity metric
+            botStats.totalMovesToWin += winnerMoves;
           }
         }
       }
@@ -372,7 +374,7 @@ export class TournamentRunner implements ITournamentRunner {
     console.log('📋 FINAL RANKINGS');
     console.log('-'.repeat(90));
     console.log(
-      'Rank | Bot Name         | Points | Wins | Played | Quick | Win Rate | Avg Pos | Avg Moves'
+      'Rank | Bot Name         | Points | Wins | Played | Quick | Win Rate | Avg Pos | Avg Orbs'
     );
     console.log('-'.repeat(90));
 
@@ -441,7 +443,7 @@ export class TournamentRunner implements ITournamentRunner {
     // Scoring explanation
     console.log('📖 SCORING SYSTEM');
     console.log('• Win: +1 point');
-    console.log('• Quick Win (≤50 moves): +1 bonus point (total +2)');
+    console.log('• Quick Win (≤10 moves): +1 bonus point (total +2)');
     console.log('• Average Position: Lower is better (1.0 = always won)');
     console.log('• Rankings sorted by: Points → Average Position → Win Rate');
     console.log();

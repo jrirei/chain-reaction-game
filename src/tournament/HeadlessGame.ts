@@ -112,6 +112,12 @@ export class HeadlessGame {
     const maxMoves = 1000; // Safety limit to prevent infinite games
     const activePlayers = new Set(this.gameState.players);
 
+    // Track individual player move counts
+    const playerMoveCounts = new Map<string, number>();
+    this.gameState.players.forEach((playerId) => {
+      playerMoveCounts.set(playerId, 0);
+    });
+
     // Game starting silently
 
     while (
@@ -200,6 +206,10 @@ export class HeadlessGame {
         this.gameState = newGameState;
         moveCount++;
 
+        // Increment individual player's move count
+        const currentPlayerMoves = playerMoveCounts.get(currentPlayerId) || 0;
+        playerMoveCounts.set(currentPlayerId, currentPlayerMoves + 1);
+
         // Check for animations and wait for them to complete
         if (this.gameState.isAnimating) {
           // In headless mode, immediately complete animations
@@ -228,10 +238,11 @@ export class HeadlessGame {
     // Determine winner and final ranking
     let winner: TournamentBot | null = null;
     const finalRanking: TournamentBot[] = [];
+    let winnerPlayerId: string | null = null;
 
     if (activePlayers.size === 1) {
       // Single winner - normal game end
-      const winnerPlayerId = Array.from(activePlayers)[0];
+      winnerPlayerId = Array.from(activePlayers)[0];
       const winnerIndex = parseInt(winnerPlayerId.replace('player', '')) - 1;
       winner = this.bots[winnerIndex];
       finalRanking.push(winner);
@@ -256,7 +267,6 @@ export class HeadlessGame {
 
       // Find player with most orbs
       let maxOrbs = -1;
-      let winnerPlayerId: string | null = null;
 
       for (const [playerId, orbCount] of playerOrbCounts.entries()) {
         if (orbCount > maxOrbs) {
@@ -299,7 +309,19 @@ export class HeadlessGame {
       }
     }
 
-    const isQuickWin = winner !== null && moveCount <= 50;
+    // Calculate total orbs on board at game end
+    let totalOrbsOnBoard = 0;
+    for (let row = 0; row < this.gameState.board.rows; row++) {
+      for (let col = 0; col < this.gameState.board.cols; col++) {
+        totalOrbsOnBoard += this.gameState.board.cells[row][col].orbCount;
+      }
+    }
+
+    // Use winner's individual move count for quick win determination only
+    const winnerMoves = winnerPlayerId
+      ? playerMoveCounts.get(winnerPlayerId) || 0
+      : 0;
+    const isQuickWin = winner !== null && winnerMoves <= 10;
 
     // Game completed silently - only tournament summary will be shown
 
@@ -308,7 +330,7 @@ export class HeadlessGame {
       players: this.bots,
       winner,
       finalRanking,
-      totalMoves: moveCount,
+      totalOrbsAtEnd: totalOrbsOnBoard, // Total orbs on board when game ended
       gameDurationMs: duration,
       isQuickWin,
       eliminationHistory:
