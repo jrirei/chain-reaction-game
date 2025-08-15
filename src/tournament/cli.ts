@@ -96,7 +96,7 @@ USAGE:
 
 OPTIONS:
   -b, --bots <strategies>     Comma-separated list of AI strategies to include
-                              Available: default,trigger,random,monteCarlo,oskar
+                              Available: default,trigger,random,monteCarlo,fixedOptimized,oskar
   -r, --rounds <number>       Number of times each combination plays (default: 1)
   -c, --player-counts <list>  Comma-separated player counts (e.g., "2,3,4" for 2v2, 3-way, 4-way games)
                               Available: 2, 3, 4 (default: "2")
@@ -129,11 +129,12 @@ SCORING:
   • Average Position: 1.0 = always won, higher = worse performance
 
 AI STRATEGIES:
-  • default    - Balanced strategic play (medium difficulty)
-  • trigger    - Aggressive explosive strategy (hard difficulty)  
-  • random     - Random move selection (easy difficulty)
-  • monteCarlo - Tree search AI with configurable time (hard difficulty)
-  • oskar      - Advanced heuristic AI with minimax search (hard difficulty)
+  • default           - Balanced strategic play (medium difficulty)
+  • trigger           - Aggressive explosive strategy (hard difficulty)  
+  • random            - Random move selection (easy difficulty)
+  • monteCarlo        - Tree search AI with configurable time (hard difficulty)
+  • fixedOptimized    - Fixed version of optimizedMonteCarlo (hard difficulty)
+  • oskar             - Advanced heuristic AI with minimax search (hard difficulty)
 `);
 }
 
@@ -189,6 +190,7 @@ function validateOptions(options: CliOptions): string[] {
       'trigger',
       'random',
       'monteCarlo',
+      'fixedOptimized',
       'oskar',
     ];
     const invalidStrategies = strategies.filter(

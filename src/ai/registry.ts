@@ -10,7 +10,7 @@ import { DefaultBot } from './defaultBot';
 import { TriggerBot } from './triggerBot';
 import { RandomBot } from './randomBot';
 import { MonteCarloBot } from './monteCarloBot';
-import { OptimizedMonteCarloBot } from './optimizedMonteCarloBot';
+import { FixedOptimizedBot } from './fixedOptimizedBot';
 import { OskarBot } from './oskarBot';
 import { STRATEGY_DISPLAY } from './constants';
 
@@ -49,10 +49,10 @@ export const AI_STRATEGIES: Record<AiStrategyName, StrategyFactory> = {
     difficulty: 'hard',
   },
 
-  optimizedMonteCarlo: {
-    create: () => new OptimizedMonteCarloBot(),
+  fixedOptimized: {
+    create: () => new FixedOptimizedBot(),
     description:
-      'Enhanced MCTS with transposition tables, move ordering, and performance optimizations for superior play',
+      'Fixed version of OptimizedMonteCarlo that removes problematic optimizations',
     difficulty: 'hard',
   },
 

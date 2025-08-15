@@ -9,7 +9,7 @@ import { DefaultBot } from '../defaultBot';
 import { TriggerBot } from '../triggerBot';
 import { RandomBot } from '../randomBot';
 import { MonteCarloBot } from '../monteCarloBot';
-import { OptimizedMonteCarloBot } from '../optimizedMonteCarloBot';
+import { FixedOptimizedBot } from '../fixedOptimizedBot';
 import { OskarBot } from '../oskarBot';
 import type { AiConfig } from '../types';
 
@@ -48,11 +48,11 @@ describe('AI Strategy Registry', () => {
     );
   });
 
-  it('should create optimized monte carlo bot instance', () => {
-    const strategy = createAiStrategy('optimizedMonteCarlo');
+  it('should create fixed optimized bot instance', () => {
+    const strategy = createAiStrategy('fixedOptimized');
 
-    expect(strategy).toBeInstanceOf(OptimizedMonteCarloBot);
-    expect(strategy.name).toBe('optimizedMonteCarlo');
+    expect(strategy).toBeInstanceOf(FixedOptimizedBot);
+    expect(strategy.name).toBe('fixedOptimized');
   });
 
   it('should create oskar bot instance', () => {
@@ -81,7 +81,7 @@ describe('AI Strategy Registry', () => {
     expect(strategies).toContain('trigger');
     expect(strategies).toContain('random');
     expect(strategies).toContain('monteCarlo');
-    expect(strategies).toContain('optimizedMonteCarlo');
+    expect(strategies).toContain('fixedOptimized');
     expect(strategies).toContain('oskar');
     expect(strategies.length).toBeGreaterThanOrEqual(6);
   });
@@ -103,9 +103,9 @@ describe('AI Strategy Registry', () => {
     expect(monteCarloInfo.description).toContain('Advanced tree search');
     expect(monteCarloInfo.difficulty).toBe('hard');
 
-    const optimizedMonteCarloInfo = getStrategyInfo('optimizedMonteCarlo');
-    expect(optimizedMonteCarloInfo.description).toContain('Enhanced MCTS');
-    expect(optimizedMonteCarloInfo.difficulty).toBe('hard');
+    const fixedOptimizedInfo = getStrategyInfo('fixedOptimized');
+    expect(fixedOptimizedInfo.description).toContain('Fixed version');
+    expect(fixedOptimizedInfo.difficulty).toBe('hard');
 
     const oskarInfo = getStrategyInfo('oskar');
     expect(oskarInfo.description).toContain('Advanced heuristic');
@@ -117,7 +117,7 @@ describe('AI Strategy Registry', () => {
     expect(isStrategyAvailable('trigger')).toBe(true);
     expect(isStrategyAvailable('random')).toBe(true);
     expect(isStrategyAvailable('monteCarlo')).toBe(true);
-    expect(isStrategyAvailable('optimizedMonteCarlo')).toBe(true);
+    expect(isStrategyAvailable('fixedOptimized')).toBe(true);
     expect(isStrategyAvailable('oskar')).toBe(true);
     expect(isStrategyAvailable('nonexistent' as never)).toBe(false);
   });
