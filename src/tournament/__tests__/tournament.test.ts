@@ -51,7 +51,7 @@ describe('Tournament System', () => {
       // Verify quick win flag is set correctly
       expect(typeof result.isQuickWin).toBe('boolean');
       if (result.isQuickWin) {
-        // Quick win is still determined by winner moves (≤10), not orb count
+        // Quick win is determined by total orbs on field (≤10)
         expect(result.isQuickWin).toBe(true);
       }
     }, 15000); // 15 second timeout

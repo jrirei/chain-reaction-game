@@ -564,7 +564,7 @@ export class ParallelTournamentRunner implements ITournamentRunner {
     // Scoring explanation
     console.log('📖 SCORING SYSTEM');
     console.log('• Win: +1 point');
-    console.log('• Quick Win (≤10 moves): +1 bonus point (total +2)');
+    console.log('• Quick Win (≤10 orbs on field): +1 bonus point (total +2)');
     console.log('• Average Position: Lower is better (1.0 = always won)');
     console.log('• Rankings sorted by: Points → Average Position → Win Rate');
     console.log(

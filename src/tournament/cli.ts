@@ -124,7 +124,7 @@ GAME MODES:
 
 SCORING:
   • Win: +1 point
-  • Quick Win (≤50 total moves): +1 bonus point (total +2)
+  • Quick Win (≤10 orbs on field): +1 bonus point (total +2)
   • Rankings by: Points → Average Position → Win Rate
   • Average Position: 1.0 = always won, higher = worse performance
 

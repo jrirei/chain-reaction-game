@@ -317,11 +317,8 @@ export class HeadlessGame {
       }
     }
 
-    // Use winner's individual move count for quick win determination only
-    const winnerMoves = winnerPlayerId
-      ? playerMoveCounts.get(winnerPlayerId) || 0
-      : 0;
-    const isQuickWin = winner !== null && winnerMoves <= 10;
+    // Quick win determination based on total orbs placed on field
+    const isQuickWin = winner !== null && totalOrbsOnBoard <= 10;
 
     // Game completed silently - only tournament summary will be shown
 

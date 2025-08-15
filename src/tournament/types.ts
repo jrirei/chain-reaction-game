@@ -36,7 +36,7 @@ export interface GameResult {
   finalRanking: TournamentBot[]; // Players ordered by elimination (winner first, eliminated last)
   totalOrbsAtEnd: number; // Total number of orbs on board when game ended
   gameDurationMs: number;
-  isQuickWin: boolean; // true if won with <= 10 moves by winner
+  isQuickWin: boolean; // true if won with <= 10 total orbs on field
   eliminationHistory?: {
     player: TournamentBot;
     eliminationMove: number;
